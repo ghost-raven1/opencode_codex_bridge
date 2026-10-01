@@ -4,7 +4,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { runCodex } from "./run.js";
 
-const server = new McpServer({ name: "codexbridge", version: "0.1.0" });
+const server = new McpServer({ name: "codexbridge", version: "0.2.0" });
 const active = new Set<AbortController>();
 server.registerTool("codex", {
   description: "Run local Codex in the configured project. System access requires a human elicitation channel; otherwise it is denied.",

@@ -1,0 +1,200 @@
+{
+  "cell": {
+    "width": 256,
+    "height": 384
+  },
+  "columns": [
+    "lead",
+    "code",
+    "research",
+    "review"
+  ],
+  "rows": [
+    "idle",
+    "talking",
+    "blink",
+    "working"
+  ],
+  "source": "generated.png",
+  "anchors": [
+    [
+      [
+        130,
+        65,
+        334
+      ],
+      [
+        384,
+        68,
+        336
+      ],
+      [
+        639,
+        70,
+        334
+      ],
+      [
+        896,
+        68,
+        334
+      ]
+    ],
+    [
+      [
+        130,
+        420,
+        686
+      ],
+      [
+        384,
+        422,
+        689
+      ],
+      [
+        639,
+        416,
+        687
+      ],
+      [
+        896,
+        421,
+        686
+      ]
+    ],
+    [
+      [
+        131,
+        772,
+        1038
+      ],
+      [
+        384,
+        775,
+        1038
+      ],
+      [
+        639,
+        773,
+        1039
+      ],
+      [
+        896,
+        775,
+        1038
+      ]
+    ],
+    [
+      [
+        131,
+        1128,
+        1396
+      ],
+      [
+        384,
+        1127,
+        1397
+      ],
+      [
+        639,
+        1123,
+        1395
+      ],
+      [
+        896,
+        1127,
+        1396
+      ]
+    ]
+  ],
+  "repairs": [
+    {
+      "role": "lead",
+      "state": "idle",
+      "patchPixels": 129
+    },
+    {
+      "role": "code",
+      "state": "idle",
+      "patchPixels": 1291
+    },
+    {
+      "role": "research",
+      "state": "idle",
+      "patchPixels": 610
+    },
+    {
+      "role": "review",
+      "state": "idle",
+      "patchPixels": 303
+    },
+    {
+      "role": "lead",
+      "state": "talking",
+      "patchPixels": 114
+    },
+    {
+      "role": "code",
+      "state": "talking",
+      "patchPixels": 1329
+    },
+    {
+      "role": "research",
+      "state": "talking",
+      "patchPixels": 412
+    },
+    {
+      "role": "review",
+      "state": "talking",
+      "patchPixels": 300
+    },
+    {
+      "role": "lead",
+      "state": "blink",
+      "patchPixels": 91
+    },
+    {
+      "role": "code",
+      "state": "blink",
+      "patchPixels": 1340
+    },
+    {
+      "role": "research",
+      "state": "blink",
+      "patchPixels": 560
+    },
+    {
+      "role": "review",
+      "state": "blink",
+      "patchPixels": 328
+    },
+    {
+      "role": "lead",
+      "state": "working",
+      "patchPixels": 130
+    },
+    {
+      "role": "code",
+      "state": "working",
+      "patchPixels": 1651
+    },
+    {
+      "role": "research",
+      "state": "working",
+      "patchPixels": 354
+    },
+    {
+      "role": "review",
+      "state": "working",
+      "patchPixels": 319
+    }
+  ],
+  "inputs": {
+    "team-atlas.png": "6de22d66014539d4b260c959147560959d43df81d6d8644c66ac225e5018d6e0",
+    "head-atlas.png": "f637ab173ffa8bf0485b007af85085d9a9ac029c87b2d9e1e424f3a7d810aa33",
+    "body-atlas.png": "eae17ecac981311b823096ff30bbd5ff000163879a5d1b74c1db832687819abe"
+  },
+  "output": {
+    "mixed-head-atlas.png": "027842049f7445ad36c5e78e7aff7967f09e855bb553fed37d2cbbf82daec220",
+    "mixed-body-atlas.png": "c36d6514881fd07603f0e86e9aef4d05c17437ad62f9e964a11d1d31171e9ded"
+  }
+}

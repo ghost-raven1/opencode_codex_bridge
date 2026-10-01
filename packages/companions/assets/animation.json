@@ -43,7 +43,7 @@
   "transitionRegistration": "ImageGen facial patches registered onto unchanged base idle bodies; final two rows use existing ImageGen base facial expressions",
   "speechTiming": "Local audio amplitude or system speech word callbacks; visual mouth states, not phonemes.",
   "sha256": {
-    "poses.png": "b1ce279f0fb14e186171007ca47076c04741e06564057f675261a203677c6df5",
-    "transitions.png": "bf9cecee8ae5b528a6bf7e68cfc7f82927d2de7b736a78211dc0415665b2ea71"
+    "poses.png": "70249b79856d9145744c3908fe459f144be5ba857a24176cb31987af2e2f3eaa",
+    "transitions.png": "6e300a4d23e4068aeeef5a521a8ea9f21df3e3036cdd42ac522c87b770d2ebbe"
   }
 }

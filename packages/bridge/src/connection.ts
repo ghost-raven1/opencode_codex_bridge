@@ -40,7 +40,7 @@ export class CodexConnection extends EventEmitter {
 
   async initialize(): Promise<void> {
     await this.call("initialize", {
-      clientInfo: { name: "codexbridge", title: "CodexBridge", version: "0.1.0" },
+      clientInfo: { name: "codexbridge", title: "CodexBridge", version: "0.2.0" },
       capabilities: { experimentalApi: false },
     });
     this.send({ method: "initialized" });

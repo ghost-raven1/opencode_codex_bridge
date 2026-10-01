@@ -10,7 +10,7 @@ mkdirSync(`${root}.local/swift-cache`, { recursive: true });
 mkdirSync(`${bundle}/Contents/MacOS`, { recursive: true });
 mkdirSync(`${bundle}/Contents/Resources`, { recursive: true });
 // LaunchServices gives the app its own privacy identity; keep its artwork inside its signed bundle.
-for (const name of ["team-atlas.png", "head-atlas.png", "body-atlas.png", "poses.png", "transitions.png"]) {
+for (const name of ["team-atlas.png", "head-atlas.png", "body-atlas.png", "mixed-head-atlas.png", "mixed-body-atlas.png", "poses.png", "transitions.png", "ambient-v2.png", "entrance-v2.png", "transform-v2.png", "animation-v2.json", "animation-v3.json", "working-v3.png", "thinking-v3.png", "success-v3.png", "waiting-v3.png", "error-v3.png", "facial-v3.png"]) {
   const source = `${root}packages/companions/assets/${name}`;
   const target = `${bundle}/Contents/Resources/${name}`;
   if (existsSync(source)) copyFileSync(source, target);
@@ -24,8 +24,8 @@ writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UT
 <key>CFBundleDisplayName</key><string>CodexBridge Companions</string>
 <key>CFBundleExecutable</key><string>Companions</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.1.0</string>
-<key>CFBundleVersion</key><string>1</string>
+<key>CFBundleShortVersionString</key><string>0.2.0</string>
+<key>CFBundleVersion</key><string>2</string>
 <key>LSUIElement</key><true/>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
 <key>NSMicrophoneUsageDescription</key><string>Диктовка по вашему нажатию в меню CodexBridge. Запись останавливается через 60 секунд.</string>
@@ -35,7 +35,7 @@ writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UT
 const result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", `${root}.local/swift-cache`,
   "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
   "-framework", "AppKit", "-framework", "AVFoundation", "-framework", "Speech",
-  ...["CharacterView.swift", "WindowState.swift", "NativeSpeech.swift", "NativeDictation.swift", "main.swift"].map(name => `${native}/${name}`),
+  ...["CharacterView.swift", "CharacterMotion.swift", "SpriteCache.swift", "SpeechBubbleView.swift", "DraftMenu.swift", "WindowState.swift", "NativeSpeech.swift", "NativeDictation.swift", "main.swift"].map(name => `${native}/${name}`),
   "-o", `${bundle}/Contents/MacOS/Companions`], { cwd: root, stdio: "inherit" });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const signed = spawnSync("codesign", ["--force", "--sign", "-", "--identifier", "dev.codexbridge.companions", bundle], { cwd: root, stdio: "inherit" });

@@ -4,7 +4,7 @@ import { startNativeHost } from "../packages/companions/dist/native-host.js";
 
 // Explicit acoustic check: plays one known phrase and retains neither audio nor recognized text.
 const binary = fileURLToPath(new URL("../packages/companions/native/CodexBridge Companions.app/Contents/MacOS/Companions", import.meta.url));
-let host, recording = false, matched = false, ended = false, say, timeout;
+let host, recording = false, matched = false, ended = false, say, timeout, acoustic;
 const send = event => { try { host?.send(event); } catch {} };
 const finish = () => {
   if (ended) return;
@@ -12,7 +12,7 @@ const finish = () => {
   send({ type: "dictation-cancel" }); send({ type: "dictation-status" });
   setTimeout(() => {
     host?.close(); process.exitCode = matched ? 0 : 1;
-    console.log(JSON.stringify({ recordingStarted: recording, phraseMatched: matched }));
+    console.log(JSON.stringify({ recordingStarted: recording, phraseMatched: matched, acoustic }));
   }, 300);
 };
 host = await startNativeHost(binary, ["--config", JSON.stringify({ showOnStart: false, dictation: true,
@@ -28,9 +28,15 @@ host = await startNativeHost(binary, ["--config", JSON.stringify({ showOnStart: 
       say = spawn("/usr/bin/say", ["-v", "Milena", "Проверка микрофона. Один, два, три."], { stdio: "ignore" });
       say.on("error", finish);
       say.on("exit", () => setTimeout(() => { if (!ended) send({ type: "dictation-stop" }); }, 800));
-    }, 700);
+    }, 1500);
   }
-  if (event.type === "transcript") { matched = /проверка микрофона/iu.test(event.text ?? ""); finish(); }
+  if (event.type === "transcript") {
+    const normalized = String(event.text ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+    matched = /проверка\s+микрофона/u.test(normalized);
+    // Only boolean hints about the known service phrase enter diagnostics, never microphone text.
+    acoustic = { nonempty: !!normalized, heardCheck: /проверка/u.test(normalized), heardMicrophone: /микрофон/u.test(normalized) };
+    finish();
+  }
   if (event.type === "error") { console.error(event.message); finish(); }
   if (event.type === "closed" && !ended) finish();
 }, message => console.error(message));

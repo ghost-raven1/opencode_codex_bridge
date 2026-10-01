@@ -4,6 +4,7 @@ import importlib.util, json, sys
 sys.dont_write_bytecode=True
 import numpy as np
 from PIL import Image, ImageDraw
+from sprite_matte import clean_matte
 
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'.local/animation-study'
@@ -55,7 +56,7 @@ def register(source,anchor,scale_x,row_bounds,column):
   matte=(red>threshold)&(blue>=red-4)&(rgb.max(axis=2)-rgb.min(axis=2)<40)
   alpha[edge&matte]=0
  alpha=base.remove_speckles(alpha);pixels[:,:,3]=alpha;pixels[alpha==0]=0
- return Image.fromarray(pixels)
+ return clean_matte(Image.fromarray(pixels), column)
 
 atlases={};metrics=[]
 for name,states,anchors,row_edges,scales in [

@@ -17,6 +17,7 @@ import AVFoundation
     var onReset: (() -> Void)?
     var onDrained: (() -> Void)?
     var onAmplitude: ((Bool) -> Void)?
+    var onLevel: ((Double) -> Void)?
     var onAudioFinished: ((String, String) -> Void)?
     private var active: AVSpeechUtterance?
     private var player: AVAudioPlayer?
@@ -75,7 +76,9 @@ import AVFoundation
                     MainActor.assumeIsolated {
                         guard let self, let player = self.player else { return }
                         player.updateMeters()
-                        self.onAmplitude?(player.isPlaying && player.averagePower(forChannel: 0) > -38)
+                        let power = player.averagePower(forChannel: 0)
+                        self.onAmplitude?(player.isPlaying && power > -38)
+                        self.onLevel?(player.isPlaying ? min(1, max(0, Double(power + 45) / 35)) : 0)
                     }
                 }
             } catch { complete(phase: "error") }

@@ -29,7 +29,7 @@ describe("local role voices", () => {
     const first = send.mock.calls.find(([event]) => event.type === "play-audio")![0];
     life.event({ type: "state", characterId: "a", taskId: "task", role: "researcher", state: "working" });
     life.event({ type: "speak", characterId: "a", taskId: "task", role: "researcher", text: "Новая роль." });
-    expect(synthesize).toHaveBeenCalledTimes(1);
+    expect(synthesize).toHaveBeenCalledTimes(2);
     expect(send.mock.calls.some(([event]) => event.type === "stop")).toBe(false);
     router.receive({ type: "audio-finished", id: first.audioId, phase: "end" });
     await tick();
@@ -47,7 +47,7 @@ describe("local role voices", () => {
     expect(chunks.every(chunk => chunk.length <= 320)).toBe(true);
     expect(chunks.join(" ")).toBe(text);
   });
-  it("waits for actual playback completion before generating the next role", async () => {
+  it("prepares the next role during playback and starts its ready audio immediately on completion", async () => {
     const t = setup();
     t.router.event({ type: "speak", characterId: "a", role: "developer", text: "Проверю код." });
     t.router.event({ type: "speak", characterId: "b", role: "reviewer", text: "Проверю изменения." });
@@ -56,14 +56,57 @@ describe("local role voices", () => {
     await t.finish();
     const playback = t.send.mock.calls[0]![0];
     expect(playback).toMatchObject({ type: "play-audio", characterId: "a" });
-    expect(t.synthesize).toHaveBeenCalledTimes(1);
+    expect(t.synthesize).toHaveBeenCalledTimes(2);
+    expect(t.synthesize.mock.calls[1]?.[0]).toMatchObject({ voice: "Ono_Anna" });
+    await t.finish(1);
+    expect(t.send.mock.calls.filter(([event]) => event.type === "play-audio")).toHaveLength(1);
     t.router.receive({ type: "audio-finished", id: "unrelated", phase: "end" });
-    expect(t.synthesize).toHaveBeenCalledTimes(1);
+    expect(t.send.mock.calls.filter(([event]) => event.type === "play-audio")).toHaveLength(1);
     t.router.receive({ type: "audio-finished", id: playback.audioId, phase: "end" });
     expect(t.remove).toHaveBeenCalledWith("/audio/0.wav");
     expect(t.synthesize).toHaveBeenCalledTimes(2);
-    expect(t.synthesize.mock.calls[1]?.[0]).toMatchObject({ voice: "Ono_Anna" });
-    t.router.dispose(); await t.finish(1);
+    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "b", path: "/audio/1.wav" }));
+    t.router.dispose();
+  });
+  it("bounds prefetch to one ready utterance and keeps a single model request in flight", async () => {
+    const t = setup();
+    for (const characterId of ["a", "b", "c", "d"]) t.router.event({ type: "speak", characterId, text: "Проверка очереди." });
+    expect(t.synthesize).toHaveBeenCalledTimes(1);
+    await t.finish();
+    expect(t.synthesize).toHaveBeenCalledTimes(2);
+    await t.finish(1);
+    expect(t.synthesize).toHaveBeenCalledTimes(2);
+    t.router.receive({ type: "audio-finished", id: t.send.mock.calls[0]![0].audioId, phase: "end" });
+    expect(t.synthesize).toHaveBeenCalledTimes(3);
+    expect(t.send.mock.calls.filter(([event]) => event.type === "play-audio")).toHaveLength(2);
+    t.router.dispose(); await t.finish(2);
+    expect(t.remove.mock.calls.map(([path]) => path).sort()).toEqual(["/audio/0.wav", "/audio/1.wav", "/audio/2.wav"]);
+  });
+  it.each(["mute", "suspend", "stop"])("deletes a ready prefetch and never replays it after native %s", async action => {
+    const t = setup();
+    t.router.event({ type: "speak", characterId: "a", text: "Первая реплика." });
+    t.router.event({ type: "speak", characterId: "b", text: "Вторая реплика." });
+    await t.finish(); await t.finish(1);
+    const first = t.send.mock.calls[0]![0];
+    t.router.receive({ type: "speech-control", action, muted: true, suspended: true });
+    t.router.receive({ type: "audio-finished", id: first.audioId, phase: "end" });
+    expect(t.remove.mock.calls.map(([path]) => path).sort()).toEqual(["/audio/0.wav", "/audio/1.wav"]);
+    expect(t.send.mock.calls.filter(([event]) => event.type === "play-audio")).toHaveLength(1);
+    t.router.dispose();
+  });
+  it("discards a cancelled prefetch but allows other characters to prepare", async () => {
+    const t = setup();
+    for (const characterId of ["a", "b", "c"]) t.router.event({ type: "speak", characterId, text: "Проверка." });
+    await t.finish();
+    t.router.event({ type: "stop", characterId: "b" });
+    await t.finish(1);
+    expect(t.remove).toHaveBeenCalledWith("/audio/1.wav");
+    expect(t.synthesize).toHaveBeenCalledTimes(3);
+    expect(t.send.mock.calls.filter(([event]) => event.type === "play-audio")).toHaveLength(1);
+    await t.finish(2);
+    t.router.receive({ type: "audio-finished", id: t.send.mock.calls[0]![0].audioId, phase: "end" });
+    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "c" }));
+    t.router.dispose();
   });
   it("drops cancelled in-flight audio and keeps other agents queued without overlapping synthesis", async () => {
     const t = setup();
@@ -100,6 +143,36 @@ describe("local role voices", () => {
     expect(t.send).toHaveBeenCalledTimes(2);
     expect(t.synthesize).toHaveBeenCalledTimes(1);
     t.router.dispose();
+  });
+  it("keeps current audio playing when prefetched synthesis fails, then falls back in order", async () => {
+    const t = setup();
+    t.router.event({ type: "speak", characterId: "a", text: "Текущая реплика." });
+    t.router.event({ type: "speak", characterId: "b", text: "Следующая реплика." });
+    await t.finish();
+    const first = t.send.mock.calls[0]![0];
+    t.pending[1]!.reject(); await tick();
+    expect(t.send).toHaveBeenCalledTimes(1);
+    expect(t.log).toHaveBeenCalledOnce();
+    t.router.receive({ type: "audio-finished", id: first.audioId, phase: "end" });
+    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "speak", characterId: "b" }));
+    t.router.dispose();
+  });
+  it("reports queued and prepared characters as pending while only the player is the speaker", async () => {
+    const changed = vi.fn(), config = configSchema.parse({ tts: { engine: "local" } });
+    const resolve: ((audio: { path: string; duration: number; sampleRate: number }) => void)[] = [];
+    const router = new SpeechRouter(config, {
+      synthesize: () => new Promise(done => resolve.push(done)), dispose() {},
+    }, () => {}, () => {}, async () => {}, {
+      changed, voiceFor: (_, role) => config.tts.voices[role],
+    });
+    for (const characterId of ["a", "b", "c"]) router.event({ type: "speak", characterId, text: "Проверка." });
+    expect(changed).toHaveBeenLastCalledWith(new Set(["a", "b", "c"]), undefined);
+    resolve[0]!({ path: "/audio/a.wav", duration: 2, sampleRate: 24000 }); await tick();
+    resolve[1]!({ path: "/audio/b.wav", duration: 2, sampleRate: 24000 }); await tick();
+    expect(changed).toHaveBeenLastCalledWith(new Set(["a", "b", "c"]), "a");
+    router.event({ type: "stop", characterId: "b" });
+    expect(changed).toHaveBeenLastCalledWith(new Set(["a", "c"]), "a");
+    router.dispose(); resolve[2]!({ path: "/audio/c.wav", duration: 2, sampleRate: 24000 }); await tick();
   });
   it("stops a playback command that crossed the native Stop event", async () => {
     const t = setup();

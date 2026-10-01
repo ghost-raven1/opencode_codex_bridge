@@ -8,7 +8,10 @@ export interface SpeechGenerator {
   synthesize(request: { id: string; text: string; voice: string; instructions?: string }): Promise<{ path: string; duration: number; sampleRate: number }>;
   dispose(): void;
 }
-interface Utterance { id: string; characterId: string; text: string; role: Role; voice?: string; path?: string }
+interface Utterance {
+  id: string; characterId: string; text: string; role: Role; voice?: string;
+  audio?: { path: string; duration: number; sampleRate: number };
+}
 export interface SpeechActivity {
   changed(pending: Set<string>, speaker?: string): void;
   voiceFor(characterId: string, role: Role): string;
@@ -35,11 +38,11 @@ export function speechChunks(text: string, limit = 320): string[] {
   return chunks;
 }
 
-/** Serialize generation and playback across roles; cancelled generations can never resume speaking. */
+/** One model prepares one utterance ahead while a single native player speaks. */
 export class SpeechRouter {
   private queue: Utterance[] = [];
   private active?: Utterance;
-  private generating = false;
+  private preparing?: Utterance;
   private muted = false;
   private suspended = false;
   private closed = false;
@@ -60,7 +63,7 @@ export class SpeechRouter {
     this.queue.push(...chunks.map(text => ({ id: randomUUID(), characterId: event.characterId,
       text, role: event.role ?? "coordinator" as Role, voice: event.voice })));
     this.notify();
-    void this.pump();
+    this.pump();
   }
 
   receive(event: NativeEvent): void {
@@ -86,33 +89,47 @@ export class SpeechRouter {
     }
   }
 
-  private async pump(): Promise<void> {
-    if (this.closed || this.generating || this.active || this.muted || this.suspended) return;
-    const entry = this.queue.shift();
-    if (!entry) return;
-    this.active = entry;
-    this.notify();
-    if (this.fallback || this.config.tts.engine === "macos") { this.speakFallback(entry); return; }
-    this.generating = true;
+  private pump(): void {
+    if (this.closed || this.muted || this.suspended) return;
+    const next = this.queue[0];
+    if (!next) return;
+    if (!this.active && (next.audio || this.fallback || this.config.tts.engine === "macos")) {
+      this.queue.shift(); this.active = next; this.notify();
+      if (next.audio) this.play(next);
+      else this.speakFallback(next);
+      // A synchronous host failure may dispose us from inside send().
+      if (this.closed || this.active !== next) return;
+    }
+    const upcoming = this.queue[0];
+    if (!this.preparing && upcoming && !upcoming.audio && !this.fallback && this.config.tts.engine === "local") {
+      void this.prepare(upcoming);
+    }
+  }
+
+  private async prepare(entry: Utterance): Promise<void> {
+    this.preparing = entry;
     try {
       const audio = await this.generator.synthesize({ id: entry.id, text: entry.text,
         voice: this.activity?.voiceFor(entry.characterId, entry.role) ?? entry.voice ?? this.config.tts.voices[entry.role], instructions: directions[entry.role] });
-      if (this.closed || this.active !== entry) { await this.removeAudio(audio.path); return; }
-      entry.path = audio.path;
-      this.send({ type: "play-audio", characterId: entry.characterId, role: entry.role, text: entry.text,
-        audioId: entry.id, path: audio.path });
-      if (this.closed || this.active !== entry) return;
-      this.watchdog = setTimeout(() => {
-        this.send({ type: "stop", characterId: entry.characterId }); this.complete();
-      }, (audio.duration + 10) * 1000);
-      this.watchdog.unref();
+      if (this.closed || !this.queue.includes(entry)) { await this.removeAudio(audio.path); return; }
+      entry.audio = audio;
     } catch {
-      if (!this.closed && this.active === entry) {
+      if (!this.closed && this.queue.includes(entry)) {
         this.fallback = true;
         this.log("Локальный синтезатор недоступен. До перезапуска используется голос macOS.");
-        this.speakFallback(entry);
       }
-    } finally { this.generating = false; void this.pump(); }
+    } finally { this.preparing = undefined; this.pump(); }
+  }
+
+  private play(entry: Utterance): void {
+    const audio = entry.audio!;
+    this.send({ type: "play-audio", characterId: entry.characterId, role: entry.role, text: entry.text,
+      audioId: entry.id, path: audio.path });
+    if (this.closed || this.active !== entry) return;
+    this.watchdog = setTimeout(() => {
+      this.send({ type: "stop", characterId: entry.characterId }); this.complete();
+    }, (audio.duration + 10) * 1000);
+    this.watchdog.unref();
   }
 
   private speakFallback(entry: Utterance): void {
@@ -126,14 +143,17 @@ export class SpeechRouter {
 
   private complete(): void {
     clearTimeout(this.watchdog);
-    if (this.active?.path) void this.removeAudio(this.active.path);
-    this.active = undefined; this.notify(); void this.pump();
+    if (this.active?.audio) void this.removeAudio(this.active.audio.path);
+    this.active = undefined; this.notify(); this.pump();
   }
 
   private cancel(characterId?: string): void {
+    for (const entry of this.queue) {
+      if ((characterId === undefined || entry.characterId === characterId) && entry.audio) void this.removeAudio(entry.audio.path);
+    }
     this.queue = this.queue.filter(entry => characterId !== undefined && entry.characterId !== characterId);
     if (this.active && (characterId === undefined || this.active.characterId === characterId)) this.complete();
-    this.notify();
+    this.notify(); this.pump();
   }
 
   private notify(): void {

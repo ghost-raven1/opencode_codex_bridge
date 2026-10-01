@@ -1,0 +1,3542 @@
+{
+  "version": 3,
+  "cell": {
+    "width": 256,
+    "height": 384
+  },
+  "columns": [
+    "lead",
+    "code",
+    "research",
+    "review"
+  ],
+  "feetBaseline": 368,
+  "clips": {
+    "working": {
+      "atlas": "working-v3.png",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "durationMs": 1400
+    },
+    "thinking": {
+      "atlas": "thinking-v3.png",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "durationMs": 1600
+    },
+    "success": {
+      "atlas": "success-v3.png",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "durationMs": 1100
+    },
+    "waiting": {
+      "atlas": "waiting-v3.png",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "durationMs": 1500
+    },
+    "error": {
+      "atlas": "error-v3.png",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "durationMs": 1200
+    }
+  },
+  "facial": {
+    "atlas": "facial-v3.png",
+    "mouth": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "blink": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "emotion": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "registration": "base idle inner-face patches"
+  },
+  "counts": {
+    "lead": {
+      "body": 60,
+      "face": 18
+    },
+    "code": {
+      "body": 60,
+      "face": 18
+    },
+    "research": {
+      "body": 60,
+      "face": 18
+    },
+    "review": {
+      "body": 60,
+      "face": 18
+    }
+  },
+  "frames": [
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 0,
+      "column": 0,
+      "bounds": [
+        48,
+        24,
+        209,
+        368
+      ],
+      "sha256": "ca4ee0dc7de14304a255c950507661f0f14bdf8f3acea7a366e7a24f5c846062",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 1,
+      "column": 0,
+      "bounds": [
+        47,
+        24,
+        209,
+        368
+      ],
+      "sha256": "24c62ebf3c1b95730726d14762ff89146f09a55f0a5737bbde3d97eb4da0f090",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 2,
+      "column": 0,
+      "bounds": [
+        43,
+        24,
+        208,
+        368
+      ],
+      "sha256": "3ef375c4afce960b34739166623c5a75fbcd0099411ab2abc90f641aab7f2a22",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 3,
+      "column": 0,
+      "bounds": [
+        48,
+        24,
+        209,
+        368
+      ],
+      "sha256": "5785d264b22e9f3df2da290a89ff2d770aa025de060b7b925639511a67c18ab5",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 4,
+      "column": 0,
+      "bounds": [
+        28,
+        24,
+        214,
+        368
+      ],
+      "sha256": "3b6badc37992fc95d0e4d6400660c20552b7f01a4ef5e95c43a918a9fd9c0511",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 5,
+      "column": 0,
+      "bounds": [
+        15,
+        24,
+        213,
+        368
+      ],
+      "sha256": "13f99d1c7a7d4865211838ee98b735620a6ceaee030dbb19188cb3ab6b587a9f",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 6,
+      "column": 0,
+      "bounds": [
+        45,
+        24,
+        212,
+        368
+      ],
+      "sha256": "efadfcbf5b939398d9f6fc05a00c58d2fc10f856ccf856804395f08ea1d9cf97",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 7,
+      "column": 0,
+      "bounds": [
+        51,
+        24,
+        206,
+        368
+      ],
+      "sha256": "7d24cb59bc4ede5a628ec98614f6b52ee17ef2a6bea78783bf7943ef975dfb4e",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 8,
+      "column": 0,
+      "bounds": [
+        50,
+        24,
+        207,
+        368
+      ],
+      "sha256": "f65914763509576730d2fafac0391ef9c542baf6fa9480bbc41ce9247183bbc5",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "lead",
+      "clip": "working",
+      "row": 9,
+      "column": 0,
+      "bounds": [
+        44,
+        24,
+        211,
+        368
+      ],
+      "sha256": "3b4883266df28ddd1b9e44b8d21d5a20f201bd0e8247afbf4367316fc2e30b12",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 0,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        237,
+        368
+      ],
+      "sha256": "59e8cc3024e6669629587d51fe32b2514ded12e169b9615fe00eb5434155fc48",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 1,
+      "column": 1,
+      "bounds": [
+        12,
+        24,
+        238,
+        368
+      ],
+      "sha256": "f3800aac45f15eec8753b1c59ab21d3d2a1ed988183ebd3499959c7b2a743efb",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 2,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        242,
+        368
+      ],
+      "sha256": "3e061188f1872423377dd0c7be6aaba32a4352e9d836436ab29aee0678e9d425",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 3,
+      "column": 1,
+      "bounds": [
+        13,
+        24,
+        248,
+        368
+      ],
+      "sha256": "1b533fb2a2ccdef4cfa7d560e45366a872d3c77a48e7a090518aacd508c0617a",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 4,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        220,
+        368
+      ],
+      "sha256": "9a3a72ef0bd9311446ac79bba4dd23256bb7e9fc322b6d8761682e26792fc52b",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 5,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        239,
+        368
+      ],
+      "sha256": "39729ecb27e625d3771c6c6c229fd1fadf360fb4771b679f0f980357aa4edd30",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 6,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        241,
+        368
+      ],
+      "sha256": "31c2772960961a8e46f7c9d71a00e691ed67e7a0b1bd4c61a93c0916f7e8c40c",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 7,
+      "column": 1,
+      "bounds": [
+        18,
+        24,
+        248,
+        368
+      ],
+      "sha256": "af118fdab85cc93690ac876460c7390982c34b8f8bc9d009f0dfd3c7ed816bd8",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 8,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        238,
+        368
+      ],
+      "sha256": "af4c1451fb6345ab8cf1d150d8e497ea548cfc379a76b22da146460aade784d5",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "code",
+      "clip": "working",
+      "row": 9,
+      "column": 1,
+      "bounds": [
+        13,
+        24,
+        241,
+        368
+      ],
+      "sha256": "e3213478e0141dba82840c0987be19ac8cc3385d0bd614536145caf733fe9d56",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 0,
+      "column": 2,
+      "bounds": [
+        56,
+        24,
+        237,
+        368
+      ],
+      "sha256": "612eadb8d422219969458ee2ff84afa3c086449c53f6d0f2c72be78ceabe1fc9",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 1,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        236,
+        368
+      ],
+      "sha256": "3cb46b7d63505371b96d4f4b5282e2f7a6e35217b23a9e887a54bd7581645834",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 2,
+      "column": 2,
+      "bounds": [
+        50,
+        24,
+        234,
+        368
+      ],
+      "sha256": "b6cef5a815a046594242c9d1ce19f5bf62ace343b85a50e52f5bc37b8d18c3d2",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 3,
+      "column": 2,
+      "bounds": [
+        56,
+        24,
+        248,
+        368
+      ],
+      "sha256": "7f7c90e52bd11421e92465f10c58db442338d074fcf12d9171f7c145be5891b2",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 4,
+      "column": 2,
+      "bounds": [
+        59,
+        24,
+        248,
+        368
+      ],
+      "sha256": "4a457344fd1ee6380e7fba603daaeb93a2f7769e0cabdc24681b9303ae6689a6",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 5,
+      "column": 2,
+      "bounds": [
+        57,
+        24,
+        248,
+        368
+      ],
+      "sha256": "d653bcc7b0292c12448341e532120c5a97da7d4a35a666980ded883a13e8c884",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 6,
+      "column": 2,
+      "bounds": [
+        53,
+        24,
+        232,
+        368
+      ],
+      "sha256": "acd7c7628fec8b9d1fcc8c581b04de6a653240333f664937eea2dbdeb05dc156",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 7,
+      "column": 2,
+      "bounds": [
+        53,
+        24,
+        233,
+        368
+      ],
+      "sha256": "8be442e004544cf0b5b34a1f6f8c267146e600df773d60c246f23161b84a914a",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 8,
+      "column": 2,
+      "bounds": [
+        55,
+        24,
+        235,
+        368
+      ],
+      "sha256": "37e3a20a36c35c9268ed0f2b1e5ba9a9a6a7bf9f4c0cd529c09b297c2ff99e9a",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "research",
+      "clip": "working",
+      "row": 9,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        227,
+        368
+      ],
+      "sha256": "e5aff1d5856ea3f34fde2da106d230b603f557dfdad3beda6b964fc9b24c2d45",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 0,
+      "column": 3,
+      "bounds": [
+        44,
+        24,
+        203,
+        368
+      ],
+      "sha256": "0c6c637ffc3e5c891ad0b654748590294416f2789b7391ea9e413a12eb48de7d",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 1,
+      "column": 3,
+      "bounds": [
+        39,
+        24,
+        204,
+        368
+      ],
+      "sha256": "433e9e3de038353ef3f77f0ca7a7d8fbfc59d61d902d51a7b7f5f592156fe83e",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 2,
+      "column": 3,
+      "bounds": [
+        47,
+        24,
+        205,
+        368
+      ],
+      "sha256": "5e9949f995fbbb36f2a4de8464fbeb2221460c0c56350345b4d319e3a8da3622",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 3,
+      "column": 3,
+      "bounds": [
+        37,
+        24,
+        208,
+        368
+      ],
+      "sha256": "fd6611e7d5e885dd1e770832233e88e8f8c29d2c28a0440624b5317ce722dc70",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 4,
+      "column": 3,
+      "bounds": [
+        30,
+        24,
+        206,
+        368
+      ],
+      "sha256": "d3a4b9f01b2533ee15da6dcf24ed963bccea8b619bb074a248d0cad9b0690cb2",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 5,
+      "column": 3,
+      "bounds": [
+        12,
+        24,
+        213,
+        368
+      ],
+      "sha256": "7ed8394c4819bea95b48e8ebe7b74327dec56f86e3e38e7cdb9b68b58375784d",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 6,
+      "column": 3,
+      "bounds": [
+        50,
+        24,
+        206,
+        368
+      ],
+      "sha256": "764f1b085695078106bbc43f65b148f5f0d4ac8809bbf0058f8b2b1e785ce5d0",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 7,
+      "column": 3,
+      "bounds": [
+        52,
+        24,
+        204,
+        368
+      ],
+      "sha256": "28cc7a4228d19199d2fe03d9daf2c7c1bf043a70b23bf8b787ab2b78b7927779",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 8,
+      "column": 3,
+      "bounds": [
+        50,
+        24,
+        205,
+        368
+      ],
+      "sha256": "2a1daa23d656731eb5bd9f24ab14a8f7f0a968e07d88c08b88e893c9d9ad552a",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "review",
+      "clip": "working",
+      "row": 9,
+      "column": 3,
+      "bounds": [
+        52,
+        24,
+        205,
+        368
+      ],
+      "sha256": "62cd8112c41dedc44dcbd0c308fed89377d0b77ea27b030b5e64ab3c300a98e7",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 0,
+      "column": 0,
+      "bounds": [
+        47,
+        24,
+        210,
+        368
+      ],
+      "sha256": "79c06ec38e7eff234ac8c40f324fc297b4c9b8c9984bd35253c69077c6954d13",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 1,
+      "column": 0,
+      "bounds": [
+        47,
+        24,
+        210,
+        368
+      ],
+      "sha256": "6b59c51b0a6c937b3932a4ec338a64837fb406bbba09bc31b7cbbb3e5c95fe35",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 2,
+      "column": 0,
+      "bounds": [
+        46,
+        24,
+        211,
+        368
+      ],
+      "sha256": "dbdb077140898a5106ecd19447c41893b83c41398057f4009b15b52be60fdb28",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 3,
+      "column": 0,
+      "bounds": [
+        45,
+        24,
+        213,
+        368
+      ],
+      "sha256": "1bc94529cc70f2f798080967181079ab7d36cc027dcbea662eb661c2136322a7",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 4,
+      "column": 0,
+      "bounds": [
+        45,
+        24,
+        212,
+        368
+      ],
+      "sha256": "04ec82fed60524649d545bf9950d08d667be3efd41f7115e5f00d514b8a89649",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 5,
+      "column": 0,
+      "bounds": [
+        39,
+        24,
+        208,
+        368
+      ],
+      "sha256": "91503dbe3bc406446fc34faf0f2f6e5aafd9252160940bbea65ca6b83df4c914",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 6,
+      "column": 0,
+      "bounds": [
+        46,
+        24,
+        212,
+        368
+      ],
+      "sha256": "bb5ad018ef47755b2716825ed47f17576ed12d39f30ff9c5f644bdf649c3c492",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 7,
+      "column": 0,
+      "bounds": [
+        28,
+        24,
+        232,
+        368
+      ],
+      "sha256": "683271df32880a5ad7a00438358a3900cb5869cb91dccbdd7832ff09b7ac443b",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 8,
+      "column": 0,
+      "bounds": [
+        45,
+        24,
+        212,
+        368
+      ],
+      "sha256": "21f80d7ffea89d7ae288654853d1a5d78d53ebbf056babc6263bd6bb477271c7",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "lead",
+      "clip": "thinking",
+      "row": 9,
+      "column": 0,
+      "bounds": [
+        47,
+        24,
+        210,
+        368
+      ],
+      "sha256": "93e5071a37e468abf79dcc188cfe075fa73a975ca2be335dc488e22de21ab5f4",
+      "source": "lead/activity-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 0,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        233,
+        368
+      ],
+      "sha256": "429f4df781cd255f99019e398af9b5664f30ab3c139f41f22d16929ecf22c16c",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 1,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        231,
+        368
+      ],
+      "sha256": "db3f7f1665eb0427caaee66e9893a9382bfb07ad6db1824a67dad13aa27a3c28",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 2,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        223,
+        368
+      ],
+      "sha256": "b30afa9abe35a2b1333cc285cb126233d5b1b61f1f9f4bac3bac117a756bf572",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 3,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        225,
+        368
+      ],
+      "sha256": "2bae34c59d2b079f887a8bf5f657ffc51869f2163c1ff2c99b4236ca9f62dbb9",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 4,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        223,
+        368
+      ],
+      "sha256": "4e952f45fdab9a91ea58443d019413f9e04bbd3879c8acc84d106d7d61da5f5e",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 5,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        227,
+        368
+      ],
+      "sha256": "353fd9fbc1dc82658e84fbedfeae7783fd375e2927270f3744213325b3c55f86",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 6,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        228,
+        368
+      ],
+      "sha256": "1a44f2356ea0fbf7c639de83ba1e8f1ada8d70faa6868768fe5485a2db1d9f90",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 7,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        223,
+        368
+      ],
+      "sha256": "157cbe107acbe20e0183bc42dad935247b282435b04e69f79e1825213a186ab6",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 8,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        237,
+        368
+      ],
+      "sha256": "34cfc4e80f5df12dae0c4aeed94bd2e8a3d1410507cf31bd2fbcdda98dba766d",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "code",
+      "clip": "thinking",
+      "row": 9,
+      "column": 1,
+      "bounds": [
+        8,
+        24,
+        227,
+        368
+      ],
+      "sha256": "fd283f40bc2cb6f9f8efac52c2bc16430d429ed0680c221032031e3dce49a7ad",
+      "source": "code/activity-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 0,
+      "column": 2,
+      "bounds": [
+        55,
+        24,
+        221,
+        368
+      ],
+      "sha256": "10f3ea44d677fef0aaf928bbaea2969da863b086d6fdc7c3b4c9f340d4f9e5f2",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 1,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        224,
+        368
+      ],
+      "sha256": "7f30012f104054c1c95ef7e102572c04405f176af47e832d2a6598bbff5e6f07",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 2,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        220,
+        368
+      ],
+      "sha256": "37b5389885fe85cf9909980fb35d779de26a329db46796b1a5177f8961cb070a",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 3,
+      "column": 2,
+      "bounds": [
+        53,
+        24,
+        222,
+        368
+      ],
+      "sha256": "927eb9b12bad3a483558eb5b946f3362ead002f8d0a682390254084e102d442d",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 4,
+      "column": 2,
+      "bounds": [
+        57,
+        24,
+        230,
+        368
+      ],
+      "sha256": "830f151f9aad1cc0b543a199b05c9be98ce29a28a34ff264421e11eca4933790",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 5,
+      "column": 2,
+      "bounds": [
+        59,
+        24,
+        230,
+        368
+      ],
+      "sha256": "baac5f26b96ad3b49863f15292a2acd31e53121475e561db949f8a5eb1d9ee5b",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 6,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        229,
+        368
+      ],
+      "sha256": "1771b1099b6bbec4c98a2ba1352780829e7a9fe414a3e4b9d4c87dbd4b31e006",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 7,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        221,
+        368
+      ],
+      "sha256": "166045e56fb6e935f6b04e5792961929f56ebcb1613beb0bffd96972f3dcb7ec",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 8,
+      "column": 2,
+      "bounds": [
+        52,
+        24,
+        224,
+        368
+      ],
+      "sha256": "a339cbf3eb94e04a3446bbc3c6617046106f8f1e479b47463e52584b155b6b97",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "research",
+      "clip": "thinking",
+      "row": 9,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        223,
+        368
+      ],
+      "sha256": "a688a456ed240a777810ae334e868ee799b11e4ee6467572d3ccceca6d04f37e",
+      "source": "research/activity-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 0,
+      "column": 3,
+      "bounds": [
+        53,
+        24,
+        204,
+        368
+      ],
+      "sha256": "b6274930ef2ac4859349e2c8558670144c7701eabd13e55990645b6cd977821a",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 1,
+      "column": 3,
+      "bounds": [
+        43,
+        24,
+        204,
+        368
+      ],
+      "sha256": "62122fa57e2cfd1a78ae237622134dc3b6b2430b801d579a580675b2e7f81fbf",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 2,
+      "column": 3,
+      "bounds": [
+        52,
+        24,
+        204,
+        368
+      ],
+      "sha256": "b9421c668470ba325a52c6adf5cc26281f803fdfad31159d68cf5aa19ca17a11",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 3,
+      "column": 3,
+      "bounds": [
+        53,
+        24,
+        205,
+        368
+      ],
+      "sha256": "8d0d544a1c0e4358a02d0b39e5b8e113c035e6dbaecc8c9954b0b8e092343e8b",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 4,
+      "column": 3,
+      "bounds": [
+        36,
+        24,
+        205,
+        368
+      ],
+      "sha256": "665fcb3a807538197590011db9a09725efedd11385af66aa46b587142ac0d8b8",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 5,
+      "column": 3,
+      "bounds": [
+        50,
+        24,
+        206,
+        368
+      ],
+      "sha256": "c11cdf18e4d530c9935a5ab1507531604b4bd783351da8eae282b308d6f37438",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 6,
+      "column": 3,
+      "bounds": [
+        36,
+        24,
+        232,
+        368
+      ],
+      "sha256": "bc2bd7f3d47b5652b22993e5eb18eab25214f476327c8affe33b5a2791dbb57f",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 7,
+      "column": 3,
+      "bounds": [
+        44,
+        24,
+        206,
+        368
+      ],
+      "sha256": "703acf84f615b26a36fc73b53d7846dbfa2c88693a1cf3c5c8d480f5dda38039",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 8,
+      "column": 3,
+      "bounds": [
+        43,
+        24,
+        204,
+        368
+      ],
+      "sha256": "a8327c55880cc1e96cc7b81db00bf0430bca1fd729e450b25128312560ce56c8",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "review",
+      "clip": "thinking",
+      "row": 9,
+      "column": 3,
+      "bounds": [
+        44,
+        24,
+        205,
+        368
+      ],
+      "sha256": "91cd791c7d4f5b10f9ffe36368793d03959c4422b65ba546092f7f3c97c17405",
+      "source": "review/activity-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 0,
+      "column": 0,
+      "bounds": [
+        36,
+        24,
+        210,
+        368
+      ],
+      "sha256": "14f5f233e07a8334ab37af3869c1e01524c24439895ba975cda6d36e1a3176cb",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 1,
+      "column": 0,
+      "bounds": [
+        35,
+        24,
+        212,
+        368
+      ],
+      "sha256": "549d1c8b09fa775f899484d85d59bdfc0f94a2599b67b1362bf0198490bd6b4b",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 2,
+      "column": 0,
+      "bounds": [
+        36,
+        24,
+        209,
+        368
+      ],
+      "sha256": "5077bcee584b3c9ebe824f9a6d415552ea8f9824d5669440828c1c57af8a4082",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 3,
+      "column": 0,
+      "bounds": [
+        36,
+        24,
+        209,
+        368
+      ],
+      "sha256": "b59048e99e2798519db64099a03bb827be8a48bd33a167606788996e801bf172",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 4,
+      "column": 0,
+      "bounds": [
+        36,
+        24,
+        209,
+        368
+      ],
+      "sha256": "9a8a85c1911af04aae9f08f7d95fe988267c59a9d186525d9b0035f840b751e4",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 5,
+      "column": 0,
+      "bounds": [
+        42,
+        24,
+        248,
+        368
+      ],
+      "sha256": "4fc0d52e83035c53e7a57b3b2526ba8f52fded9008c8d904261684f29dd6123c",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 6,
+      "column": 0,
+      "bounds": [
+        43,
+        24,
+        211,
+        368
+      ],
+      "sha256": "907b322091f585559e4be8da68016deb0d2c37bde440531a866b145d14f54e1c",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "lead",
+      "clip": "success",
+      "row": 7,
+      "column": 0,
+      "bounds": [
+        48,
+        24,
+        208,
+        368
+      ],
+      "sha256": "7830329fe0436ea216bd38242cc9640ee8ac764d6f7f96044ba354ed6e72d231",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 0,
+      "column": 1,
+      "bounds": [
+        32,
+        24,
+        223,
+        368
+      ],
+      "sha256": "c46017e2ee04a0de162267e36edecd17cb6d8d7fd0f89ce1ee6d1794b831be9e",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 1,
+      "column": 1,
+      "bounds": [
+        30,
+        24,
+        238,
+        368
+      ],
+      "sha256": "6ee68e0bd46e887848eade93150039466d638372499f3cf3ce53e0560248fdf2",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 2,
+      "column": 1,
+      "bounds": [
+        32,
+        24,
+        226,
+        368
+      ],
+      "sha256": "bfefc53b4eeec789977d04fcaf43857f9cfcd4c1e428300725d269ebafb60558",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 3,
+      "column": 1,
+      "bounds": [
+        29,
+        24,
+        222,
+        368
+      ],
+      "sha256": "f39ada7129e34db7cd51b9f26431b2f5c0af8b65ae9c9ab2a26abb5e61b9af90",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 4,
+      "column": 1,
+      "bounds": [
+        24,
+        24,
+        224,
+        368
+      ],
+      "sha256": "f38dc07d73404795bfd0659595237465d93d1babe8fffefd8244eba3b98686f7",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 5,
+      "column": 1,
+      "bounds": [
+        32,
+        24,
+        237,
+        368
+      ],
+      "sha256": "44558734b4359903b43f219525a1f1c4cd194cd9e0aaaa105cfb17bbcbe949d3",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 6,
+      "column": 1,
+      "bounds": [
+        30,
+        24,
+        224,
+        368
+      ],
+      "sha256": "795ce1da2719d2cf55e3a78e32b9367983dc18cf0bf0426bdbdd8197770c1057",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "code",
+      "clip": "success",
+      "row": 7,
+      "column": 1,
+      "bounds": [
+        25,
+        24,
+        226,
+        368
+      ],
+      "sha256": "f8a97731eb41a2f6c48e0a17be96f9785e772f5ce18879d36d563f0635678007",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 0,
+      "column": 2,
+      "bounds": [
+        65,
+        24,
+        215,
+        368
+      ],
+      "sha256": "906d7a99d933707a73b4275817fe437a49dbe59e98c13e4cb68f95454938037e",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 1,
+      "column": 2,
+      "bounds": [
+        61,
+        24,
+        213,
+        368
+      ],
+      "sha256": "8821fea22818fe4b1fb79884f4bd34735748da7eae0a8147cc1280520d39f84d",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 2,
+      "column": 2,
+      "bounds": [
+        65,
+        24,
+        222,
+        368
+      ],
+      "sha256": "85258f40c3900777c57410008cbcc5e919f847ed844d0edef123ed00278f48a0",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 3,
+      "column": 2,
+      "bounds": [
+        60,
+        24,
+        214,
+        368
+      ],
+      "sha256": "001943e02635b2c188305599f25198d6e1dea4d9fe274715ce0ca73fa99b5ea3",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 4,
+      "column": 2,
+      "bounds": [
+        61,
+        24,
+        224,
+        368
+      ],
+      "sha256": "38cec26a8eb54d8fac4d5ad8f45ead0d9065ed4e436c875d29015d1a1cc752eb",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 5,
+      "column": 2,
+      "bounds": [
+        64,
+        24,
+        236,
+        368
+      ],
+      "sha256": "5454dcc78eaf381e9f156290e41374965152cf214b92aeed4ef95ea8e3414fb1",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 6,
+      "column": 2,
+      "bounds": [
+        57,
+        24,
+        207,
+        368
+      ],
+      "sha256": "9cce8ed50b55ba3a276ec67f4430a317d3a49a69c0ae97a0cb14385a71ff4d7f",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "research",
+      "clip": "success",
+      "row": 7,
+      "column": 2,
+      "bounds": [
+        64,
+        24,
+        208,
+        368
+      ],
+      "sha256": "cc8ed926915c9f81705d22608b6bb347cffebae0da5399a93cd73aa11c30a027",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 0,
+      "column": 3,
+      "bounds": [
+        40,
+        24,
+        208,
+        368
+      ],
+      "sha256": "f5e63df88fb2a0d78652a653125b638f306415022faf4be92de7de6cb0707e73",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 0
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 1,
+      "column": 3,
+      "bounds": [
+        41,
+        24,
+        203,
+        368
+      ],
+      "sha256": "f07e285c80913d80eccbb1bec12b3e52946c72b2c2d0eca08c70800b41276e9f",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 1
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 2,
+      "column": 3,
+      "bounds": [
+        40,
+        24,
+        216,
+        368
+      ],
+      "sha256": "4778b481beb305b3b631cf55b7a980d9e42dff6bfa3eb64e29752875e77adb65",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 2
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 3,
+      "column": 3,
+      "bounds": [
+        40,
+        24,
+        213,
+        368
+      ],
+      "sha256": "c72c57054c3cd9404c7a139e27de950906b0dfb9f053c7c72cf60409cfdae6d0",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 3
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 4,
+      "column": 3,
+      "bounds": [
+        37,
+        24,
+        217,
+        368
+      ],
+      "sha256": "5474c19fa393fda6d38df56c7c981d6b6b201179402dbc93e9585049b9c5e7a9",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 4
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 5,
+      "column": 3,
+      "bounds": [
+        49,
+        24,
+        248,
+        368
+      ],
+      "sha256": "006fef9fdadfa3fb507e59e4c672a24945f183db9cd4675a374657d3be41f7c7",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 5
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 6,
+      "column": 3,
+      "bounds": [
+        38,
+        24,
+        203,
+        368
+      ],
+      "sha256": "ab385480981260a1cafbc1efa1255ac3f2362e7135d6ce0de3cf3d135c3eeee4",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 6
+    },
+    {
+      "role": "review",
+      "clip": "success",
+      "row": 7,
+      "column": 3,
+      "bounds": [
+        55,
+        24,
+        202,
+        368
+      ],
+      "sha256": "60a8bee1f6334a468414d3f8d5c10d2f20c3e51c5efe06de4de3b09238c6b640",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 7
+    },
+    {
+      "role": "lead",
+      "clip": "waiting",
+      "row": 0,
+      "column": 0,
+      "bounds": [
+        32,
+        24,
+        209,
+        368
+      ],
+      "sha256": "6f775bc9f4a5ead079f94a89a065fe40c006eae4aba5ca6c129aca56335acccd",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "lead",
+      "clip": "waiting",
+      "row": 1,
+      "column": 0,
+      "bounds": [
+        27,
+        24,
+        214,
+        368
+      ],
+      "sha256": "2fa8ed877610e8c97835f299ce572f1f5de0b38906b1e6243e2f3219a3327fbe",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "lead",
+      "clip": "waiting",
+      "row": 2,
+      "column": 0,
+      "bounds": [
+        31,
+        24,
+        216,
+        368
+      ],
+      "sha256": "5ebd8dce3a403fc7eead5496cf4ae35191e7e5a5f9f7d789d014a29708633c4b",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "lead",
+      "clip": "waiting",
+      "row": 3,
+      "column": 0,
+      "bounds": [
+        43,
+        24,
+        210,
+        368
+      ],
+      "sha256": "464ad8971c48353f4f8cbc86c8b169cff0c0c16b6d96a94029a33e9fc6f62881",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "lead",
+      "clip": "waiting",
+      "row": 4,
+      "column": 0,
+      "bounds": [
+        28,
+        24,
+        210,
+        368
+      ],
+      "sha256": "6e7a3396f4a8c4506c22320f67a37f281b51507aa43f5aeeeb9d278dcbfb144b",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "lead",
+      "clip": "waiting",
+      "row": 5,
+      "column": 0,
+      "bounds": [
+        32,
+        24,
+        212,
+        368
+      ],
+      "sha256": "7421a0bc7324c06746ac5703ea53817ed92996747b9eeab9b5a79561a1746213",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "code",
+      "clip": "waiting",
+      "row": 0,
+      "column": 1,
+      "bounds": [
+        25,
+        24,
+        222,
+        368
+      ],
+      "sha256": "fe84c4ce36b55e44d758175b841951f0ddd66418e1753a1067a3e8ce4c50f4ee",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "code",
+      "clip": "waiting",
+      "row": 1,
+      "column": 1,
+      "bounds": [
+        37,
+        24,
+        238,
+        368
+      ],
+      "sha256": "0f41ef2ba25fd50e1f0e7cecb7163d342572f95206c73039af4eea8e43ed8ba9",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "code",
+      "clip": "waiting",
+      "row": 2,
+      "column": 1,
+      "bounds": [
+        32,
+        24,
+        224,
+        368
+      ],
+      "sha256": "7188e99c264db7f57d538e7e05a3c10a83dd46c87dd7796e959434d239423ba0",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "code",
+      "clip": "waiting",
+      "row": 3,
+      "column": 1,
+      "bounds": [
+        34,
+        24,
+        223,
+        368
+      ],
+      "sha256": "970c6966214cc7d5a7d2e687f40a50d394d1d3e35468162572c55cc520b5ea1f",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "code",
+      "clip": "waiting",
+      "row": 4,
+      "column": 1,
+      "bounds": [
+        30,
+        24,
+        220,
+        368
+      ],
+      "sha256": "d576c28ec69fdeb6c1a233301f46c5b60bc94deb813cfd9a625f86af4de6048f",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "code",
+      "clip": "waiting",
+      "row": 5,
+      "column": 1,
+      "bounds": [
+        24,
+        24,
+        224,
+        368
+      ],
+      "sha256": "6b0bcfbd303dbeb64307b488f6abb2c9c963041ef2c1cab46cc05e5cd567d167",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "research",
+      "clip": "waiting",
+      "row": 0,
+      "column": 2,
+      "bounds": [
+        52,
+        24,
+        201,
+        368
+      ],
+      "sha256": "ff8a2e93fd021893db3cc4d38d58c31052ce215656e17a48715f0c88860381a8",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "research",
+      "clip": "waiting",
+      "row": 1,
+      "column": 2,
+      "bounds": [
+        68,
+        24,
+        237,
+        368
+      ],
+      "sha256": "f6f9b3f9d5c20cbf650f1a6bab1d94c13003d0dc1a231589a7251e691809f7ca",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "research",
+      "clip": "waiting",
+      "row": 2,
+      "column": 2,
+      "bounds": [
+        68,
+        24,
+        208,
+        368
+      ],
+      "sha256": "5ae901d0afe12ffd3ee7920d52787dba00fcc57aa97763157d78a45327187923",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "research",
+      "clip": "waiting",
+      "row": 3,
+      "column": 2,
+      "bounds": [
+        65,
+        24,
+        206,
+        368
+      ],
+      "sha256": "7ddd3bb351379e615eb67abad2c1fff2e0bfeb1b618be121d381232e58542b4c",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "research",
+      "clip": "waiting",
+      "row": 4,
+      "column": 2,
+      "bounds": [
+        64,
+        24,
+        210,
+        368
+      ],
+      "sha256": "5111a2c04906641756cb54e2bdda239f70013015b032442403401aa9e225f862",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "research",
+      "clip": "waiting",
+      "row": 5,
+      "column": 2,
+      "bounds": [
+        61,
+        24,
+        209,
+        368
+      ],
+      "sha256": "c6692db78051526c9ba903f25758b8d4299172019ea2899ecf88554944e191ad",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "review",
+      "clip": "waiting",
+      "row": 0,
+      "column": 3,
+      "bounds": [
+        36,
+        24,
+        207,
+        368
+      ],
+      "sha256": "0e3322389dd47e38b13f0f0bbd2aaea849abee05590c6eaff01fe989e42dde54",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 8
+    },
+    {
+      "role": "review",
+      "clip": "waiting",
+      "row": 1,
+      "column": 3,
+      "bounds": [
+        34,
+        24,
+        207,
+        368
+      ],
+      "sha256": "f6043113ac85316bf00eeb75587e472bc3b1f2ef9aca564556012e07970fd4cc",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 9
+    },
+    {
+      "role": "review",
+      "clip": "waiting",
+      "row": 2,
+      "column": 3,
+      "bounds": [
+        35,
+        24,
+        226,
+        368
+      ],
+      "sha256": "8347dfc7033ff6825da25ca5a0d743be602b757cc22e29950b465ae325a969cb",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 10
+    },
+    {
+      "role": "review",
+      "clip": "waiting",
+      "row": 3,
+      "column": 3,
+      "bounds": [
+        45,
+        24,
+        202,
+        368
+      ],
+      "sha256": "aa5bba0af98acef21b6ca395c8a457063c899f14937eaf430a1c414c5ebc0d97",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 11
+    },
+    {
+      "role": "review",
+      "clip": "waiting",
+      "row": 4,
+      "column": 3,
+      "bounds": [
+        34,
+        24,
+        204,
+        368
+      ],
+      "sha256": "9bde82827419035e180a9fdc77ee238203ef2019d4b9c20cec1d00ba7817aadf",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 12
+    },
+    {
+      "role": "review",
+      "clip": "waiting",
+      "row": 5,
+      "column": 3,
+      "bounds": [
+        43,
+        24,
+        211,
+        368
+      ],
+      "sha256": "243ec489a893a4e166b4450c892af14046a7c2b9fac189e866661e25444ea400",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 13
+    },
+    {
+      "role": "lead",
+      "clip": "error",
+      "row": 0,
+      "column": 0,
+      "bounds": [
+        40,
+        24,
+        210,
+        368
+      ],
+      "sha256": "d9a2fd7635a2a785a82401c400bf96cc20bd91256946dc8fa8df4b92afd00636",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "lead",
+      "clip": "error",
+      "row": 1,
+      "column": 0,
+      "bounds": [
+        44,
+        24,
+        211,
+        368
+      ],
+      "sha256": "5058e17e53e706a1fe61cf7b6ba3daa0eea3ef317ddf77d3334e98dfce78dff3",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "lead",
+      "clip": "error",
+      "row": 2,
+      "column": 0,
+      "bounds": [
+        45,
+        24,
+        210,
+        368
+      ],
+      "sha256": "10b6dad5ac4b661d74ecf7fc914513fb5c9e8a291394a8a76a6b0bffe54412db",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "lead",
+      "clip": "error",
+      "row": 3,
+      "column": 0,
+      "bounds": [
+        31,
+        24,
+        239,
+        368
+      ],
+      "sha256": "93ffa99db89287036395410acdce24a9620ed8f1910ebac6c901a5ad35b6a7f9",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "lead",
+      "clip": "error",
+      "row": 4,
+      "column": 0,
+      "bounds": [
+        45,
+        24,
+        213,
+        368
+      ],
+      "sha256": "992d93e316ffb5733e0734c8349d33ca17bbed394ba2a36b9222f548d016c9a0",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "lead",
+      "clip": "error",
+      "row": 5,
+      "column": 0,
+      "bounds": [
+        34,
+        24,
+        211,
+        368
+      ],
+      "sha256": "6d42ed3a22450f322d5ea00a928be2da4195193737806d5cba195e0376c6069d",
+      "source": "lead/reactions-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "code",
+      "clip": "error",
+      "row": 0,
+      "column": 1,
+      "bounds": [
+        18,
+        24,
+        245,
+        368
+      ],
+      "sha256": "36c97e7f21e988a8011abef52150519ac9dbce988b3a59528eb15b1779dcd4e6",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "code",
+      "clip": "error",
+      "row": 1,
+      "column": 1,
+      "bounds": [
+        28,
+        24,
+        222,
+        368
+      ],
+      "sha256": "2604570eb2dc0ac5d0ceb2ec9457610c0043569e399c75b9103f4ddce744e64a",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "code",
+      "clip": "error",
+      "row": 2,
+      "column": 1,
+      "bounds": [
+        20,
+        24,
+        223,
+        368
+      ],
+      "sha256": "87fcbfe93d74fb8569c233305e4eab7c3f371b7565f082f61b5f99d8a47d6cb8",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "code",
+      "clip": "error",
+      "row": 3,
+      "column": 1,
+      "bounds": [
+        30,
+        24,
+        248,
+        368
+      ],
+      "sha256": "da28e1fb2bc22c143584e1de7aa631e9e493662d2a1927564cbe6f6edbff6e5b",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "code",
+      "clip": "error",
+      "row": 4,
+      "column": 1,
+      "bounds": [
+        28,
+        24,
+        234,
+        368
+      ],
+      "sha256": "185053d2c3ed182b2c98eb11201199e1e471d6512220c6dd9a165b2e11dc36c7",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "code",
+      "clip": "error",
+      "row": 5,
+      "column": 1,
+      "bounds": [
+        37,
+        24,
+        237,
+        368
+      ],
+      "sha256": "855844b0ed6f22d6f62dbf21e2246bf9b8e05a137ba62e083ea9f204eae3d826",
+      "source": "code/reactions-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "research",
+      "clip": "error",
+      "row": 0,
+      "column": 2,
+      "bounds": [
+        55,
+        24,
+        211,
+        368
+      ],
+      "sha256": "ac59526386447d0e35440d0145737bb71be333947a2980854e7c1db24a5eea96",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "research",
+      "clip": "error",
+      "row": 1,
+      "column": 2,
+      "bounds": [
+        61,
+        24,
+        227,
+        368
+      ],
+      "sha256": "bdbf607dacaa64c83c0c5b1cbfe105bba2437f10dd748aefe20952ad771be2be",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "research",
+      "clip": "error",
+      "row": 2,
+      "column": 2,
+      "bounds": [
+        49,
+        24,
+        215,
+        368
+      ],
+      "sha256": "a58fe18ba71ffb41e3c7ca5343fac07c39089131728ed45a9f71f10694eeb279",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "research",
+      "clip": "error",
+      "row": 3,
+      "column": 2,
+      "bounds": [
+        54,
+        24,
+        248,
+        368
+      ],
+      "sha256": "d04c6d70a86114f82a5eeb2d83c0921779d9d39602fff5571e79e771004860a3",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "research",
+      "clip": "error",
+      "row": 4,
+      "column": 2,
+      "bounds": [
+        47,
+        24,
+        237,
+        368
+      ],
+      "sha256": "8ba7778eb93d901387f10aa1b53bdecc2d95ec60fbfdfd81e46fd04f3077241a",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "research",
+      "clip": "error",
+      "row": 5,
+      "column": 2,
+      "bounds": [
+        56,
+        24,
+        208,
+        368
+      ],
+      "sha256": "e40c16d1c9caf366cd3b2fccbaf572edbced6ee6d1f581273681f74569c41d65",
+      "source": "research/reactions-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "review",
+      "clip": "error",
+      "row": 0,
+      "column": 3,
+      "bounds": [
+        39,
+        24,
+        210,
+        368
+      ],
+      "sha256": "b1492ed97143f4ab579972cdb0f17890c609d34296918659fbbecc3663a715f6",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 14
+    },
+    {
+      "role": "review",
+      "clip": "error",
+      "row": 1,
+      "column": 3,
+      "bounds": [
+        44,
+        24,
+        208,
+        368
+      ],
+      "sha256": "db820028806ce0cea9e3f1acf5bf0d1dc44149b6758e8246420ecf197beb0641",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 15
+    },
+    {
+      "role": "review",
+      "clip": "error",
+      "row": 2,
+      "column": 3,
+      "bounds": [
+        41,
+        24,
+        203,
+        368
+      ],
+      "sha256": "01db58a68719b63ed877c099e6f56c34cd663ef5fc0fa6e8881fa1c404d6f3dc",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 16
+    },
+    {
+      "role": "review",
+      "clip": "error",
+      "row": 3,
+      "column": 3,
+      "bounds": [
+        49,
+        24,
+        248,
+        368
+      ],
+      "sha256": "7e95021c53c89f5d001c3151fdc96d6e0f8e5871a5799c3764fe3c370e9cf0aa",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 17
+    },
+    {
+      "role": "review",
+      "clip": "error",
+      "row": 4,
+      "column": 3,
+      "bounds": [
+        49,
+        24,
+        207,
+        368
+      ],
+      "sha256": "e8356ec388a29c69cd6d5bfa6dc4caca34c7c0ad574384e0484dab0c1dc56287",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 18
+    },
+    {
+      "role": "review",
+      "clip": "error",
+      "row": 5,
+      "column": 3,
+      "bounds": [
+        40,
+        24,
+        222,
+        368
+      ],
+      "sha256": "23d88a275aab48c2c01b67b62617c708b1f6e218a27937481e5e6e75418a837e",
+      "source": "review/reactions-registered.png",
+      "sourceIndex": 19
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 0,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "eff35aa43bebc946698f47c2198cdc69785c1333ffd49d8201d7f6ed8953ba04",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 1,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "bdc354cb5a869441bfbd2b4dbb8b909746e5cba911a84ae1040805166540c9da",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 2,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "2da14cbe1db47320e7c975edcff8a9d4a254a54414d3245fed4fe2a29bed5837",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 3,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "f0059e7501151fecc30ed1a01ad37b70c55c5f03efb9f59e80e16b70ca10feca",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 4,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "d0f9a8ca1b048e4fc2fb8442a666f517980993cca85e36cbfd181edfd388d270",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 5,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "294bef75c6f75b11fae60dba610bca06af41c470065954ef26531c752c367f46",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 6,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "ec63aa4ee7af0c3d56051ff91d516dbb482ef468bdac573d1456aa646f122703",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 7,
+      "column": 0,
+      "bounds": [
+        116,
+        88,
+        138,
+        101
+      ],
+      "sha256": "a5f0fdc721651aec3804f099513e3a0ff913ce3a8accb9700ebfc2e0f76d537b",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 8,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        91
+      ],
+      "sha256": "69109fdc9c8b0da77a52a42fcc17f6d10851871adb402ae9ac4c858c96d2cf59",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 9,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        91
+      ],
+      "sha256": "18c9811d5f81db3b06b93b4818dd977a1682c9d5b459a631ae1bc808026e4fe9",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 10,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        91
+      ],
+      "sha256": "fd34767952af98c45092ac7278a3497efc9cbf40e035bcf62389a17de8d42e73",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 11,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        91
+      ],
+      "sha256": "7b2e7393251f6c42800cfb45ac815385c6d3ae66f370a2a6a66f5fbd47210256",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 12,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        91
+      ],
+      "sha256": "c6c77447a624d25e22d33b8044e4c8d78d589fafe2bca77ea863df626b775e64",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 13,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        91
+      ],
+      "sha256": "257cf27f8ffc4b5edf1b2060400422c6e8ca546c80a5411a98e334e5dfc73866",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 14,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        104
+      ],
+      "sha256": "e0ba36326071b67193e4897b54a45ccf60a3b32ae3be7a641839473bb4903a64",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 15,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        104
+      ],
+      "sha256": "c5bc38ac5b481fe06d17fc215803f8f41da156f202f3efcbf5a3b6bd3355e51e",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 16,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        104
+      ],
+      "sha256": "4182ab6b16b28a16629418342967d018fbf8b039ad1ef488e28d1ccc8bf9d83b",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "lead",
+      "clip": "face",
+      "row": 17,
+      "column": 0,
+      "bounds": [
+        98,
+        63,
+        152,
+        104
+      ],
+      "sha256": "a6623292004b5b8dbbf3c96ef2f1da09d2594191e66fff1de5ff3644ca96f49b",
+      "source": "lead/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 0,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "232ed568eee079f8c25f8fef614c19d1f7ba83469ee31fb4cf51a78f56d1e4d5",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 1,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "f365b44a72ee6ec74b6ad899263ad67ced3f6a8dd741dd0b015236c6e07020cf",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 2,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "17184cb0e6cc2f4763d0f481ac19e28233f928a76cb85f7dda206848bd69ba13",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 3,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "18c7510e048316ba6e97151338c9b5774a7c33da248d27014d08bde42f7d37eb",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 4,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "f9649616577081ffc5770981beac2604ae07190c11b71dcd26a10e5390cceeeb",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 5,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "45b7448bbdc6f608f9ac30f9d61c9c59a4fa9eee3ab3b8d54b07b81908524a60",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 6,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "918b608ec58e157d825e1db3e8ebd497b780ee05c9593251eeaf48e29b7b1174",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 7,
+      "column": 1,
+      "bounds": [
+        128,
+        84,
+        146,
+        96
+      ],
+      "sha256": "e6173c8f09ad5a8c59e45ac17da4fa1a9c641922d67f6a3ca09bb8f22c2543fc",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 8,
+      "column": 1,
+      "bounds": [
+        109,
+        64,
+        156,
+        89
+      ],
+      "sha256": "a36fb369cf1e5dea34ad7fe2c75cc0ffd353d6dcb0afa8a61ed5537b95dbf957",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 9,
+      "column": 1,
+      "bounds": [
+        109,
+        64,
+        156,
+        89
+      ],
+      "sha256": "6bf4b3a874bd41891dd6987175c2407d476c893f2c8413739cea956654055ce3",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 10,
+      "column": 1,
+      "bounds": [
+        109,
+        64,
+        156,
+        89
+      ],
+      "sha256": "d3f59220ecfa3ac6240e7bbe386e52d1dcaeb9cda42cd9bc40f00da9b203e86a",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 11,
+      "column": 1,
+      "bounds": [
+        109,
+        64,
+        156,
+        89
+      ],
+      "sha256": "55f51093856277aa3382952cf371352154bc56a175eb6117c0a5ab5ac7410faf",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 12,
+      "column": 1,
+      "bounds": [
+        109,
+        64,
+        156,
+        89
+      ],
+      "sha256": "267589b3c05035a028b2a213d7ec1218fa72be504d72b0849a7872e293de8dcd",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 13,
+      "column": 1,
+      "bounds": [
+        109,
+        64,
+        156,
+        89
+      ],
+      "sha256": "e531e28e091f9039dd700007a204af496a8a4774f7efb351ec9989d7f3b99753",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 14,
+      "column": 1,
+      "bounds": [
+        112,
+        68,
+        156,
+        98
+      ],
+      "sha256": "f04c5fa44a90bd37f00c245632112ec93728b641ecec3267edcc5e47e5939834",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 15,
+      "column": 1,
+      "bounds": [
+        112,
+        68,
+        156,
+        98
+      ],
+      "sha256": "92965b4b0e438b0049302bc14b355a272a9de64fcc9d62ee650f9755ea12b37b",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 16,
+      "column": 1,
+      "bounds": [
+        112,
+        68,
+        156,
+        98
+      ],
+      "sha256": "fed5a0982430584c8d636f3da9335ba009fc59902aca9e283f1cc36c4c9546e0",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "code",
+      "clip": "face",
+      "row": 17,
+      "column": 1,
+      "bounds": [
+        112,
+        68,
+        156,
+        98
+      ],
+      "sha256": "5b3654256656c52ed378d660a6ef91433f6bd818cbc3dabd6a61d1d54325366e",
+      "source": "code/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 0,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "2e76a4135978f94f824d4913b21cc80cc5648427fa1e4a3ac9d33f9b39ce72c7",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 1,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "ba705034ca6a75ae6e080da250f3447ffa77eda71960491def3dbda23af58c43",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 2,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "4ed05e17918c946bcf63b3395f4047e858baa8c924425071fe81fe16c0957328",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 3,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "9515c2643fe51bd5ef9616edff6b6c0cc723b0a7f284e3cf18a375f38c3f2b3b",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 4,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "4696bd1e39f35932c1a8646ac1b91b9b1f2138a6194eff96bb50b4364aa8bf4f",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 5,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "8c845dc44f7fd7ad8fa699ca6d4cb9bb89cdeea02cad14df982bec4c03a8555a",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 6,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "c50be6660ea16473c39115feff889cf277e2f06d6a79d8e67c2d03aa12e4ca15",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 7,
+      "column": 2,
+      "bounds": [
+        122,
+        90,
+        144,
+        103
+      ],
+      "sha256": "d76f5b35c1ce5e1a8b3665e052c3ed768d53ac67f106decd4d698188a15585dd",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 8,
+      "column": 2,
+      "bounds": [
+        112,
+        68,
+        152,
+        91
+      ],
+      "sha256": "22876577f6304e1429c14c3e4ec4d8477113ae7a3781c43863e610b6dced712c",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 9,
+      "column": 2,
+      "bounds": [
+        112,
+        68,
+        152,
+        91
+      ],
+      "sha256": "946a0b826749e72c4e21c1edf603509527998c62bf0df7f9bc45241139b3e447",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 10,
+      "column": 2,
+      "bounds": [
+        112,
+        68,
+        152,
+        91
+      ],
+      "sha256": "27cd868ed6cedda16b8055bfecc67eb863594831c8edbe3bb50c5eb07ad16db9",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 11,
+      "column": 2,
+      "bounds": [
+        112,
+        68,
+        152,
+        91
+      ],
+      "sha256": "eccdf9c0837c87fbb9f9da07a062d3901b0207fdc7af04ea0fce81063bc46a9c",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 12,
+      "column": 2,
+      "bounds": [
+        112,
+        68,
+        152,
+        91
+      ],
+      "sha256": "304b0a4708c743529f2243079c1836a2a1d17cc0c9ee9bc7685ecd3acc353ede",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 13,
+      "column": 2,
+      "bounds": [
+        112,
+        68,
+        152,
+        91
+      ],
+      "sha256": "cf57bff7f176e41ab6aa7e3d18576425788df422f056db35f31d381ea9e27f82",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 14,
+      "column": 2,
+      "bounds": [
+        111,
+        71,
+        153,
+        105
+      ],
+      "sha256": "869c6c531602dfce0f6fdb1eca57e9e2895135cd10f20f1b89c3fc90c5855f6e",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 15,
+      "column": 2,
+      "bounds": [
+        111,
+        71,
+        153,
+        105
+      ],
+      "sha256": "2656d29bf6cd1812e776fd2df4ed66786ab3d06aedb4d99798dbdff0cc253376",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 16,
+      "column": 2,
+      "bounds": [
+        111,
+        71,
+        153,
+        105
+      ],
+      "sha256": "b12194eee0d79f0f1d6939fc820891265d76e32b38821936d64effc34cca2183",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "research",
+      "clip": "face",
+      "row": 17,
+      "column": 2,
+      "bounds": [
+        111,
+        71,
+        153,
+        105
+      ],
+      "sha256": "5ca7680fa7b9d794b80a8a22ffcd84ca25b8a78fbeec7ca59689fa62f7fb72fa",
+      "source": "research/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 0,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "20fd9f1bd7ecf4d53bdb7a8c8106f6ae04693a5beafdf6696ead7bbf7f154bc3",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 1,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "f1fd3d68145fa327d0da85e379fd6ef533f89b26e6b624413d195c4ced72435a",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 2,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "9d21f3ad2bfd4355d2ee7fca128ab162119a0419ffb27bba254b94307a4898f5",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 3,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "e88ceb320163c073035767c78d6c41408a51f31cd348150583837d72dcf7f4c5",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 4,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "692d2c160c4ea53094716081d1aff99a41143e1552ac05ff061e2de90c378ef0",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 5,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "2441450c46cac94aece7a5af1f663dc845f6d23061f259def1cb93d3a3280d46",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 6,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "68ae47d6478bf70e3d71a29c45ff6ee1d4039b9cbae21886df72db07b27a8206",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 7,
+      "column": 3,
+      "bounds": [
+        113,
+        88,
+        135,
+        101
+      ],
+      "sha256": "372bd2bcb84350bad190ba9ee80015051e55d0d9fd0de5330c114139c855927d",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 8,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        148,
+        91
+      ],
+      "sha256": "f03568cdf7a95767b0bb03f824647efdf8be8291ef005c4dadb13a0b2babbd5f",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 9,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        148,
+        91
+      ],
+      "sha256": "c07580ab3e8a58b4ca4e661c09e4364fa2a718f72a3f5e53426fea16c5813b39",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 10,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        148,
+        91
+      ],
+      "sha256": "d71b10d7451976b0b518284cd8040f4ffb8711c48a7977cfa3fd3baa15ccc6b2",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 11,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        148,
+        91
+      ],
+      "sha256": "6afae0d417101b5b57ab7228df0edae6e4b708526322323ac70a4b8ffd296e43",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 12,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        148,
+        91
+      ],
+      "sha256": "f576fe071d2b49d286e4a341235c3efed71eababde298a436c6a5df48256177d",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 13,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        148,
+        91
+      ],
+      "sha256": "c879563b354acd9c9fd9c864361f19b35bacab09323a8d4b322d2de1470c1849",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 14,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        149,
+        104
+      ],
+      "sha256": "5a4bea6d699e00e69b80b4dd162e13990873f06a0536608a24718131d1f3d80d",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 15,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        149,
+        104
+      ],
+      "sha256": "e375421d1674c1a35874432353ccc8a6875d0085de89064a4ad9d901621fc7cb",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 16,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        149,
+        104
+      ],
+      "sha256": "392f94953e222eebac77cb6bfd1de0a11179f2cbe3fb4ad7054d3e13b53a4da9",
+      "source": "review/face-registered.png"
+    },
+    {
+      "role": "review",
+      "clip": "face",
+      "row": 17,
+      "column": 3,
+      "bounds": [
+        101,
+        62,
+        149,
+        104
+      ],
+      "sha256": "6fa24b55029ba9fa9a1fe460ca21ef7c746eee43f1f0710b9adaf4dec9f8107d",
+      "source": "review/face-registered.png"
+    }
+  ]
+}

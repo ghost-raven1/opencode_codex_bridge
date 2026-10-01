@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw
+from sprite_matte import clean_matte
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "packages/companions/assets"
@@ -154,9 +155,13 @@ def main() -> None:
                 a[:20, :] = 0
                 a[FOOT + 1:, :] = 0
                 part.putalpha(Image.fromarray(a))
-            clean_alpha = remove_speckles(np.asarray(parts["team"].getchannel("A")))
+            cleaned = clean_matte(parts["team"], column)
+            clean_alpha = remove_speckles(np.asarray(cleaned.getchannel("A")))
             for part in parts.values():
-                part.putalpha(Image.fromarray(np.minimum(np.asarray(part.getchannel("A")), clean_alpha)))
+                pixels = np.asarray(part).copy()
+                pixels[:, :, :3] = np.asarray(cleaned)[:, :, :3]
+                pixels[:, :, 3] = np.minimum(pixels[:, :, 3], clean_alpha)
+                part.paste(Image.fromarray(pixels))
             reconstructed = Image.alpha_composite(parts["body"], parts["head"])
             assert np.array_equal(np.asarray(reconstructed), np.asarray(parts["team"])), (role, state)
             for name, part in parts.items():

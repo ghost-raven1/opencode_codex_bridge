@@ -1,6 +1,6 @@
 {
   "name": "codexbridge-distribution",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -30,7 +30,9 @@
     "connect:codex": "node scripts/connect-codex.mjs",
     "smoke:provider": "node scripts/smoke-opencode.mjs --inference",
     "bundle:all": "node scripts/configure.mjs companions && node scripts/configure.mjs jarvis && node scripts/configure.mjs quiet",
-    "setup:snip": "node scripts/install-snip.mjs"
+    "setup:snip": "node scripts/install-snip.mjs",
+    "smoke:companions": "node scripts/smoke-companions.mjs",
+    "test:native": "node scripts/test-native.mjs"
   },
   "devDependencies": {
     "@types/node": "22.18.6",

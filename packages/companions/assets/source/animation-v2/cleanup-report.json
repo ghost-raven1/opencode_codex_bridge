@@ -1,0 +1,61 @@
+{
+  "removedPixels": 1179,
+  "restoredPixels": 1585,
+  "frames": 80,
+  "geometry": "fixed registration bounds from pre-cleanup extraction",
+  "byRoleClip": {
+    "ambient/lead": {
+      "removed": 361,
+      "restored": 0
+    },
+    "ambient/code": {
+      "removed": 0,
+      "restored": 607
+    },
+    "ambient/research": {
+      "removed": 0,
+      "restored": 0
+    },
+    "ambient/review": {
+      "removed": 0,
+      "restored": 0
+    },
+    "entrance/lead": {
+      "removed": 478,
+      "restored": 0
+    },
+    "entrance/code": {
+      "removed": 0,
+      "restored": 644
+    },
+    "entrance/research": {
+      "removed": 0,
+      "restored": 0
+    },
+    "entrance/review": {
+      "removed": 41,
+      "restored": 0
+    },
+    "transform/lead": {
+      "removed": 299,
+      "restored": 0
+    },
+    "transform/code": {
+      "removed": 0,
+      "restored": 334
+    },
+    "transform/research": {
+      "removed": 0,
+      "restored": 0
+    },
+    "transform/review": {
+      "removed": 0,
+      "restored": 0
+    }
+  },
+  "files": {
+    "ambient-v2.png": "33447758c5e41e25f148692cbe0c672ee895878fd54b83ed5a1351fa950c7247",
+    "entrance-v2.png": "18407e0271b8ce2edc6c6a39a7d84fe29a3a15cb6612a4256bb4dfaa1683a867",
+    "transform-v2.png": "cfb2c18bb7ba782000f41e53966c35cd550e6ff5559db2fecc6ff20a5c64d66c"
+  }
+}

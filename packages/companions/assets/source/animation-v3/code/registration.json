@@ -1,0 +1,1731 @@
+{
+  "version": 3,
+  "role": "code",
+  "cell": {
+    "width": 256,
+    "height": 384
+  },
+  "feetBaseline": 368,
+  "bodyGrid": [
+    4,
+    5
+  ],
+  "faceGrid": [
+    1,
+    18
+  ],
+  "newBodyDrawings": 40,
+  "newFaceDrawings": 18,
+  "source": "builtin ImageGen",
+  "body": {
+    "activity": [
+      {
+        "index": 0,
+        "state": "working",
+        "sourceBox": [
+          0,
+          0,
+          256,
+          309
+        ],
+        "sourceBounds": [
+          49,
+          16,
+          252,
+          309
+        ],
+        "sourceCenter": 155.5,
+        "bounds": [
+          8,
+          24,
+          237,
+          368
+        ],
+        "sha256": "59e8cc3024e6669629587d51fe32b2514ded12e169b9615fe00eb5434155fc48"
+      },
+      {
+        "index": 1,
+        "state": "working",
+        "sourceBox": [
+          256,
+          0,
+          512,
+          309
+        ],
+        "sourceBounds": [
+          43,
+          16,
+          236,
+          309
+        ],
+        "sourceCenter": 142.0,
+        "bounds": [
+          12,
+          24,
+          238,
+          368
+        ],
+        "sha256": "f3800aac45f15eec8753b1c59ab21d3d2a1ed988183ebd3499959c7b2a743efb"
+      },
+      {
+        "index": 2,
+        "state": "working",
+        "sourceBox": [
+          512,
+          0,
+          768,
+          309
+        ],
+        "sourceBounds": [
+          26,
+          15,
+          227,
+          309
+        ],
+        "sourceCenter": 129.0,
+        "bounds": [
+          8,
+          24,
+          242,
+          368
+        ],
+        "sha256": "3e061188f1872423377dd0c7be6aaba32a4352e9d836436ab29aee0678e9d425"
+      },
+      {
+        "index": 3,
+        "state": "working",
+        "sourceBox": [
+          768,
+          0,
+          1024,
+          309
+        ],
+        "sourceBounds": [
+          18,
+          15,
+          219,
+          309
+        ],
+        "sourceCenter": 116.5,
+        "bounds": [
+          13,
+          24,
+          248,
+          368
+        ],
+        "sha256": "1b533fb2a2ccdef4cfa7d560e45366a872d3c77a48e7a090518aacd508c0617a"
+      },
+      {
+        "index": 4,
+        "state": "working",
+        "sourceBox": [
+          0,
+          309,
+          256,
+          613
+        ],
+        "sourceBounds": [
+          30,
+          5,
+          249,
+          301
+        ],
+        "sourceCenter": 154.0,
+        "bounds": [
+          8,
+          24,
+          220,
+          368
+        ],
+        "sha256": "9a3a72ef0bd9311446ac79bba4dd23256bb7e9fc322b6d8761682e26792fc52b"
+      },
+      {
+        "index": 5,
+        "state": "working",
+        "sourceBox": [
+          256,
+          309,
+          512,
+          613
+        ],
+        "sourceBounds": [
+          39,
+          6,
+          237,
+          301
+        ],
+        "sourceCenter": 142.0,
+        "bounds": [
+          8,
+          24,
+          239,
+          368
+        ],
+        "sha256": "39729ecb27e625d3771c6c6c229fd1fadf360fb4771b679f0f980357aa4edd30"
+      },
+      {
+        "index": 6,
+        "state": "working",
+        "sourceBox": [
+          512,
+          309,
+          768,
+          613
+        ],
+        "sourceBounds": [
+          22,
+          5,
+          228,
+          301
+        ],
+        "sourceCenter": 128.0,
+        "bounds": [
+          8,
+          24,
+          241,
+          368
+        ],
+        "sha256": "31c2772960961a8e46f7c9d71a00e691ed67e7a0b1bd4c61a93c0916f7e8c40c"
+      },
+      {
+        "index": 7,
+        "state": "working",
+        "sourceBox": [
+          768,
+          309,
+          1024,
+          613
+        ],
+        "sourceBounds": [
+          19,
+          5,
+          226,
+          302
+        ],
+        "sourceCenter": 118.0,
+        "bounds": [
+          18,
+          24,
+          248,
+          368
+        ],
+        "sha256": "af118fdab85cc93690ac876460c7390982c34b8f8bc9d009f0dfd3c7ed816bd8"
+      },
+      {
+        "index": 8,
+        "state": "working",
+        "sourceBox": [
+          0,
+          613,
+          256,
+          917
+        ],
+        "sourceBounds": [
+          47,
+          2,
+          252,
+          300
+        ],
+        "sourceCenter": 154.0,
+        "bounds": [
+          8,
+          24,
+          238,
+          368
+        ],
+        "sha256": "af4c1451fb6345ab8cf1d150d8e497ea548cfc379a76b22da146460aade784d5"
+      },
+      {
+        "index": 9,
+        "state": "working",
+        "sourceBox": [
+          256,
+          613,
+          512,
+          917
+        ],
+        "sourceBounds": [
+          40,
+          2,
+          238,
+          300
+        ],
+        "sourceCenter": 140.0,
+        "bounds": [
+          13,
+          24,
+          241,
+          368
+        ],
+        "sha256": "e3213478e0141dba82840c0987be19ac8cc3385d0bd614536145caf733fe9d56"
+      },
+      {
+        "index": 10,
+        "state": "thinking",
+        "sourceBox": [
+          512,
+          613,
+          768,
+          917
+        ],
+        "sourceBounds": [
+          24,
+          3,
+          226,
+          300
+        ],
+        "sourceCenter": 131.5,
+        "bounds": [
+          8,
+          24,
+          233,
+          368
+        ],
+        "sha256": "429f4df781cd255f99019e398af9b5664f30ab3c139f41f22d16929ecf22c16c"
+      },
+      {
+        "index": 11,
+        "state": "thinking",
+        "sourceBox": [
+          768,
+          613,
+          1024,
+          917
+        ],
+        "sourceBounds": [
+          18,
+          4,
+          214,
+          301
+        ],
+        "sourceCenter": 123.5,
+        "bounds": [
+          8,
+          24,
+          231,
+          368
+        ],
+        "sha256": "db3f7f1665eb0427caaee66e9893a9382bfb07ad6db1824a67dad13aa27a3c28"
+      },
+      {
+        "index": 12,
+        "state": "thinking",
+        "sourceBox": [
+          0,
+          917,
+          256,
+          1217
+        ],
+        "sourceBounds": [
+          45,
+          3,
+          243,
+          299
+        ],
+        "sourceCenter": 155.5,
+        "bounds": [
+          8,
+          24,
+          223,
+          368
+        ],
+        "sha256": "b30afa9abe35a2b1333cc285cb126233d5b1b61f1f9f4bac3bac117a756bf572"
+      },
+      {
+        "index": 13,
+        "state": "thinking",
+        "sourceBox": [
+          256,
+          917,
+          512,
+          1217
+        ],
+        "sourceBounds": [
+          40,
+          3,
+          246,
+          299
+        ],
+        "sourceCenter": 154.0,
+        "bounds": [
+          8,
+          24,
+          225,
+          368
+        ],
+        "sha256": "2bae34c59d2b079f887a8bf5f657ffc51869f2163c1ff2c99b4236ca9f62dbb9"
+      },
+      {
+        "index": 14,
+        "state": "thinking",
+        "sourceBox": [
+          512,
+          917,
+          768,
+          1217
+        ],
+        "sourceBounds": [
+          33,
+          5,
+          224,
+          300
+        ],
+        "sourceCenter": 139.5,
+        "bounds": [
+          8,
+          24,
+          223,
+          368
+        ],
+        "sha256": "4e952f45fdab9a91ea58443d019413f9e04bbd3879c8acc84d106d7d61da5f5e"
+      },
+      {
+        "index": 15,
+        "state": "thinking",
+        "sourceBox": [
+          768,
+          917,
+          1024,
+          1217
+        ],
+        "sourceBounds": [
+          17,
+          2,
+          212,
+          300
+        ],
+        "sourceCenter": 124.0,
+        "bounds": [
+          8,
+          24,
+          227,
+          368
+        ],
+        "sha256": "353fd9fbc1dc82658e84fbedfeae7783fd375e2927270f3744213325b3c55f86"
+      },
+      {
+        "index": 16,
+        "state": "thinking",
+        "sourceBox": [
+          0,
+          1217,
+          256,
+          1536
+        ],
+        "sourceBounds": [
+          44,
+          3,
+          247,
+          303
+        ],
+        "sourceCenter": 154.5,
+        "bounds": [
+          8,
+          24,
+          228,
+          368
+        ],
+        "sha256": "1a44f2356ea0fbf7c639de83ba1e8f1ada8d70faa6868768fe5485a2db1d9f90"
+      },
+      {
+        "index": 17,
+        "state": "thinking",
+        "sourceBox": [
+          256,
+          1217,
+          512,
+          1536
+        ],
+        "sourceBounds": [
+          37,
+          4,
+          239,
+          304
+        ],
+        "sourceCenter": 149.5,
+        "bounds": [
+          8,
+          24,
+          223,
+          368
+        ],
+        "sha256": "157cbe107acbe20e0183bc42dad935247b282435b04e69f79e1825213a186ab6"
+      },
+      {
+        "index": 18,
+        "state": "thinking",
+        "sourceBox": [
+          512,
+          1217,
+          768,
+          1536
+        ],
+        "sourceBounds": [
+          26,
+          6,
+          226,
+          303
+        ],
+        "sourceCenter": 131.0,
+        "bounds": [
+          8,
+          24,
+          237,
+          368
+        ],
+        "sha256": "34cfc4e80f5df12dae0c4aeed94bd2e8a3d1410507cf31bd2fbcdda98dba766d"
+      },
+      {
+        "index": 19,
+        "state": "thinking",
+        "sourceBox": [
+          768,
+          1217,
+          1024,
+          1536
+        ],
+        "sourceBounds": [
+          12,
+          6,
+          212,
+          303
+        ],
+        "sourceCenter": 121.5,
+        "bounds": [
+          8,
+          24,
+          227,
+          368
+        ],
+        "sha256": "fd283f40bc2cb6f9f8efac52c2bc16430d429ed0680c221032031e3dce49a7ad"
+      }
+    ],
+    "reactions": [
+      {
+        "index": 0,
+        "state": "success",
+        "sourceBox": [
+          0,
+          0,
+          256,
+          309
+        ],
+        "sourceBounds": [
+          58,
+          12,
+          222,
+          307
+        ],
+        "sourceCenter": 140.5,
+        "bounds": [
+          32,
+          24,
+          223,
+          368
+        ],
+        "sha256": "c46017e2ee04a0de162267e36edecd17cb6d8d7fd0f89ce1ee6d1794b831be9e"
+      },
+      {
+        "index": 1,
+        "state": "success",
+        "sourceBox": [
+          256,
+          0,
+          512,
+          309
+        ],
+        "sourceBounds": [
+          41,
+          12,
+          219,
+          307
+        ],
+        "sourceCenter": 125.0,
+        "bounds": [
+          30,
+          24,
+          238,
+          368
+        ],
+        "sha256": "6ee68e0bd46e887848eade93150039466d638372499f3cf3ce53e0560248fdf2"
+      },
+      {
+        "index": 2,
+        "state": "success",
+        "sourceBox": [
+          512,
+          0,
+          768,
+          309
+        ],
+        "sourceBounds": [
+          42,
+          12,
+          208,
+          307
+        ],
+        "sourceCenter": 124.0,
+        "bounds": [
+          32,
+          24,
+          226,
+          368
+        ],
+        "sha256": "bfefc53b4eeec789977d04fcaf43857f9cfcd4c1e428300725d269ebafb60558"
+      },
+      {
+        "index": 3,
+        "state": "success",
+        "sourceBox": [
+          768,
+          0,
+          1024,
+          309
+        ],
+        "sourceBounds": [
+          41,
+          12,
+          206,
+          307
+        ],
+        "sourceCenter": 125.5,
+        "bounds": [
+          29,
+          24,
+          222,
+          368
+        ],
+        "sha256": "f39ada7129e34db7cd51b9f26431b2f5c0af8b65ae9c9ab2a26abb5e61b9af90"
+      },
+      {
+        "index": 4,
+        "state": "success",
+        "sourceBox": [
+          0,
+          309,
+          256,
+          617
+        ],
+        "sourceBounds": [
+          49,
+          4,
+          224,
+          306
+        ],
+        "sourceCenter": 140.0,
+        "bounds": [
+          24,
+          24,
+          224,
+          368
+        ],
+        "sha256": "f38dc07d73404795bfd0659595237465d93d1babe8fffefd8244eba3b98686f7"
+      },
+      {
+        "index": 5,
+        "state": "success",
+        "sourceBox": [
+          256,
+          309,
+          512,
+          617
+        ],
+        "sourceBounds": [
+          38,
+          4,
+          218,
+          306
+        ],
+        "sourceCenter": 122.0,
+        "bounds": [
+          32,
+          24,
+          237,
+          368
+        ],
+        "sha256": "44558734b4359903b43f219525a1f1c4cd194cd9e0aaaa105cfb17bbcbe949d3"
+      },
+      {
+        "index": 6,
+        "state": "success",
+        "sourceBox": [
+          512,
+          309,
+          768,
+          617
+        ],
+        "sourceBounds": [
+          39,
+          4,
+          209,
+          306
+        ],
+        "sourceCenter": 125.0,
+        "bounds": [
+          30,
+          24,
+          224,
+          368
+        ],
+        "sha256": "795ce1da2719d2cf55e3a78e32b9367983dc18cf0bf0426bdbdd8197770c1057"
+      },
+      {
+        "index": 7,
+        "state": "success",
+        "sourceBox": [
+          768,
+          309,
+          1024,
+          617
+        ],
+        "sourceBounds": [
+          35,
+          8,
+          209,
+          306
+        ],
+        "sourceCenter": 124.0,
+        "bounds": [
+          25,
+          24,
+          226,
+          368
+        ],
+        "sha256": "f8a97731eb41a2f6c48e0a17be96f9785e772f5ce18879d36d563f0635678007"
+      },
+      {
+        "index": 8,
+        "state": "waiting",
+        "sourceBox": [
+          0,
+          617,
+          256,
+          926
+        ],
+        "sourceBounds": [
+          47,
+          5,
+          219,
+          305
+        ],
+        "sourceCenter": 137.0,
+        "bounds": [
+          25,
+          24,
+          222,
+          368
+        ],
+        "sha256": "fe84c4ce36b55e44d758175b841951f0ddd66418e1753a1067a3e8ce4c50f4ee"
+      },
+      {
+        "index": 9,
+        "state": "waiting",
+        "sourceBox": [
+          256,
+          617,
+          512,
+          926
+        ],
+        "sourceBounds": [
+          41,
+          5,
+          216,
+          305
+        ],
+        "sourceCenter": 120.5,
+        "bounds": [
+          37,
+          24,
+          238,
+          368
+        ],
+        "sha256": "0f41ef2ba25fd50e1f0e7cecb7163d342572f95206c73039af4eea8e43ed8ba9"
+      },
+      {
+        "index": 10,
+        "state": "waiting",
+        "sourceBox": [
+          512,
+          617,
+          768,
+          926
+        ],
+        "sourceBounds": [
+          43,
+          3,
+          211,
+          305
+        ],
+        "sourceCenter": 127.0,
+        "bounds": [
+          32,
+          24,
+          224,
+          368
+        ],
+        "sha256": "7188e99c264db7f57d538e7e05a3c10a83dd46c87dd7796e959434d239423ba0"
+      },
+      {
+        "index": 11,
+        "state": "waiting",
+        "sourceBox": [
+          768,
+          617,
+          1024,
+          926
+        ],
+        "sourceBounds": [
+          42,
+          7,
+          206,
+          305
+        ],
+        "sourceCenter": 123.5,
+        "bounds": [
+          34,
+          24,
+          223,
+          368
+        ],
+        "sha256": "970c6966214cc7d5a7d2e687f40a50d394d1d3e35468162572c55cc520b5ea1f"
+      },
+      {
+        "index": 12,
+        "state": "waiting",
+        "sourceBox": [
+          0,
+          926,
+          256,
+          1231
+        ],
+        "sourceBounds": [
+          52,
+          7,
+          216,
+          303
+        ],
+        "sourceCenter": 136.5,
+        "bounds": [
+          30,
+          24,
+          220,
+          368
+        ],
+        "sha256": "d576c28ec69fdeb6c1a233301f46c5b60bc94deb813cfd9a625f86af4de6048f"
+      },
+      {
+        "index": 13,
+        "state": "waiting",
+        "sourceBox": [
+          256,
+          926,
+          512,
+          1231
+        ],
+        "sourceBounds": [
+          39,
+          6,
+          211,
+          303
+        ],
+        "sourceCenter": 128.5,
+        "bounds": [
+          24,
+          24,
+          224,
+          368
+        ],
+        "sha256": "6b0bcfbd303dbeb64307b488f6abb2c9c963041ef2c1cab46cc05e5cd567d167"
+      },
+      {
+        "index": 14,
+        "state": "error",
+        "sourceBox": [
+          512,
+          926,
+          768,
+          1231
+        ],
+        "sourceBounds": [
+          31,
+          4,
+          228,
+          302
+        ],
+        "sourceCenter": 126.5,
+        "bounds": [
+          18,
+          24,
+          245,
+          368
+        ],
+        "sha256": "36c97e7f21e988a8011abef52150519ac9dbce988b3a59528eb15b1779dcd4e6"
+      },
+      {
+        "index": 15,
+        "state": "error",
+        "sourceBox": [
+          768,
+          926,
+          1024,
+          1231
+        ],
+        "sourceBounds": [
+          36,
+          5,
+          204,
+          303
+        ],
+        "sourceCenter": 122.5,
+        "bounds": [
+          28,
+          24,
+          222,
+          368
+        ],
+        "sha256": "2604570eb2dc0ac5d0ceb2ec9457610c0043569e399c75b9103f4ddce744e64a"
+      },
+      {
+        "index": 16,
+        "state": "error",
+        "sourceBox": [
+          0,
+          1231,
+          256,
+          1536
+        ],
+        "sourceBounds": [
+          45,
+          6,
+          218,
+          300
+        ],
+        "sourceCenter": 137.0,
+        "bounds": [
+          20,
+          24,
+          223,
+          368
+        ],
+        "sha256": "87fcbfe93d74fb8569c233305e4eab7c3f371b7565f082f61b5f99d8a47d6cb8"
+      },
+      {
+        "index": 17,
+        "state": "error",
+        "sourceBox": [
+          256,
+          1231,
+          512,
+          1536
+        ],
+        "sourceBounds": [
+          35,
+          4,
+          238,
+          300
+        ],
+        "sourceCenter": 126.5,
+        "bounds": [
+          30,
+          24,
+          248,
+          368
+        ],
+        "sha256": "da28e1fb2bc22c143584e1de7aa631e9e493662d2a1927564cbe6f6edbff6e5b"
+      },
+      {
+        "index": 18,
+        "state": "error",
+        "sourceBox": [
+          512,
+          1231,
+          768,
+          1536
+        ],
+        "sourceBounds": [
+          42,
+          7,
+          217,
+          299
+        ],
+        "sourceCenter": 127.0,
+        "bounds": [
+          28,
+          24,
+          234,
+          368
+        ],
+        "sha256": "185053d2c3ed182b2c98eb11201199e1e471d6512220c6dd9a165b2e11dc36c7"
+      },
+      {
+        "index": 19,
+        "state": "error",
+        "sourceBox": [
+          768,
+          1231,
+          1024,
+          1536
+        ],
+        "sourceBounds": [
+          43,
+          7,
+          213,
+          299
+        ],
+        "sourceCenter": 120.5,
+        "bounds": [
+          37,
+          24,
+          237,
+          368
+        ],
+        "sha256": "855844b0ed6f22d6f62dbf21e2246bf9b8e05a137ba62e083ea9f204eae3d826"
+      }
+    ]
+  },
+  "faces": {
+    "sourceLandmarks": [
+      [
+        195,
+        123
+      ],
+      [
+        248,
+        133
+      ],
+      [
+        222,
+        160
+      ]
+    ],
+    "targetLandmarks": [
+      [
+        122,
+        75
+      ],
+      [
+        147,
+        80
+      ],
+      [
+        136,
+        89
+      ]
+    ],
+    "sourceFromTargetAffine": [
+      [
+        2.1678571428571414,
+        -0.23928571428571394,
+        -51.53214285714266
+      ],
+      [
+        -0.1607142857142857,
+        2.80357142857143,
+        -67.66071428571442
+      ]
+    ],
+    "frames": [
+      {
+        "index": 0,
+        "name": "close",
+        "sourceBox": [
+          0,
+          0,
+          341,
+          260
+        ],
+        "sourceBounds": [
+          15,
+          0,
+          332,
+          257
+        ],
+        "normalize": [
+          1.0,
+          0,
+          0.0,
+          0,
+          1.0,
+          0.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -2.0,
+          -13.0,
+          -16.0
+        ],
+        "sha256": "232ed568eee079f8c25f8fef614c19d1f7ba83469ee31fb4cf51a78f56d1e4d5"
+      },
+      {
+        "index": 1,
+        "name": "slightly-open",
+        "sourceBox": [
+          341,
+          0,
+          683,
+          260
+        ],
+        "sourceBounds": [
+          11,
+          0,
+          327,
+          257
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -3.9526813880126177,
+          0,
+          1.0,
+          0.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -11.0,
+          -12.0
+        ],
+        "sha256": "f365b44a72ee6ec74b6ad899263ad67ced3f6a8dd741dd0b015236c6e07020cf"
+      },
+      {
+        "index": 2,
+        "name": "A",
+        "sourceBox": [
+          683,
+          0,
+          1024,
+          260
+        ],
+        "sourceBounds": [
+          8,
+          9,
+          324,
+          257
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -6.952681388012618,
+          0,
+          0.9649805447470817,
+          9.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -10.0,
+          -13.0
+        ],
+        "sha256": "17184cb0e6cc2f4763d0f481ac19e28233f928a76cb85f7dda206848bd69ba13"
+      },
+      {
+        "index": 3,
+        "name": "O",
+        "sourceBox": [
+          0,
+          260,
+          341,
+          516
+        ],
+        "sourceBounds": [
+          12,
+          3,
+          332,
+          253
+        ],
+        "normalize": [
+          1.0094637223974763,
+          0,
+          -3.1419558359621433,
+          0,
+          0.9727626459143969,
+          3.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -11.0,
+          -14.0
+        ],
+        "sha256": "18c7510e048316ba6e97151338c9b5774a7c33da248d27014d08bde42f7d37eb"
+      },
+      {
+        "index": 4,
+        "name": "E",
+        "sourceBox": [
+          341,
+          260,
+          683,
+          516
+        ],
+        "sourceBounds": [
+          11,
+          3,
+          326,
+          253
+        ],
+        "normalize": [
+          0.9936908517350158,
+          0,
+          -3.905362776025237,
+          0,
+          0.9727626459143969,
+          3.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -5.0,
+          -7.0
+        ],
+        "sha256": "f9649616577081ffc5770981beac2604ae07190c11b71dcd26a10e5390cceeeb"
+      },
+      {
+        "index": 5,
+        "name": "I",
+        "sourceBox": [
+          683,
+          260,
+          1024,
+          516
+        ],
+        "sourceBounds": [
+          8,
+          4,
+          324,
+          253
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -6.952681388012618,
+          0,
+          0.9688715953307393,
+          4.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -10.0,
+          -12.0
+        ],
+        "sha256": "45b7448bbdc6f608f9ac30f9d61c9c59a4fa9eee3ab3b8d54b07b81908524a60"
+      },
+      {
+        "index": 6,
+        "name": "U",
+        "sourceBox": [
+          0,
+          516,
+          341,
+          772
+        ],
+        "sourceBounds": [
+          15,
+          3,
+          329,
+          253
+        ],
+        "normalize": [
+          0.9905362776025236,
+          0,
+          0.14195583596214512,
+          0,
+          0.9727626459143969,
+          3.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -11.0,
+          -14.0
+        ],
+        "sha256": "918b608ec58e157d825e1db3e8ebd497b780ee05c9593251eeaf48e29b7b1174"
+      },
+      {
+        "index": 7,
+        "name": "smile-speaking",
+        "sourceBox": [
+          341,
+          516,
+          683,
+          772
+        ],
+        "sourceBounds": [
+          11,
+          4,
+          328,
+          254
+        ],
+        "normalize": [
+          1.0,
+          0,
+          -4.0,
+          0,
+          0.9727626459143969,
+          4.0
+        ],
+        "maskBounds": [
+          128,
+          84,
+          146,
+          96
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -6.0,
+          -9.0
+        ],
+        "sha256": "e6173c8f09ad5a8c59e45ac17da4fa1a9c641922d67f6a3ca09bb8f22c2543fc"
+      },
+      {
+        "index": 8,
+        "name": "open",
+        "sourceBox": [
+          683,
+          516,
+          1024,
+          772
+        ],
+        "sourceBounds": [
+          8,
+          4,
+          325,
+          254
+        ],
+        "normalize": [
+          1.0,
+          0,
+          -7.0,
+          0,
+          0.9727626459143969,
+          4.0
+        ],
+        "maskBounds": [
+          109,
+          64,
+          156,
+          89
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -12.0,
+          -16.0
+        ],
+        "sha256": "a36fb369cf1e5dea34ad7fe2c75cc0ffd353d6dcb0afa8a61ed5537b95dbf957"
+      },
+      {
+        "index": 9,
+        "name": "quarter",
+        "sourceBox": [
+          0,
+          772,
+          341,
+          1027
+        ],
+        "sourceBounds": [
+          15,
+          4,
+          331,
+          253
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          0.0473186119873823,
+          0,
+          0.9688715953307393,
+          4.0
+        ],
+        "maskBounds": [
+          109,
+          64,
+          156,
+          89
+        ],
+        "skinAdjustment": [
+          -2.0,
+          -12.0,
+          -15.0
+        ],
+        "sha256": "6bf4b3a874bd41891dd6987175c2407d476c893f2c8413739cea956654055ce3"
+      },
+      {
+        "index": 10,
+        "name": "half",
+        "sourceBox": [
+          341,
+          772,
+          683,
+          1027
+        ],
+        "sourceBounds": [
+          11,
+          3,
+          327,
+          253
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -3.9526813880126177,
+          0,
+          0.9727626459143969,
+          3.0
+        ],
+        "maskBounds": [
+          109,
+          64,
+          156,
+          89
+        ],
+        "skinAdjustment": [
+          -2.0,
+          -12.0,
+          -14.0
+        ],
+        "sha256": "d3f59220ecfa3ac6240e7bbe386e52d1dcaeb9cda42cd9bc40f00da9b203e86a"
+      },
+      {
+        "index": 11,
+        "name": "three-quarter",
+        "sourceBox": [
+          683,
+          772,
+          1024,
+          1027
+        ],
+        "sourceBounds": [
+          8,
+          4,
+          324,
+          253
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -6.952681388012618,
+          0,
+          0.9688715953307393,
+          4.0
+        ],
+        "maskBounds": [
+          109,
+          64,
+          156,
+          89
+        ],
+        "skinAdjustment": [
+          -1.5,
+          -10.5,
+          -13.0
+        ],
+        "sha256": "55f51093856277aa3382952cf371352154bc56a175eb6117c0a5ab5ac7410faf"
+      },
+      {
+        "index": 12,
+        "name": "closed",
+        "sourceBox": [
+          0,
+          1027,
+          341,
+          1284
+        ],
+        "sourceBounds": [
+          15,
+          5,
+          330,
+          254
+        ],
+        "normalize": [
+          0.9936908517350158,
+          0,
+          0.09463722397476282,
+          0,
+          0.9688715953307393,
+          5.0
+        ],
+        "maskBounds": [
+          109,
+          64,
+          156,
+          89
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -8.0,
+          -10.0
+        ],
+        "sha256": "267589b3c05035a028b2a213d7ec1218fa72be504d72b0849a7872e293de8dcd"
+      },
+      {
+        "index": 13,
+        "name": "reopen",
+        "sourceBox": [
+          341,
+          1027,
+          683,
+          1284
+        ],
+        "sourceBounds": [
+          11,
+          3,
+          327,
+          254
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -3.9526813880126177,
+          0,
+          0.9766536964980544,
+          3.0
+        ],
+        "maskBounds": [
+          109,
+          64,
+          156,
+          89
+        ],
+        "skinAdjustment": [
+          -2.0,
+          -12.0,
+          -15.0
+        ],
+        "sha256": "e531e28e091f9039dd700007a204af496a8a4774f7efb351ec9989d7f3b99753"
+      },
+      {
+        "index": 14,
+        "name": "smile",
+        "sourceBox": [
+          683,
+          1027,
+          1024,
+          1284
+        ],
+        "sourceBounds": [
+          8,
+          4,
+          324,
+          254
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -6.952681388012618,
+          0,
+          0.9727626459143969,
+          4.0
+        ],
+        "maskBounds": [
+          112,
+          68,
+          156,
+          98
+        ],
+        "skinAdjustment": [
+          -2.0,
+          -12.0,
+          -15.0
+        ],
+        "sha256": "f04c5fa44a90bd37f00c245632112ec93728b641ecec3267edcc5e47e5939834"
+      },
+      {
+        "index": 15,
+        "name": "concern",
+        "sourceBox": [
+          0,
+          1284,
+          341,
+          1536
+        ],
+        "sourceBounds": [
+          15,
+          4,
+          329,
+          252
+        ],
+        "normalize": [
+          0.9905362776025236,
+          0,
+          0.14195583596214512,
+          0,
+          0.9649805447470817,
+          4.0
+        ],
+        "maskBounds": [
+          112,
+          68,
+          156,
+          98
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -10.0,
+          -13.0
+        ],
+        "sha256": "92965b4b0e438b0049302bc14b355a272a9de64fcc9d62ee650f9755ea12b37b"
+      },
+      {
+        "index": 16,
+        "name": "focus",
+        "sourceBox": [
+          341,
+          1284,
+          683,
+          1536
+        ],
+        "sourceBounds": [
+          11,
+          4,
+          327,
+          252
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -3.9526813880126177,
+          0,
+          0.9649805447470817,
+          4.0
+        ],
+        "maskBounds": [
+          112,
+          68,
+          156,
+          98
+        ],
+        "skinAdjustment": [
+          -1.0,
+          -14.5,
+          -18.0
+        ],
+        "sha256": "fed5a0982430584c8d636f3da9335ba009fc59902aca9e283f1cc36c4c9546e0"
+      },
+      {
+        "index": 17,
+        "name": "surprise",
+        "sourceBox": [
+          683,
+          1284,
+          1024,
+          1536
+        ],
+        "sourceBounds": [
+          8,
+          5,
+          324,
+          252
+        ],
+        "normalize": [
+          0.9968454258675079,
+          0,
+          -6.952681388012618,
+          0,
+          0.9610894941634242,
+          5.0
+        ],
+        "maskBounds": [
+          112,
+          68,
+          156,
+          98
+        ],
+        "skinAdjustment": [
+          -2.0,
+          -10.0,
+          -14.0
+        ],
+        "sha256": "5b3654256656c52ed378d660a6ef91433f6bd818cbc3dabd6a61d1d54325366e"
+      }
+    ]
+  },
+  "rawSources": {
+    "activity": {
+      "file": "activity-raw.png",
+      "sha256": "090d7275bd53b5ff6793800ae3c04fceb79ce87ab93157a0a5634291d17fdcde",
+      "mode": "RGB with generated checker background"
+    },
+    "reactions": {
+      "file": "reactions-raw.png",
+      "sha256": "c151be4a608ee09d2c628dd195e3c2716a3fd8cbdfb08b2f822fa80ee05a713f",
+      "mode": "RGB with generated checker background"
+    },
+    "face": {
+      "file": "face-raw.png",
+      "sha256": "c4d7f3262fbfe14b26dbfa659484493c0f6afbd7dca7b0240f97175379004f4c",
+      "mode": "RGB with generated checker background"
+    }
+  },
+  "extractor": {
+    "file": "../../animation-v2/prepare.py",
+    "sha256": "246d1576949f6ecf6f643de485c6981dc048e6e672f26d9e3479fe9d8223fcb7"
+  },
+  "promptFile": "prompts.json",
+  "referenceFile": "reference.png",
+  "faceOverlayRules": {
+    "mouth": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "eyes": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+    ],
+    "emotion": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "alignedTo": "original team-atlas idle column",
+    "outsideMasksTransparent": true,
+    "featherPx": 0.65,
+    "researchGlassesRimsPreserved": false
+  }
+}

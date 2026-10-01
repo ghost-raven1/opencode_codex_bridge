@@ -1,5 +1,11 @@
 import AppKit
 
+/// Text controls can receive Cmd+C without making the companion the main application window.
+final class CompanionPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+}
+
 /// Persist the group's position and visibility independently of session updates or speech.
 @MainActor final class WindowState: NSObject, NSWindowDelegate {
     let panel: NSPanel

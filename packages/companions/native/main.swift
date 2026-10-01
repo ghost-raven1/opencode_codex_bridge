@@ -28,10 +28,13 @@ var exitStatus: Int32 = 0
 
 @MainActor final class CompanionApp: NSObject, NSApplicationDelegate {
     let view = CharacterView(frame: NSRect(x: 0, y: 0, width: 672, height: 330))
-    let panel = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 672, height: 330),
+    let panel = CompanionPanel(contentRect: NSRect(x: 0, y: 0, width: 672, height: 330),
         styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
     let speech = NativeSpeech()
     let dictation = NativeDictation()
+    let draftMenu = DraftMenu()
+    var realCharacters: [Character] = []
+    var demonstration = false
     var timer: Timer?
     var speechTestTimer: Timer?
     var item: NSStatusItem?
@@ -64,6 +67,10 @@ var exitStatus: Int32 = 0
             let directory = URL(fileURLWithPath: path).deletingLastPathComponent()
             view.headAtlas = NSImage(contentsOf: directory.appendingPathComponent("head-atlas.png"))
             view.bodyAtlas = NSImage(contentsOf: directory.appendingPathComponent("body-atlas.png"))
+            view.mixedHeadAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-head-atlas.png"))
+            view.mixedBodyAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-body-atlas.png"))
+            view.faceAtlas = NSImage(contentsOf: directory.appendingPathComponent("facial-v3.png"))
+            view.clips.load(directory)
             let poses = NSImage(contentsOf: directory.appendingPathComponent("poses.png"))
             let transitions = NSImage(contentsOf: directory.appendingPathComponent("transitions.png"))
             if poses?.size == NSSize(width: 1024, height: 1920), transitions?.size == NSSize(width: 1024, height: 1920) {
@@ -73,7 +80,7 @@ var exitStatus: Int32 = 0
         }
         configureCallbacks(); configurePanel(); configureMenu()
         emitReady()
-        if CommandLine.arguments.contains("--preview") || argument("--snapshot") != nil || config["showOnStart"] as? Bool == true {
+        if CommandLine.arguments.contains("--preview") || argument("--snapshot") != nil {
             populatePreview()
         }
         if let output = argument("--snapshot") {
@@ -81,7 +88,8 @@ var exitStatus: Int32 = 0
                 emit(["type": "error", "code": "atlas", "message": "Для снимка нужен атлас персонажей."])
                 exitStatus = 1; NSApp.terminate(nil); return
             }
-            view.snapshot(output); NSApp.terminate(nil); return
+            if !view.snapshot(output) { exitStatus = 1; emit(["type": "error", "message": "Не удалось сохранить снимок."]) }
+            NSApp.terminate(nil); return
         }
         if speechTest {
             testSpeech()
@@ -93,8 +101,10 @@ var exitStatus: Int32 = 0
     }
 
     func configureCallbacks() {
+        view.onBubbleChange = { [weak self] in self?.resize() }
         speech.onStarted = { [weak self] id, text in self?.view.speaker = id; self?.view.bubble = text }
-        speech.onReset = { [weak self] in self?.view.speaker = nil; self?.view.mouthUntil = 0; self?.view.bubble = "" }
+        speech.onReset = { [weak self] in self?.view.speaker = nil; self?.view.mouthUntil = 0; self?.view.mouthLevel = 0; self?.view.bubble = "" }
+        speech.onLevel = { [weak self] level in self?.view.mouthLevel = level }
         speech.onAmplitude = { [weak self] open in
             self?.view.mouthUntil = open ? Date.timeIntervalSinceReferenceDate + 0.06 : 0
         }
@@ -105,6 +115,7 @@ var exitStatus: Int32 = 0
                 event["offset"] = range.location; event["length"] = range.length
                 // Native word boundaries approximate mouth motion; they are not phoneme timings.
                 self?.view.mouthUntil = Date.timeIntervalSinceReferenceDate + min(0.24, 0.06 + Double(range.length) * 0.025)
+                self?.view.mouthLevel = 0.65
             }
             emit(event)
             if phase == "end" { self?.speechTestCompleted = true }
@@ -133,6 +144,7 @@ var exitStatus: Int32 = 0
 
     func configurePanel() {
         panel.backgroundColor = .clear; panel.isOpaque = false; panel.hasShadow = false
+        panel.becomesKeyOnlyIfNeeded = true
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isMovableByWindowBackground = false; panel.contentView = view
@@ -144,7 +156,7 @@ var exitStatus: Int32 = 0
         context.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
         for entry in context.items { entry.target = self }
         view.menu = context
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in self?.view.needsDisplay = true }
+
     }
 
     func configureMenu() {
@@ -169,10 +181,11 @@ var exitStatus: Int32 = 0
         startItem = menu.addItem(withTitle: "Начать диктовку…", action: #selector(startDictation), keyEquivalent: "")
         finishItem = menu.addItem(withTitle: "Завершить диктовку", action: #selector(finishDictation), keyEquivalent: "")
         cancelItem = menu.addItem(withTitle: "Отменить диктовку", action: #selector(cancelDictation), keyEquivalent: "")
+        menu.addItem(withTitle: "Черновики диктовки", action: nil, keyEquivalent: "").submenu = draftMenu.menu
         menu.addItem(.separator())
         visibilityItem = menu.addItem(withTitle: "Скрыть компаньонов", action: #selector(toggleVisibility), keyEquivalent: "")
         menu.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
-        menu.addItem(withTitle: "Показать команду", action: #selector(showPreview), keyEquivalent: "")
+        menu.addItem(withTitle: "Демо персонажей (отдельный просмотр)", action: #selector(showPreview), keyEquivalent: "")
         menu.addItem(withTitle: "Закрыть CodexBridge Companions", action: #selector(quit), keyEquivalent: "q")
         menu.autoenablesItems = false
         for entry in menu.items { entry.target = self }
@@ -210,14 +223,28 @@ var exitStatus: Int32 = 0
 
     func resize() {
         let count = CGFloat(max(view.characters.count, 1))
-        panel.setContentSize(NSSize(width: count * 168 * scale, height: 330 * scale))
-        view.setBoundsSize(NSSize(width: count * 168, height: 330))
+        let width = count * 168, height = view.contentHeight(width: width)
+        panel.setContentSize(NSSize(width: width * scale, height: height * scale))
+        view.setBoundsSize(NSSize(width: width, height: height))
         windowState.fitToScreen()
     }
 
     func receive(_ value: [String: Any]) {
         guard let type = value["type"] as? String else { return }
         switch type {
+        case "drafts": draftMenu.update(value)
+        case "draft-text": draftMenu.receiveText(value)
+        case "snapshot":
+            if let path = value["path"] as? String {
+                let previousBubble = view.bubble
+                if let caption = value["caption"] as? String { view.bubble = caption }
+                view.snapshotTime = Date.timeIntervalSinceReferenceDate + (value["offset"] as? Double ?? 0)
+                view.snapshotBackground = value["background"] as? String
+                let saved = view.snapshot(path); view.snapshotTime = nil; view.snapshotBackground = nil
+                let diagnostics = view.speechBubble.diagnostics
+                if value["caption"] is String { view.bubble = previousBubble }
+                emit(saved ? ["type": "snapshot", "path": path, "bubble": diagnostics] : ["type": "error", "message": "Не удалось сохранить снимок."])
+            }
         case "preview": showPreview()
         case "hide": hideCompanions()
         case "show": showCompanions()
@@ -246,12 +273,14 @@ var exitStatus: Int32 = 0
             let character = Character(id: id, column: min(max(appearance["column"] as? Int ?? 0, 0), 3),
                 label: appearance["label"] as? String ?? "LEAD", state: value["state"] as? String ?? "idle",
                 headColumn: appearance["headColumn"] as? Int, bodyColumn: appearance["bodyColumn"] as? Int)
-            view.characters.removeAll { $0.id.hasPrefix("preview-") }
-            if let index = view.characters.firstIndex(where: { $0.id == id }) { view.characters[index] = character }
-            else {
-                if view.characters.count >= maxVisible { view.characters.removeFirst() }
-                view.characters.append(character)
+            if let index = realCharacters.firstIndex(where: { $0.id == id }) { realCharacters[index] = character }
+            else { realCharacters.append(character) }
+            if demonstration { demonstration = false; view.replace(Array(realCharacters.prefix(maxVisible))) }
+            if !view.characters.contains(where: { $0.id == id }), view.characters.count >= maxVisible,
+               let evicted = view.characters.first(where: { $0.id != view.speaker }) {
+                view.remove(evicted.id, immediately: true)
             }
+            view.update(character)
             resize()
             presentCharacters()
         case "speak":
@@ -266,8 +295,10 @@ var exitStatus: Int32 = 0
             }
         case "stop": speech.stop(characterId: id)
         case "remove":
-            speech.stop(characterId: id); view.characters.removeAll { $0.id == id }; resize()
-            presentCharacters()
+            if value["visualOnly"] as? Bool != true { speech.stop(characterId: id) }
+            realCharacters.removeAll { $0.id == id }
+            view.remove(id, immediately: value["visualOnly"] as? Bool == true)
+            resize(); presentCharacters()
         default: break
         }
     }
@@ -275,19 +306,33 @@ var exitStatus: Int32 = 0
     func populatePreview() {
         guard view.atlas != nil else { return }
         let state = argument("--snapshot-state") ?? "idle"
-        view.characters = ["LEAD", "CODE", "RESEARCH", "REVIEW"].prefix(maxVisible).enumerated().map {
+        demonstration = true
+        let entries = ["LEAD", "CODE", "RESEARCH", "REVIEW"].prefix(maxVisible).enumerated().map {
             Character(id: "preview-\($0.offset)", column: $0.offset, label: $0.element, state: state)
         }
+        view.replace(entries, animated: argument("--snapshot") == nil)
         resize(); presentCharacters()
     }
 
     func presentCharacters() {
         windowState.present(hasContent: view.atlas != nil && !view.characters.isEmpty)
+        if panel.isVisible && !view.characters.isEmpty {
+            if timer == nil {
+                timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in
+                    MainActor.assumeIsolated {
+                        guard let self else { return }
+                        if self.view.tick() { self.resize(); self.presentCharacters() }
+                    }
+                }
+            }
+        } else { timer?.invalidate(); timer = nil }
     }
 
     func emitWindowStatus() {
         emit(["type": "window", "hidden": windowState.hidden, "visible": panel.isVisible,
-              "x": panel.frame.minX, "y": panel.frame.minY])
+              "x": panel.frame.minX, "y": panel.frame.minY, "count": view.characters.count,
+              "characters": view.characters.map { $0.id }, "rendering": timer != nil, "demo": demonstration,
+              "columns": view.characters.map { $0.column }, "reducedMotion": view.reduced])
     }
 
     @objc func showPreview() {
@@ -300,7 +345,8 @@ var exitStatus: Int32 = 0
 
     @objc func showCompanions() {
         windowState.setHidden(false)
-        if view.characters.isEmpty { populatePreview() } else { presentCharacters() }
+        if demonstration { demonstration = false; view.replace(realCharacters) }
+        view.tick(); resize(); presentCharacters()
         emitWindowStatus()
     }
 
