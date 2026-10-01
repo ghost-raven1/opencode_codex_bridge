@@ -1,0 +1,27 @@
+{
+  "name": "@codexbridge/opencode",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/plugin.js",
+  "exports": {
+    ".": "./dist/plugin.js",
+    "./client": "./dist/run.js"
+  },
+  "bin": {
+    "codexbridge-mcp": "dist/mcp.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.31.0",
+    "@openai/codex": "0.159.3",
+    "@opencode-ai/plugin": "1.3.2",
+    "zod": "3.25.76"
+  }
+}

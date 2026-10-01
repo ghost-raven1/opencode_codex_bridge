@@ -1,0 +1,11 @@
+{
+  "name": "@codexbridge/companions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/plugin.js",
+  "exports": { ".": "./dist/plugin.js" },
+  "files": ["dist", "native"],
+  "scripts": { "build": "tsc", "typecheck": "tsc --noEmit" },
+  "dependencies": { "@opencode-ai/plugin": "1.3.2", "zod": "3.25.76" }
+}
