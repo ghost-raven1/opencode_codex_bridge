@@ -1,5 +1,8 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
-import { realpath, stat, unlink } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
+import { mkdirSync } from "node:fs";
+import { realpath, rm, stat, unlink } from "node:fs/promises";
+import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,7 +23,7 @@ const frameLimit = 128 * 1024;
 export class LocalTts {
   private readonly python: string;
   private readonly worker: string;
-  private readonly audioDirectory: string;
+  private audioDirectory = "";
   private child?: ChildProcessWithoutNullStreams;
   private starting?: Promise<void>;
   private resolveReady?: () => void;
@@ -35,7 +38,6 @@ export class LocalTts {
   constructor(private readonly options: Options = {}) {
     this.python = options.python ?? join(root, ".local/tts/.venv/bin/python");
     this.worker = options.worker ?? join(root, "packages/companions/tts/worker.py");
-    this.audioDirectory = resolve(options.audioDirectory ?? join(root, ".local/tts/audio"));
   }
 
   async synthesize(request: LocalSpeechRequest): Promise<LocalSpeechAudio> {
@@ -60,11 +62,17 @@ export class LocalTts {
   private start(): Promise<void> {
     if (this.ready) return Promise.resolve();
     if (this.starting) return this.starting;
+    // LaunchServices gives the player its own TCC identity: runtime WAVs must stay outside Documents.
+    const audioDirectory = resolve(this.options.audioDirectory
+      ?? join(homedir(), "Library", "Caches", "CodexBridge", "audio", `${process.pid}-${randomUUID()}`));
+    mkdirSync(audioDirectory, { recursive: true, mode: 0o700 });
+    this.audioDirectory = audioDirectory;
     this.starting = new Promise<void>((resolveReady, rejectReady) => {
       this.resolveReady = resolveReady; this.rejectReady = rejectReady;
     });
     const started = this.starting;
-    const child = spawn(this.python, ["-u", this.worker], { cwd: root, stdio: "pipe" });
+    const child = spawn(this.python, ["-u", this.worker], { cwd: root, stdio: "pipe",
+      env: { ...process.env, CODEXBRIDGE_TTS_AUDIO_DIR: audioDirectory } });
     this.child = child; this.buffer = Buffer.alloc(0);
     this.startupTimer = setTimeout(() => this.fail("Local speech model startup timed out"), this.options.startupTimeoutMs ?? 90_000);
     child.stderr.resume();
@@ -73,7 +81,11 @@ export class LocalTts {
     });
     child.once("error", () => { if (this.child === child) this.fail("Local speech worker could not start"); });
     child.stdin.on("error", () => { if (this.child === child) this.fail("Local speech input channel failed"); });
-    child.once("close", () => { if (this.child === child) this.fail("Local speech worker exited"); });
+    child.once("close", () => {
+      if (this.child === child) this.fail("Local speech worker exited");
+      // Capture this run's directory so a restarted worker cannot lose its new audio.
+      if (!this.options.audioDirectory) void rm(audioDirectory, { recursive: true, force: true }).catch(() => undefined);
+    });
     process.once("exit", this.onExit);
     return started;
   }

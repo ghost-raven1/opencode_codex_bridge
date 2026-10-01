@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { access } from "node:fs/promises";
 import { resolve, join, delimiter } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tmpdir } from "node:os";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const profile = process.argv[2] ?? "companions";
@@ -9,8 +10,10 @@ if (!["companions", "jarvis", "quiet"].includes(profile)) throw new Error("Unkno
 const project = resolve(process.argv[3] ?? root);
 const configDir = join(root, ".local", "profiles", profile);
 await access(join(configDir, "opencode.json"));
-const child = spawn("opencode", process.argv.slice(4), {
-  cwd: project, stdio: "inherit", env: {
+// macOS can stall before TUI startup when the runtime initializes inside Documents.
+// Pass the actual project explicitly; only the initial process directory is temporary.
+const child = spawn("opencode", [project, ...process.argv.slice(4)], {
+  cwd: process.platform === "darwin" ? tmpdir() : project, stdio: "inherit", env: {
     ...process.env, OPENCODE_CONFIG: join(configDir, "opencode.json"), OPENCODE_CONFIG_DIR: configDir,
     PATH: [join(root, ".local", "bin"), join(root, "node_modules", ".bin"), process.env.PATH].join(delimiter),
   },

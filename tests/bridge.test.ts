@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { fileURLToPath } from "node:url";
 import { runCodex } from "../packages/bridge/src/run.js";
+import type { CodexSpeech } from "../packages/bridge/src/types.js";
 
 const fixture = fileURLToPath(new URL("./fixtures/codex.mjs", import.meta.url));
 const run = (prompt: string, extra: Partial<Parameters<typeof runCodex>[0]> = {}) => runCodex({
@@ -17,6 +18,30 @@ describe("Codex stdio bridge", () => {
   });
   it("keeps failed turns failed", async () => {
     expect(await run("failed")).toMatchObject({ status: "failed", error: "provider unavailable" });
+  });
+  it("publishes only completed public messages with a stable run identity", async () => {
+    const snapshots: CodexSpeech[] = [];
+    const result = await run("public-messages", { onSpeech: snapshot => snapshots.push(snapshot) });
+    expect(result.text).toContain("Unfinished text");
+    expect(result.codexSpeech.messages).toEqual([
+      { messageId: "progress", text: "Проверяю изменения.", state: "completed" },
+      { messageId: "message-1", text: "done", state: "completed" },
+    ]);
+    expect(new Set(snapshots.map(snapshot => snapshot.runId)).size).toBe(1);
+    expect(snapshots.every(snapshot => snapshot.threadId === "thread-1")).toBe(true);
+    expect(snapshots.map(snapshot => [snapshot.state, snapshot.messages.length])).toEqual([
+      ["running", 0], ["running", 1], ["running", 2], ["completed", 2],
+    ]);
+    expect((await run("ok")).codexSpeech.runId).not.toBe(result.codexSpeech.runId);
+  });
+  it("does not promote unfinished deltas when a run is cancelled", async () => {
+    const controller = new AbortController(), snapshots: CodexSpeech[] = [];
+    await expect(run("hang", { signal: controller.signal, onText: () => controller.abort(),
+      onSpeech: snapshot => snapshots.push(snapshot) })).rejects.toThrow();
+    expect(snapshots.at(-1)).toMatchObject({ state: "interrupted", messages: [] });
+  });
+  it("bounds aggregate completed output even without streaming deltas", async () => {
+    await expect(run("completed-overflow")).rejects.toThrow(/output exceeded/);
   });
   it.each(["crash", "malformed", "overflow"])("rejects %s without hanging", async mode => {
     await expect(run(mode)).rejects.toThrow();

@@ -13,7 +13,8 @@ export const appearanceSchema = z.object({
 export type AppearanceConfig = z.infer<typeof appearanceSchema>;
 export const configSchema = z.object({
   enabled: z.boolean().default(false),
-  showOnStart: z.boolean().default(true),
+  // Legacy configuration is accepted, but startup never creates demonstration agents.
+  showOnStart: z.boolean().default(false),
   dictation: z.boolean().default(true),
   speech: z.enum(["off", "coordinator-only", "all"]).default("all"),
   tts: z.object({

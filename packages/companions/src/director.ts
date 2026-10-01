@@ -1,11 +1,15 @@
 import type { CompanionConfig, Role } from "./config.js";
 import { appearanceFor } from "./presets.js";
 import { detectRole, type TaskAssignment } from "./role-detection.js";
+import { readCodexSpeech } from "./codex-speech.js";
 
 export type State = "idle" | "thinking" | "working" | "success" | "error" | "waiting";
 export interface CompanionEvent {
   type: "state" | "speak" | "stop" | "remove";
   characterId: string;
+  taskId?: string;
+  runId?: string;
+  voice?: string;
   role?: Role;
   appearance?: ReturnType<typeof appearanceFor>;
   state?: State;
@@ -27,6 +31,16 @@ interface Session {
   task?: string;
   taskMessageID?: string;
   taskParts: Map<string, string>;
+  visible: boolean;
+  taskId?: string;
+  runId?: string;
+  assigned: Map<string, TaskAssignment>;
+  pendingUser?: string;
+  pendingAgent?: string;
+  compaction: boolean;
+  continuation: boolean;
+  runs: Map<string, { id: string; partId: string; messageId: string; snapshot: NonNullable<ReturnType<typeof readCodexSpeech>> }>;
+  users: Set<string>;
 }
 type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): ObjectValue => value && typeof value === "object" ? value as ObjectValue : {};
@@ -51,7 +65,13 @@ export class CompanionDirector {
   constructor(private config: CompanionConfig, private emit: (event: CompanionEvent) => void) {}
 
   private remove(id: string): void {
-    if (this.sessions.delete(id)) this.emit({ type: "remove", characterId: id });
+    const session = this.sessions.get(id);
+    if (session) {
+      for (const run of session.runs.values()) this.remove(run.id);
+      if (session.visible) this.output(id, { type: "remove" });
+      if (session.runId && session.parentID) this.sessions.get(session.parentID)?.runs.delete(session.runId);
+      this.sessions.delete(id);
+    }
     this.retired.add(id);
     if (this.retired.size > 128) this.retired.delete(this.retired.values().next().value!);
   }
@@ -61,7 +81,8 @@ export class CompanionDirector {
     if (!entry) {
       if (this.sessions.size >= 128) this.remove(this.sessions.keys().next().value!);
       entry = { role: "coordinator", state: "idle", parts: new Map(), spoken: new Set(), pending: new Set(),
-        invalidated: new Set(), assistantComplete: false, aborted: false, taskParts: new Map() };
+        invalidated: new Set(), assistantComplete: false, aborted: false, taskParts: new Map(), visible: false,
+        assigned: new Map(), compaction: false, continuation: false, runs: new Map(), users: new Set() };
       this.sessions.set(id, entry);
     }
     // Evict least recently active sessions, rather than active sessions created first.
@@ -73,13 +94,24 @@ export class CompanionDirector {
   assignTask(id: string, task: TaskAssignment): void {
     if (!id) return;
     this.retired.delete(id);
-    const existed = this.sessions.has(id), session = this.session(id);
+    const session = this.session(id);
+    if (task.messageID && task.messageID !== session.lastUser) {
+      session.assigned.set(task.messageID, task);
+      if (session.assigned.size > 16) session.assigned.delete(session.assigned.keys().next().value!);
+      return;
+    }
     if (task.agent) session.agent = task.agent;
     if (task.parentID) session.parentID = task.parentID;
+    if (task.parentID && !task.messageID) {
+      const parent = this.sessions.get(task.parentID);
+      session.taskId = parent?.taskId ?? parent?.lastUser ?? parent?.assistant ?? session.taskId ?? id;
+    }
     session.task = task.task.slice(0, 16000);
     session.taskMessageID = task.messageID ?? session.lastUser;
     const role = this.taskRole(session);
-    if (!existed || role !== session.role) { session.role = role; this.state(id, session.state); }
+    const changed = role !== session.role; session.role = role;
+    if (task.parentID && !session.visible) this.state(id, "working");
+    else if (changed && session.visible) this.state(id, session.state);
   }
 
   private taskRole(session: Session): Role {
@@ -93,14 +125,22 @@ export class CompanionDirector {
     if (session.taskParts.size > 32) session.taskParts.delete(session.taskParts.keys().next().value!);
     session.task = [...session.taskParts.values()].join("\n").slice(0, 16000);
     const role = this.taskRole(session);
-    if (role !== session.role) { session.role = role; this.state(id, session.state); }
+    if (role !== session.role) { session.role = role; if (session.visible) this.state(id, session.state); }
+  }
+
+  private output(id: string, event: Omit<CompanionEvent, "characterId">): void {
+    const session = this.sessions.get(id);
+    if (!session) return;
+    this.emit({ characterId: id, ...(session.taskId ? { taskId: session.taskId } : {}),
+      ...(session.runId ? { runId: session.runId } : {}), ...event });
   }
 
   private state(id: string, state: State): void {
     const session = this.sessions.get(id)!;
-    session.state = state;
-    this.emit({ type: "state", characterId: id, role: session.role, state,
-      appearance: appearanceFor(id, session.role, this.config.appearance) });
+    session.state = state; session.visible = true;
+    const appearance = appearanceFor(id, session.role, this.config.appearance);
+    this.output(id, { type: "state", role: session.role, state,
+      appearance: { ...appearance, ...(session.runId ? { label: `CODEX · ${appearance.label}` } : {}) } });
   }
 
   private speak(id: string, text: string): void {
@@ -108,13 +148,36 @@ export class CompanionDirector {
     // The legacy setting names the primary speaker; its appearance can now change with the task.
     if (this.config.speech === "off" || (this.config.speech === "coordinator-only" && session.parentID)) return;
     const clean = spokenText(text, this.config.maxSpeechLength);
-    if (clean) this.emit({ type: "speak", characterId: id, role, text: clean });
+    if (clean) this.output(id, { type: "speak", role, text: clean });
+  }
+
+  private stopRuns(id: string): void {
+    const session = this.sessions.get(id)!;
+    for (const run of session.runs.values()) this.remove(run.id);
+    session.runs.clear();
+  }
+
+  /** A real user input starts a new task; synthetic continuations only replace the wire parent. */
+  private beginTask(id: string, messageId: string, assignment?: TaskAssignment): void {
+    const session = this.sessions.get(id)!;
+    this.invalidate(session, session.assistant); this.stopRuns(id);
+    this.output(id, { type: "stop" });
+    const inherited = !session.taskId && session.taskMessageID === undefined && !!session.parentID;
+    session.task = assignment?.task.slice(0, 16000) ?? (inherited ? session.task : undefined);
+    session.agent = assignment?.agent ?? session.pendingAgent ?? session.agent;
+    session.parentID = assignment?.parentID ?? session.parentID;
+    session.taskMessageID = messageId; session.taskId = messageId; session.pendingUser = undefined;
+    session.compaction = false; session.continuation = false; session.taskParts.clear();
+    session.parts.clear(); session.assistant = undefined; session.assistantComplete = false;
+    session.pending.clear(); session.aborted = false; session.spoken.clear();
+    session.role = this.taskRole(session); this.state(id, "thinking");
+    if (!session.parentID) this.speak(id, this.config.workingPhrase);
   }
 
   private failure(id: string, error: ObjectValue): void {
     const session = this.sessions.get(id)!;
     if (session.state === "error" || (session.aborted && error.name === "MessageAbortedError")) return;
-    this.emit({ type: "stop", characterId: id });
+    this.output(id, { type: "stop" }); this.stopRuns(id);
     this.invalidate(session, session.assistant);
     session.pending.clear(); session.parts.clear();
     session.aborted = error.name === "MessageAbortedError";
@@ -143,9 +206,45 @@ export class CompanionDirector {
   private idle(id: string): void {
     const session = this.sessions.get(id)!;
     // A queued idle event cannot dismiss approval, failure, or a user's cancellation.
-    if (session.pending.size || session.state === "error" || session.aborted) return;
+    if (!session.visible || session.pending.size || session.state === "error" || session.aborted) return;
     this.state(id, session.assistant ? "success" : "idle");
     this.flushSpeech(id, true);
+  }
+
+  private flushRuns(id: string): void {
+    const parent = this.sessions.get(id)!;
+    for (const run of parent.runs.values()) {
+      const child = this.sessions.get(run.id), snapshot = run.snapshot;
+      if (!child || child.aborted || child.state === "error") continue;
+      if (snapshot.state === "interrupted" || snapshot.state === "failed") {
+        this.output(run.id, { type: "stop" }); child.aborted = snapshot.state === "interrupted";
+        this.state(run.id, child.aborted ? "idle" : "error"); continue;
+      }
+      const state = parent.pending.size ? "waiting" : snapshot.state === "completed" ? "success" : "working";
+      if (!child.visible || child.state !== state) this.state(run.id, state);
+      if (parent.pending.size || parent.aborted) continue;
+      for (const message of snapshot.messages) {
+        if (!message.text.trim() || child.spoken.has(message.messageId)) continue;
+        child.spoken.add(message.messageId); this.speak(run.id, message.text);
+      }
+    }
+  }
+
+  private codexPart(id: string, part: ObjectValue): void {
+    const parent = this.sessions.get(id)!, toolState = object(part.state);
+    const snapshot = readCodexSpeech(object(toolState.metadata).codexSpeech);
+    const partId = string(part.id), messageId = string(part.messageID);
+    if (!snapshot || !partId || messageId !== parent.assistant || parent.aborted) return;
+    let run = parent.runs.get(snapshot.runId);
+    if (!run) {
+      const characterId = `codex:${id}:${snapshot.runId}`;
+      if (this.retired.has(characterId)) return;
+      const child = this.session(characterId);
+      child.parentID = id; child.taskId = parent.taskId ?? parent.lastUser ?? messageId; child.runId = snapshot.runId;
+      child.task = string(object(toolState.input).prompt); child.agent = "codex"; child.role = this.taskRole(child);
+      run = { id: characterId, partId, messageId, snapshot }; parent.runs.set(snapshot.runId, run);
+    } else if (run.partId !== partId || run.messageId !== messageId || run.snapshot.state !== "running") return;
+    run.snapshot = snapshot; this.flushRuns(id);
   }
 
   event(input: unknown): void {
@@ -163,28 +262,30 @@ export class CompanionDirector {
     if (!this.sessions.has(id) && (type.includes(".removed") || type === "message.part.updated" ||
       type === "session.idle" || (type === "session.status" && object(props.status).type === "idle") ||
       type.endsWith(".replied") || type === "question.rejected")) return;
-    const existing = this.sessions.has(id);
     const session = this.session(id);
+    if (type === "message.updated" && info.role === "assistant" &&
+      (info.summary === true || info.mode === "compaction" || info.agent === "compaction")) {
+      const messageId = string(info.id);
+      this.invalidate(session, messageId); session.compaction = true;
+      for (const [key, value] of session.parts) if (value.messageId === messageId) session.parts.delete(key);
+      return;
+    }
     if (sessionEvent) {
       if (typeof info.parentID === "string") session.parentID = info.parentID;
       const role = this.taskRole(session);
-      if (!existing || role !== session.role) { session.role = role; this.state(id, session.state); }
+      if (role !== session.role) { session.role = role; if (session.visible) this.state(id, session.state); }
     } else if (type === "message.updated") {
       const messageId = string(info.id);
       if (!messageId) return;
       if (info.role === "user" && session.lastUser !== messageId) {
-        this.invalidate(session, session.assistant);
-        const assigned = session.taskMessageID === messageId || (session.taskMessageID === undefined && !session.lastUser);
-        if (!assigned) session.task = undefined;
-        session.taskMessageID = messageId; session.taskParts.clear();
-        session.lastUser = messageId;
-        session.parts.clear(); session.assistant = undefined; session.assistantComplete = false;
-        session.pending.clear(); session.aborted = false;
-        this.emit({ type: "stop", characterId: id });
-        session.agent = string(info.agent ?? info.mode) || session.agent;
-        session.role = this.taskRole(session);
-        this.state(id, "thinking");
-        this.speak(id, this.config.workingPhrase);
+        if (session.users.has(messageId)) return;
+        session.users.add(messageId);
+        if (session.users.size > 128) session.users.delete(session.users.values().next().value!);
+        const assignment = session.assigned.get(messageId); session.assigned.delete(messageId);
+        session.lastUser = messageId; session.pendingUser = messageId;
+        session.pendingAgent = string(info.agent ?? info.mode) || session.agent;
+        session.continuation = session.compaction && !assignment;
+        if (assignment) this.beginTask(id, messageId, assignment);
       } else if (info.role === "assistant") {
         if (session.aborted || session.invalidated.has(messageId) ||
           (session.lastUser && typeof info.parentID === "string" && info.parentID !== session.lastUser)) return;
@@ -209,14 +310,23 @@ export class CompanionDirector {
     } else if (type === "message.part.updated") {
       const partId = string(part.id), messageId = string(part.messageID);
       if (session.invalidated.has(messageId)) return;
+      if (part.type === "compaction" && messageId === session.lastUser) {
+        session.compaction = true; session.continuation = true; return;
+      }
+      if (part.type === "tool" && (session.aborted || (messageId && messageId !== session.assistant))) return;
       if (part.type === "tool" && part.tool === "task") {
         const toolState = object(part.state), metadata = object(toolState.metadata), input = object(toolState.input);
         const childId = string(metadata.sessionId);
         const task = [string(input.description), string(input.prompt)].filter(Boolean).join("\n");
         if (childId && childId !== id && task) this.assignTask(childId, { parentID: id, agent: string(input.subagent_type), task });
       }
-      if (part.type === "text" && partId && messageId === session.lastUser) {
-        this.updateTaskPart(id, partId, !part.ignored && !part.synthetic && typeof part.text === "string" ? part.text : undefined);
+      if (part.type === "tool" && part.tool === "codex") this.codexPart(id, part);
+      if (messageId === session.lastUser && (part.type === "text" || part.type === "file")) {
+        if (part.ignored || part.synthetic || session.continuation) return;
+        if (session.pendingUser === messageId) this.beginTask(id, messageId, {
+          task: string(part.text) || session.task || "", agent: session.pendingAgent, parentID: session.parentID,
+        });
+        if (part.type === "text" && partId && typeof part.text === "string") this.updateTaskPart(id, partId, part.text);
       } else if (part.type === "text" && partId && messageId) {
         if (part.ignored || part.synthetic) session.parts.delete(partId);
         else if (typeof part.text === "string") {
@@ -233,24 +343,29 @@ export class CompanionDirector {
       const partId = string(props.partID);
       session.parts.delete(partId);
       if (session.taskParts.has(partId)) this.updateTaskPart(id, partId);
+      for (const [runId, run] of session.runs) if (run.partId === partId) { this.remove(run.id); session.runs.delete(runId); }
     }
     else if (type === "message.removed") {
       const messageId = string(props.messageID);
       this.invalidate(session, messageId);
       for (const [key, value] of session.parts) if (value.messageId === messageId) session.parts.delete(key);
-      if (session.assistant === messageId) { session.assistant = undefined; this.emit({ type: "stop", characterId: id }); }
+      for (const [runId, run] of session.runs) if (run.messageId === messageId) { this.remove(run.id); session.runs.delete(runId); }
+      if (session.assistant === messageId) { session.assistant = undefined; this.output(id, { type: "stop" }); }
     } else if (type === "session.error") this.failure(id, object(props.error));
     else if (type === "permission.updated" || type.endsWith(".asked")) {
       const kind = type.startsWith("permission") ? "permission" : "question";
       session.pending.add(`${kind}:${string(props.id)}`);
       if (session.pending.size > 32) session.pending.delete(session.pending.values().next().value!);
-      this.emit({ type: "stop", characterId: id }); this.state(id, "waiting");
+      this.output(id, { type: "stop" }); this.state(id, "waiting");
+      for (const run of session.runs.values()) this.output(run.id, { type: "stop" });
+      this.flushRuns(id);
     } else if (type.endsWith(".replied") || type === "question.rejected") {
       const kind = type.startsWith("permission") ? "permission" : "question";
       session.pending.delete(`${kind}:${string(props.requestID ?? props.permissionID ?? props.id)}`);
       if (!session.pending.size && session.state === "waiting") this.state(id, "thinking");
       this.flushSpeech(id);
+      this.flushRuns(id);
     } else if (type === "session.idle" || (type === "session.status" && object(props.status).type === "idle")) this.idle(id);
-    else if (type === "session.status" && !session.pending.size && !session.aborted) this.state(id, "thinking");
+    else if (type === "session.status" && !session.pending.size && !session.aborted && session.state !== "error") this.state(id, "thinking");
   }
 }

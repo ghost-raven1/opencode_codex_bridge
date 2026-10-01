@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
+import { tmpdir } from "node:os";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const native = process.argv.includes("--native");
 const inference = process.argv.includes("--inference");
 if (native && process.platform !== "darwin") throw new Error("Native voice smoke requires macOS");
-const temp = await mkdtemp(join(root, ".local/opencode-smoke-"));
+const temp = await mkdtemp(join(tmpdir(), "codexbridge-opencode-smoke-"));
 const config = JSON.parse(await readFile(join(root, ".local/profiles/quiet/opencode.json"), "utf8"));
 for (const server of Object.values(config.mcp)) server.enabled = false;
 await writeFile(join(temp, "opencode.json"), JSON.stringify(config));

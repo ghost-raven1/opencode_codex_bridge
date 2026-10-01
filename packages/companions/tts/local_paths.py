@@ -1,17 +1,20 @@
-"""Keep model downloads, generated speech, and library caches inside this checkout."""
+"""Keep model assets local; use a private runtime cache for native audio playback."""
 import json
 import os
+import uuid
 from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parent
 ROOT = SOURCE.parents[2]
 LOCAL = ROOT / ".local" / "tts"
-AUDIO = LOCAL / "audio"
+AUDIO = Path(os.environ.get("CODEXBRIDGE_TTS_AUDIO_DIR") or
+             Path.home() / "Library" / "Caches" / "CodexBridge" / "audio" / f"{os.getpid()}-{uuid.uuid4().hex}").resolve()
 MODEL = json.loads((SOURCE / "model.json").read_text())
 MODEL_PATH = LOCAL / "models" / MODEL["directory"]
 
 
 def configure_environment(offline=True):
+    os.umask(0o077)
     paths = {
         "HF_HOME": LOCAL / "cache" / "huggingface",
         "HF_HUB_CACHE": LOCAL / "cache" / "huggingface" / "hub",

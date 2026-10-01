@@ -8,7 +8,11 @@ export interface SpeechGenerator {
   synthesize(request: { id: string; text: string; voice: string; instructions?: string }): Promise<{ path: string; duration: number; sampleRate: number }>;
   dispose(): void;
 }
-interface Utterance { id: string; characterId: string; text: string; role: Role; path?: string }
+interface Utterance { id: string; characterId: string; text: string; role: Role; voice?: string; path?: string }
+export interface SpeechActivity {
+  changed(pending: Set<string>, speaker?: string): void;
+  voiceFor(characterId: string, role: Role): string;
+}
 const directions: Record<Role, string> = {
   coordinator: "Warm and confident.",
   developer: "Bright, energetic and focused.",
@@ -43,17 +47,19 @@ export class SpeechRouter {
   private watchdog?: NodeJS.Timeout;
   constructor(private config: CompanionConfig, private generator: SpeechGenerator,
     private send: (event: object) => void, private log: (message: string) => void,
-    private removeAudio: (path: string) => Promise<unknown> = path => unlink(path).catch(() => undefined)) {}
+    private removeAudio: (path: string) => Promise<unknown> = path => unlink(path).catch(() => undefined),
+    private activity?: SpeechActivity) {}
 
   event(event: CompanionEvent): void {
     if (this.closed) return;
-    if (event.type === "stop" || event.type === "remove") this.cancel(event.characterId);
-    if (event.type !== "speak" || this.config.tts.engine !== "local") { this.send(event); return; }
+    if (event.type === "stop" || (event.type === "remove" && !(event as CompanionEvent & { visualOnly?: boolean }).visualOnly)) this.cancel(event.characterId);
+    if (event.type !== "speak") { this.send(event); return; }
     if (this.muted || this.suspended || !event.text) return;
     const chunks = speechChunks(event.text);
     if (this.queue.length + chunks.length > 32) { this.log("Очередь озвучки заполнена; полный ответ остаётся в терминале."); return; }
     this.queue.push(...chunks.map(text => ({ id: randomUUID(), characterId: event.characterId,
-      text, role: event.role ?? "coordinator" as Role })));
+      text, role: event.role ?? "coordinator" as Role, voice: event.voice })));
+    this.notify();
     void this.pump();
   }
 
@@ -85,11 +91,12 @@ export class SpeechRouter {
     const entry = this.queue.shift();
     if (!entry) return;
     this.active = entry;
-    if (this.fallback) { this.speakFallback(entry); return; }
+    this.notify();
+    if (this.fallback || this.config.tts.engine === "macos") { this.speakFallback(entry); return; }
     this.generating = true;
     try {
       const audio = await this.generator.synthesize({ id: entry.id, text: entry.text,
-        voice: this.config.tts.voices[entry.role], instructions: directions[entry.role] });
+        voice: this.activity?.voiceFor(entry.characterId, entry.role) ?? entry.voice ?? this.config.tts.voices[entry.role], instructions: directions[entry.role] });
       if (this.closed || this.active !== entry) { await this.removeAudio(audio.path); return; }
       entry.path = audio.path;
       this.send({ type: "play-audio", characterId: entry.characterId, role: entry.role, text: entry.text,
@@ -120,15 +127,22 @@ export class SpeechRouter {
   private complete(): void {
     clearTimeout(this.watchdog);
     if (this.active?.path) void this.removeAudio(this.active.path);
-    this.active = undefined; void this.pump();
+    this.active = undefined; this.notify(); void this.pump();
   }
 
   private cancel(characterId?: string): void {
     this.queue = this.queue.filter(entry => characterId !== undefined && entry.characterId !== characterId);
     if (this.active && (characterId === undefined || this.active.characterId === characterId)) this.complete();
+    this.notify();
+  }
+
+  private notify(): void {
+    this.activity?.changed(new Set([...this.queue.map(entry => entry.characterId),
+      ...(this.active ? [this.active.characterId] : [])]), this.active?.characterId);
   }
 
   dispose(): void {
+    if (this.closed) return;
     this.closed = true; this.cancel(); this.generator.dispose();
   }
 }

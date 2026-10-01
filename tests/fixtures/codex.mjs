@@ -37,6 +37,21 @@ createInterface({ input: process.stdin }).on("line", line => {
       process.stdout.write(encoded.subarray(0, point));
       process.stdout.write(encoded.subarray(point));
     }
+    if (mode === "public-messages") {
+      send({ method: "item/agentMessage/delta", params: { threadId: "thread-1", itemId: "progress", delta: "Draft fragment" } });
+      for (const item of [
+        { id: "reasoning", type: "reasoning", text: "Private reasoning" },
+        { id: "command", type: "commandExecution", text: "Raw tool output" },
+        { id: "analysis", type: "agentMessage", phase: "analysis", text: "Non-public phase" },
+        { id: "progress", type: "agentMessage", phase: "commentary", text: "Проверяю изменения." },
+        { id: "progress", type: "agentMessage", phase: "commentary", text: "Проверяю изменения." },
+      ]) send({ method: "item/completed", params: { threadId: "thread-1", turnId: "turn-1", item } });
+      send({ method: "item/completed", params: { threadId: "thread-1", turnId: "old-turn", item: { id: "old", type: "agentMessage", text: "Stale turn" } } });
+      send({ method: "item/agentMessage/delta", params: { threadId: "thread-1", itemId: "unfinished", delta: "Unfinished text" } });
+    }
+    if (mode === "completed-overflow") for (let n = 0; n < 2; n++) {
+      send({ method: "item/completed", params: { threadId: "thread-1", item: { id: `large-${n}`, type: "agentMessage", text: "x".repeat(2_200_000) } } });
+    }
     finish(mode === "split" ? "こんにちは, Лёха" : "done", mode === "failed" ? "failed" : "completed");
     // Deliberately complete before the turn/start response to exercise notification ordering.
     send({ id, result: { turn: { id: "turn-1" } } });

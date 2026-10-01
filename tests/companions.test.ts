@@ -14,7 +14,8 @@ function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only", 
 }
 describe("companion event mapping", () => {
   it("announces a new user task once and cancels the previous speech", () => {
-    const t = setup(); t.message("user", "u"); t.message("user", "u");
+    const t = setup(); t.director.assignTask("s", { task: "Задача", messageID: "u" });
+    t.message("user", "u"); t.message("user", "u");
     expect(t.events.filter(e => e.type === "stop")).toHaveLength(1);
     expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Задача в работе."]);
   });
@@ -86,6 +87,7 @@ describe("companion event mapping", () => {
     expect(t.events.filter(e => e.type === "stop").length).toBeGreaterThan(0);
     t.text("late", "a", "Старый ответ", { time: { end: 3 } });
     t.send("message.updated", { info: { sessionID: "s", id: "a", role: "assistant", parentID: "u", time: { completed: 4 } } });
+    t.director.assignTask("s", { task: "Новая задача", messageID: "u2" });
     t.message("user", "u2"); t.message("assistant", "b");
     t.send("message.updated", { info: { sessionID: "s", id: "late-assistant", role: "assistant", parentID: "u", time: { completed: 5 } } });
     t.text("late-parent", "late-assistant", "Ответ прошлой задачи", { time: { end: 5 } });
@@ -128,6 +130,7 @@ describe("companion event mapping", () => {
     expect(t.events.filter(e => e.type === "state").at(-1)?.state).toBe("idle");
     expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
     expect(t.events.some(e => e.type === "stop")).toBe(true);
+    t.director.assignTask("s", { task: "Новая задача", messageID: "next" });
     t.message("user", "next"); t.message("assistant", "b"); t.text("q", "b", "Новый ответ");
     t.send("session.idle", { sessionID: "s" });
     expect(t.events.at(-1)?.text).toBe("Новый ответ");
@@ -174,7 +177,7 @@ describe("companion event mapping", () => {
     t.message("user", "u");
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("developer");
     expect(t.events.at(-1)).toMatchObject({ type: "speak", role: "developer", text: "Задача в работе." });
-    t.message("user", "next");
+    t.director.assignTask("s", { agent: "build", task: "Продолжай", messageID: "next" }); t.message("user", "next");
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("coordinator");
   });
   it("infers a general subagent role from running task input before its first message", () => {
@@ -201,7 +204,8 @@ describe("companion event mapping", () => {
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("reviewer");
   });
   it("removes the character when its session is deleted", () => {
-    const t = setup(); t.send("session.created", { info: { id: "s" } }); t.send("session.deleted", { info: { id: "s" } });
+    const t = setup(); t.send("session.created", { info: { id: "s" } }); t.message("assistant", "a");
+    t.send("session.deleted", { info: { id: "s" } });
     expect(t.events.at(-1)).toEqual({ type: "remove", characterId: "s" });
   });
   it("does not allocate characters for unrelated global or late session events", () => {
@@ -213,13 +217,13 @@ describe("companion event mapping", () => {
     expect(t.events).toEqual([]);
   });
   it("does not resurrect deleted or evicted sessions on delayed parts and errors", () => {
-    const t = setup(); t.send("session.created", { info: { id: "s" } });
+    const t = setup(); t.send("session.created", { info: { id: "s" } }); t.message("assistant", "a");
     for (let n = 0; n < 128; n++) t.send("session.created", { info: { id: `session-${n}` } });
     expect(t.events).toContainEqual({ type: "remove", characterId: "s" });
     const count = t.events.length;
     t.text("late", "a", "Late"); t.send("session.error", { sessionID: "s" });
     expect(t.events).toHaveLength(count);
-    t.message("user", "resume");
+    t.director.assignTask("s", { task: "Продолжай", messageID: "resume" }); t.message("user", "resume");
     expect(t.events.at(-1)?.text).toBe("Задача в работе.");
     t.send("session.deleted", { info: { id: "s" } });
     const afterDelete = t.events.length;
@@ -228,6 +232,7 @@ describe("companion event mapping", () => {
   });
   it("restores child session role on resume and removes archived sessions", () => {
     const t = setup("all"); t.send("session.updated", { info: { id: "s", parentID: "parent" } });
+    expect(t.events).toEqual([]); t.message("assistant", "a", "general");
     expect(t.events.at(-1)?.role).toBe("developer");
     t.send("session.updated", { info: { id: "s", time: { archived: 123 } } });
     expect(t.events.at(-1)).toEqual({ type: "remove", characterId: "s" });

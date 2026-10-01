@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { configSchema, voiceDefaults } from "../packages/companions/src/config.js";
 import { SpeechRouter, speechChunks } from "../packages/companions/src/speech-router.js";
+import { CompanionLifecycle } from "../packages/companions/src/lifecycle.js";
 
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 function setup() {
@@ -13,6 +14,29 @@ function setup() {
 }
 
 describe("local role voices", () => {
+  it("changes role during playback without stopping speech; the next utterance uses the free preferred voice", async () => {
+    const config = configSchema.parse({ tts: { engine: "local" } }), send = vi.fn();
+    const synthesize = vi.fn(async () => ({ path: "/audio/test.wav", duration: 2, sampleRate: 24000 }));
+    let life: CompanionLifecycle;
+    const router = new SpeechRouter(config, { synthesize, dispose() {} }, send, () => {}, async () => {}, {
+      changed: (pending, speaker) => life.speechActivity(pending, speaker),
+      voiceFor: (id, role) => life.voiceFor(id, role),
+    });
+    life = new CompanionLifecycle(config, event => router.event(event));
+    life.event({ type: "state", characterId: "a", taskId: "task", role: "developer", state: "working" });
+    life.event({ type: "speak", characterId: "a", taskId: "task", role: "developer", text: "Первая реплика." });
+    await tick();
+    const first = send.mock.calls.find(([event]) => event.type === "play-audio")![0];
+    life.event({ type: "state", characterId: "a", taskId: "task", role: "researcher", state: "working" });
+    life.event({ type: "speak", characterId: "a", taskId: "task", role: "researcher", text: "Новая роль." });
+    expect(synthesize).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls.some(([event]) => event.type === "stop")).toBe(false);
+    router.receive({ type: "audio-finished", id: first.audioId, phase: "end" });
+    await tick();
+    expect(synthesize.mock.calls[0]?.[0]).toMatchObject({ voice: "Vivian" });
+    expect(synthesize.mock.calls[1]?.[0]).toMatchObject({ voice: "Sohee" });
+    life.dispose(); router.dispose();
+  });
   it("gives every role a separate voice and includes child sessions by default", () => {
     expect(new Set(Object.values(voiceDefaults)).size).toBe(4);
     expect(configSchema.parse({}).speech).toBe("all");

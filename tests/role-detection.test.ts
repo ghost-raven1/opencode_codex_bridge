@@ -6,11 +6,16 @@ describe("task-based companion roles", () => {
     ["Проверь патч и найди регрессии", "reviewer"],
     ["Сделай ревью изменений", "reviewer"],
     ["Найди баги в изменениях", "reviewer"],
+    ["Поищи баги в плагине", "reviewer"],
+    ["Можешь поискать возможные ошибки и затем исправить их", "reviewer"],
+    ["Ищи регрессии", "reviewer"],
     ["Review the diff for security defects", "reviewer"],
     ["Run a code audit", "reviewer"],
     ["Test the login flow", "reviewer"],
     ["Исследуй документацию macOS Speech", "researcher"],
     ["Найди подходящий планировщик", "researcher"],
+    ["Найди документацию для исправления багов", "researcher"],
+    ["Найди документацию, затем проверь баги", "researcher"],
     ["Compare official API documentation", "researcher"],
     ["Investigate the cause of intermittent failures", "researcher"],
     ["Исправь ошибку в bridge", "developer"],
@@ -46,5 +51,9 @@ describe("task-based companion roles", () => {
     expect(roleFromTask("> Implement all code\nResearch the API")).toBe("researcher");
     expect(roleFromTask("Do not implement; research the options")).toBe("researcher");
     expect(roleFromTask("Не исправляй код, только проверь патч")).toBe("reviewer");
+    expect(roleFromTask("Не ищи баги, исследуй документацию")).toBe("researcher");
+    expect(roleFromTask("Без исправлений проведи ревью")).toBe("reviewer");
+    expect(roleFromTask("Не только исправь баг, но и проверь тесты")).toBe("developer");
+    expect(roleFromTask("Do not review; implement the fix")).toBe("developer");
   });
 });
