@@ -37,6 +37,8 @@ const config = {
     codex: { description: "Передать задачу Codex через stdio", template: "Use the codex tool for this task. Preserve threadId for follow-ups. Task: $ARGUMENTS" },
     voice: { description: "Диктовка и голос macOS", template: "Use companion with action voice_menu. The user starts dictation from that menu and reviews the resulting draft in the CLI. Do not enable any other microphone or speech service. $ARGUMENTS" },
     companions: { description: "Показать команду персонажей", template: "Use companion with action preview. $ARGUMENTS" },
+    "companions-hide": { description: "Скрыть персонажей", template: "Use companion with action hide." },
+    "companions-show": { description: "Показать персонажей", template: "Use companion with action show." },
     "voice-test": { description: "Проверить системный голос macOS", template: "Use companion with action test_voice. Do not use any external TTS. $ARGUMENTS" },
   },
 };
@@ -45,7 +47,7 @@ await writeFile(join(target, "companions.json"), JSON.stringify({
   enabled: profile !== "quiet", speech: "coordinator-only", workingPhrase: "Задача в работе.",
   language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: true, dictation: true,
   appearance: { mode: "presets", roles: {} },
-  agentRoles: { build: "coordinator", plan: "coordinator", general: "developer", explore: "researcher", review: "reviewer" },
+  agentRoles: {},
 }, null, 2) + "\n");
 await writeFile(join(target, "smart-voice-notify.jsonc"), JSON.stringify({
   enabled: profile !== "quiet", enableTTS: false, enableTTSReminder: false,

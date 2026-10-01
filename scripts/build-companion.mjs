@@ -27,7 +27,7 @@ writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UT
 const result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", `${root}.local/swift-cache`,
   "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
   "-framework", "AppKit", "-framework", "AVFoundation", "-framework", "Speech",
-  ...["CharacterView.swift", "NativeSpeech.swift", "NativeDictation.swift", "main.swift"].map(name => `${native}/${name}`),
+  ...["CharacterView.swift", "WindowState.swift", "NativeSpeech.swift", "NativeDictation.swift", "main.swift"].map(name => `${native}/${name}`),
   "-o", `${bundle}/Contents/MacOS/Companions`], { cwd: root, stdio: "inherit" });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const signed = spawnSync("codesign", ["--force", "--sign", "-", "--identifier", "dev.codexbridge.companions", bundle], { cwd: root, stdio: "inherit" });

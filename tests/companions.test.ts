@@ -9,7 +9,7 @@ function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only", 
   const send = (type: string, properties: unknown) => director.event({ type, properties });
   const message = (role: string, id: string, mode = "build") => send("message.updated", { info: { id, sessionID: "s", role, mode } });
   const text = (id: string, messageID: string, text: string) => send("message.part.updated", { part: { id, messageID, sessionID: "s", type: "text", text } });
-  return { events, send, message, text };
+  return { events, send, message, text, director };
 }
 describe("companion event mapping", () => {
   it("announces a new user task once and cancels the previous speech", () => {
@@ -80,14 +80,55 @@ describe("companion event mapping", () => {
     t.send("message.removed", { sessionID: "s", messageID: "a" });
     expect(t.events.at(-1)?.type).toBe("stop");
   });
-  it("respects coordinator-only speech and uses real agent roles", () => {
-    const t = setup(); t.message("assistant", "a", "explore"); t.text("p", "a", "Found it"); t.send("session.idle", { sessionID: "s" });
+  it("respects primary-only speech and uses real subagent roles", () => {
+    const t = setup(); t.send("session.created", { info: { id: "s", parentID: "root" } });
+    t.message("assistant", "a", "explore"); t.text("p", "a", "Found it"); t.send("session.idle", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
     expect(t.events.at(-1)?.appearance?.column).toBe(2);
   });
   it("can mute all speech", () => {
     const t = setup("off"); t.message("user", "u"); t.send("session.error", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
+  });
+  it("infers role from user text parts and never from an assistant answer", () => {
+    const t = setup(); t.message("user", "u"); t.text("task", "u", "Проверь изменения на регрессии");
+    expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("reviewer");
+    t.message("assistant", "a", "general"); t.text("answer", "a", "Реализуй новую функцию и исследуй документацию");
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("reviewer");
+    expect(t.events.at(-1)?.type).toBe("speak");
+  });
+  it("assigns a full task before user events without losing role or primary speech", () => {
+    const t = setup();
+    t.director.assignTask("s", { agent: "build", task: "Implement login", messageID: "u" });
+    t.message("user", "u");
+    expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("developer");
+    expect(t.events.at(-1)).toMatchObject({ type: "speak", role: "developer", text: "Задача в работе." });
+    t.message("user", "next");
+    expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("coordinator");
+  });
+  it("infers a general subagent role from running task input before its first message", () => {
+    const t = setup(); t.message("assistant", "a");
+    t.send("message.part.updated", { part: { id: "task", messageID: "a", sessionID: "s", type: "tool", tool: "task",
+      state: { status: "running", input: { description: "Research SDK docs", prompt: "Find the official API reference", subagent_type: "general" },
+        metadata: { sessionId: "child" } } } });
+    expect(t.events.find(e => e.characterId === "child" && e.type === "state")?.role).toBe("researcher");
+    t.send("message.updated", { info: { id: "child-user", sessionID: "child", role: "user", agent: "general" } });
+    expect(t.events.filter(e => e.characterId === "child" && e.type === "state").at(-1)?.role).toBe("researcher");
+    expect(t.events.filter(e => e.characterId === "child" && e.type === "speak")).toHaveLength(0);
+  });
+  it("does not announce a subagent planner as the primary coordinator", () => {
+    const t = setup();
+    t.director.assignTask("s", { agent: "general", task: "Составь план миграции", parentID: "root" });
+    t.message("user", "u", "general");
+    expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("coordinator");
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
+  });
+  it("preserves configured agent roles over task inference", () => {
+    const t = setup("all", { agentRoles: { general: "reviewer" } });
+    t.director.assignTask("s", { agent: "general", task: "Implement parser", parentID: "root" });
+    t.message("user", "u", "general"); t.text("task", "u", "Research the protocol");
+    expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("reviewer");
   });
   it("removes the character when its session is deleted", () => {
     const t = setup(); t.send("session.created", { info: { id: "s" } }); t.send("session.deleted", { info: { id: "s" } });

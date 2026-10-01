@@ -21,9 +21,8 @@ export const configSchema = z.object({
   language: z.string().default("ru-RU"),
   voiceIdentifier: z.string().min(1).optional(),
   appearance: appearanceSchema,
-  agentRoles: z.record(roleSchema).default({
-    build: "coordinator", plan: "coordinator", general: "developer", explore: "researcher", review: "reviewer",
-  }),
+  // Explicit overrides only; built-in names are fallbacks after task-based detection.
+  agentRoles: z.record(roleSchema).default({}),
 });
 export type CompanionConfig = z.infer<typeof configSchema>;
 

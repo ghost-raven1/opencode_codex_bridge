@@ -69,16 +69,30 @@ const Companions: Plugin = async ({ directory, client }) => {
       if (event.type === "server.instance.disposed") host.close();
       else director.event(event);
     },
+    "chat.message": async (input, output) => {
+      const task = output.parts.filter(part => part.type === "text" && !part.synthetic && !part.ignored)
+        .map(part => part.type === "text" ? part.text : "").join("\n");
+      director.assignTask(input.sessionID, { agent: input.agent ?? output.message.agent,
+        task, messageID: output.message.id });
+    },
+    "tool.execute.after": async (input, output) => {
+      if (input.tool !== "task" || typeof output.metadata?.sessionId !== "string") return;
+      const args = input.args as Record<string, unknown>;
+      director.assignTask(output.metadata.sessionId, { parentID: input.sessionID,
+        agent: typeof args.subagent_type === "string" ? args.subagent_type : undefined,
+        task: [args.description, args.prompt].filter(value => typeof value === "string").join("\n") });
+    },
     tool: {
       companion: tool({
         description: "Control native macOS companions. voice_menu opens the menu where the user explicitly starts dictation. Recognized text is a draft in the CLI, never submitted automatically.",
-        args: { action: tool.schema.enum(["preview", "voice_menu", "test_voice", "mute", "unmute", "stop", "recover_dictation"]) },
+        args: { action: tool.schema.enum(["preview", "hide", "show", "reset_position", "voice_menu", "test_voice", "mute", "unmute", "stop", "recover_dictation"]) },
         async execute({ action }) {
           if (action === "recover_dictation") {
             await scheduleDelivery();
             return "Доступная диктовка вставлена в строку ввода.";
           }
           const events = {
+            hide: { type: "hide" }, show: { type: "show" }, reset_position: { type: "reset-position" },
             preview: { type: "preview" }, voice_menu: { type: "show-menu" }, test_voice: { type: "speech-test" },
             mute: { type: "mute", muted: true }, unmute: { type: "mute", muted: false }, stop: { type: "stop-speech" },
           };

@@ -24,6 +24,7 @@ final class CharacterView: NSView {
     var speaker: String?
     var mouthUntil: TimeInterval = 0
     var bubble: String = ""
+    private var dragStart: NSPoint?
     let accents: [NSColor] = [
         NSColor(red: 0.93, green: 0.78, blue: 0.69, alpha: 1),
         NSColor(red: 0.73, green: 0.51, blue: 0.9, alpha: 1),
@@ -31,7 +32,20 @@ final class CharacterView: NSView {
         NSColor(red: 0.91, green: 0.56, blue: 0.38, alpha: 1)
     ]
     override var isOpaque: Bool { false }
-    override func mouseDown(with event: NSEvent) { window?.performDrag(with: event) }
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+    override func resetCursorRects() { addCursorRect(bounds, cursor: .openHand) }
+    override func mouseDown(with event: NSEvent) {
+        dragStart = event.locationInWindow
+        NSCursor.closedHand.set()
+    }
+    override func mouseDragged(with event: NSEvent) {
+        guard let dragStart, let window else { return }
+        let point = window.convertPoint(toScreen: event.locationInWindow)
+        window.setFrameOrigin(NSPoint(x: point.x - dragStart.x, y: point.y - dragStart.y))
+    }
+    override func mouseUp(with event: NSEvent) {
+        dragStart = nil; NSCursor.openHand.set()
+    }
 
     override func draw(_ dirtyRect: NSRect) {
         guard let atlas else { return }

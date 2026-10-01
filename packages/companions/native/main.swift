@@ -26,6 +26,8 @@ var exitStatus: Int32 = 0
     var speechTestTimer: Timer?
     var item: NSStatusItem?
     var muteItem: NSMenuItem?
+    var visibilityItem: NSMenuItem?
+    var windowState: WindowState!
     var startItem: NSMenuItem?
     var finishItem: NSMenuItem?
     var cancelItem: NSMenuItem?
@@ -57,7 +59,7 @@ var exitStatus: Int32 = 0
         configureCallbacks(); configurePanel(); configureMenu()
         emitReady()
         if CommandLine.arguments.contains("--preview") || argument("--snapshot") != nil || config["showOnStart"] as? Bool == true {
-            showPreview()
+            populatePreview()
         }
         if let output = argument("--snapshot") {
             guard view.atlas != nil else {
@@ -112,8 +114,15 @@ var exitStatus: Int32 = 0
         panel.backgroundColor = .clear; panel.isOpaque = false; panel.hasShadow = false
         panel.level = .floating
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.isMovableByWindowBackground = true; panel.contentView = view
-        panel.setFrameOrigin(NSPoint(x: 20, y: 40))
+        panel.isMovableByWindowBackground = false; panel.contentView = view
+        view.toolTip = "Перетащи персонажа или подпись, чтобы переместить группу. Правый клик — скрыть."
+        windowState = WindowState(panel: panel)
+        windowState.onChange = { [weak self] in self?.updateMenu() }
+        let context = NSMenu()
+        context.addItem(withTitle: "Скрыть компаньонов", action: #selector(hideCompanions), keyEquivalent: "")
+        context.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
+        for entry in context.items { entry.target = self }
+        view.menu = context
         timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in self?.view.needsDisplay = true }
     }
 
@@ -135,6 +144,8 @@ var exitStatus: Int32 = 0
         finishItem = menu.addItem(withTitle: "Завершить диктовку", action: #selector(finishDictation), keyEquivalent: "")
         cancelItem = menu.addItem(withTitle: "Отменить диктовку", action: #selector(cancelDictation), keyEquivalent: "")
         menu.addItem(.separator())
+        visibilityItem = menu.addItem(withTitle: "Скрыть компаньонов", action: #selector(toggleVisibility), keyEquivalent: "")
+        menu.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
         menu.addItem(withTitle: "Показать команду", action: #selector(showPreview), keyEquivalent: "")
         menu.addItem(withTitle: "Закрыть CodexBridge Companions", action: #selector(quit), keyEquivalent: "q")
         menu.autoenablesItems = false
@@ -146,6 +157,7 @@ var exitStatus: Int32 = 0
 
     func updateMenu() {
         muteItem?.state = speech.muted ? .on : .off
+        visibilityItem?.title = windowState?.hidden == true ? "Показать компаньонов" : "Скрыть компаньонов"
         startItem?.isEnabled = dictationEnabled && !dictation.active
         finishItem?.isEnabled = dictation.active; cancelItem?.isEnabled = dictation.active
         item?.button?.title = dictation.active ? "● ✦" : "✦"
@@ -172,12 +184,17 @@ var exitStatus: Int32 = 0
         let count = CGFloat(max(view.characters.count, 1))
         panel.setContentSize(NSSize(width: count * 168 * scale, height: 330 * scale))
         view.setBoundsSize(NSSize(width: count * 168, height: 330))
+        windowState.fitToScreen()
     }
 
     func receive(_ value: [String: Any]) {
         guard let type = value["type"] as? String else { return }
         switch type {
         case "preview": showPreview()
+        case "hide": hideCompanions()
+        case "show": showCompanions()
+        case "reset-position": resetPosition()
+        case "window-status": emitWindowStatus()
         case "mute": speech.setMuted(value["muted"] as? Bool ?? !speech.muted); updateMenu()
         case "stop-speech": stopSpeech()
         case "speech-test": testSpeech()
@@ -205,23 +222,54 @@ var exitStatus: Int32 = 0
                 view.characters.append(character)
             }
             resize()
-            if view.atlas != nil { panel.orderFrontRegardless() }
+            presentCharacters()
         case "speak":
             if let text = value["text"] as? String { speech.enqueue(characterId: id, text: text) }
         case "stop": speech.stop(characterId: id)
         case "remove":
             speech.stop(characterId: id); view.characters.removeAll { $0.id == id }; resize()
-            if view.characters.isEmpty { panel.orderOut(nil) }
+            presentCharacters()
         default: break
         }
     }
 
-    @objc func showPreview() {
+    func populatePreview() {
         guard view.atlas != nil else { return }
         view.characters = ["LEAD", "CODE", "RESEARCH", "REVIEW"].prefix(maxVisible).enumerated().map {
             Character(id: "preview-\($0.offset)", column: $0.offset, label: $0.element, state: "idle")
         }
-        resize(); panel.orderFrontRegardless()
+        resize(); presentCharacters()
+    }
+
+    func presentCharacters() {
+        windowState.present(hasContent: view.atlas != nil && !view.characters.isEmpty)
+    }
+
+    func emitWindowStatus() {
+        emit(["type": "window", "hidden": windowState.hidden, "visible": panel.isVisible,
+              "x": panel.frame.minX, "y": panel.frame.minY])
+    }
+
+    @objc func showPreview() {
+        windowState.setHidden(false); populatePreview(); emitWindowStatus()
+    }
+
+    @objc func hideCompanions() {
+        windowState.setHidden(true); presentCharacters(); emitWindowStatus()
+    }
+
+    @objc func showCompanions() {
+        windowState.setHidden(false)
+        if view.characters.isEmpty { populatePreview() } else { presentCharacters() }
+        emitWindowStatus()
+    }
+
+    @objc func toggleVisibility() {
+        if windowState.hidden { showCompanions() } else { hideCompanions() }
+    }
+
+    @objc func resetPosition() {
+        windowState.resetPosition(); showCompanions()
     }
 
     @objc func selectVoice(_ sender: NSMenuItem) {

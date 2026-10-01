@@ -85,6 +85,25 @@ describe("CLI system voice integration", () => {
     await hooks.tool!.companion!.execute({ action: "recover_dictation" }, {} as never);
     expect(t.client.tui.appendPrompt.mock.calls.slice(16).map(([call]) => (call as any)?.body.text)).toEqual(Array.from({ length: 16 }, (_, i) => `Черновик ${i} `));
   });
+  it("routes the user task to role detection before the first message event", async () => {
+    const t = input(); const hooks = await Companions(t.context);
+    await hooks["chat.message"]?.({ sessionID: "s", agent: "build" }, {
+      message: { id: "u", agent: "build" } as never,
+      parts: [{ type: "text", text: "Проверь изменения и найди ошибки" }] as never,
+    });
+    await hooks.event?.({ event: { type: "message.updated", properties: { info: {
+      id: "u", sessionID: "s", role: "user", agent: "build",
+    } } } as never });
+    expect(mocks.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "speak", role: "reviewer" }));
+    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ type: "state", role: "reviewer" }));
+  });
+  it("assigns the actual child session from task metadata", async () => {
+    const hooks = await Companions(input().context);
+    await hooks["tool.execute.after"]?.({ tool: "task", sessionID: "parent", callID: "call",
+      args: { subagent_type: "general", description: "Research API docs", prompt: "Find official references" },
+    }, { title: "Research", output: "done", metadata: { sessionId: "child" } });
+    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ type: "state", characterId: "child", role: "researcher" }));
+  });
   it("quiet profile never starts a native process", async () => {
     vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: false }));
     expect(await Companions(input().context)).toEqual({});
