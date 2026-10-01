@@ -13,7 +13,7 @@ npm run check
 npm run setup:snip
 npm run companion:build
 npm run bundle:all
-npm start -- quiet /absolute/path/to/project
+npm start -- companions /absolute/path/to/project
 ```
 
 В CLI: `/codex Исправь ошибку и проверь тесты`. Плагин вернёт `threadId`; передай его следующему вызову инструмента `codex`, чтобы продолжить ту же сессию. Модель берётся из настроек Codex; поле `model` позволяет явно выбрать другую. Мост использует свою зафиксированную зависимость `@openai/codex@0.159.3`, а не случайную глобальную версию.
@@ -25,14 +25,16 @@ npm start -- quiet /absolute/path/to/project
 | Профиль | Запуск | Поведение |
 | --- | --- | --- |
 | quiet | `npm start -- quiet /project` | Codex, планирование, MCP документации, LSP, snip; без голоса и персонажей |
-| jarvis | `npm start -- jarvis /project` | Голосовой ввод и вывод через готовый Jarvis MCP и его плагин; микрофон в браузере |
-| companions | `npm start -- companions /project` | Персонажи поверх рабочего стола; системный синтез речи macOS и реакции на реальные события CLI |
+| jarvis | `npm start -- jarvis /project` | Совместимое имя голосового профиля; также использует системные голос и диктовку macOS |
+| companions | `npm start -- companions /project` | Персонажи, системный синтез речи и диктовка macOS; реакции на события CLI |
 
 Конфигурации создаются в `.local/profiles/`; глобальный файл OpenCode не переписывается. OpenCode может объединять их с личными настройками. Повторный `bundle` пересоздаёт только сгенерированный профиль, поэтому постоянные изменения вноси в генератор либо в проектные настройки.
 
-Jarvis запускается командой `/voice`. Браузерный микрофон — требование выбранного готового Jarvis, а не новая веб-панель CodexBridge. Его браузер может запросить разрешение на микрофон и предложить самоподписанный HTTPS-сертификат. Физический микрофон требует ручной проверки.
+Озвучка работает через встроенный **AVSpeechSynthesizer macOS**. В меню **✦** можно выбрать установленный системный голос, проверить звук, остановить речь и выключить озвучку. `/voice-test` проверяет голос; `/companions` показывает команду персонажей. Эти slash-команды используют обычную настроенную модель OpenCode для вызова инструмента `companion`; меню ✦ работает без запроса к модели.
 
-Профили разделяют владельца речи: Jarvis озвучивает голосовой диалог, а нативный компаньон — обычные ответы CLI. Smart Voice Notify оставлен для уведомлений, его TTS и звуки отключены, чтобы ответы не звучали дважды. Синхронизация персонажа с внешним Edge/ElevenLabs/Jarvis-аудио пока не реализована.
+Для ввода нажми **✦ → Начать диктовку** или открой меню через `/voice`. macOS запросит доступ к микрофону и распознаванию речи. **Завершить диктовку** вставляет текст в строку CLI: проверь его и нажми Enter. **Отменить** удаляет текущую запись. Лимит одной записи — 60 секунд, постоянного прослушивания нет. Во время записи синтезатор останавливается, чтобы не распознавать свой ответ. Системное распознавание может обращаться к сервисам Apple в зависимости от языка и доступности локальной модели.
+
+Jarvis сохранён в составе и MCP-конфигурации, но отключён во всех готовых профилях: активная голосовая цепочка полностью нативная. Smart Voice Notify обслуживает только уведомления; его TTS и звуки отключены. Ключи ElevenLabs/OpenAI для голоса не нужны. Речь macOS продолжает работать, даже если файлы персонажей недоступны.
 
 ## Состав
 
@@ -41,7 +43,7 @@ Jarvis запускается командой `/voice`. Браузерный м
 | @codexbridge/opencode | 0.1.0 | Наш CLI-плагин и отдельный MCP-вход |
 | @openai/codex | 0.159.3 | Локальный App Server, stdio, существующий вход пользователя |
 | @codexbridge/companions | 0.1.0 | Наш независимый CLI-плагин и macOS-компаньон |
-| @shantur/jarvis-mcp | 1.0.1 | Голосовой ввод/вывод, пересылка голосовых сообщений |
+| @shantur/jarvis-mcp | 1.0.1 | Сохранён как отключённый альтернативный MCP; основная голосовая цепочка — macOS |
 | opencode-smart-voice-notify | 1.4.0 | Уведомления CLI; альтернативные TTS-движки доступны в его настройках |
 | opencode-snip / snip | 2.0.0 / 0.25.2 | Сокращение вывода поддерживаемых shell-команд |
 | @plannotator/opencode | 0.27.24 | Просмотр и аннотирование планов встроенного агента `plan` |
@@ -62,7 +64,7 @@ Codex стартует с `workspace-write`, `approvalPolicy: on-request`, `appr
 
 ## Отдельный плагин персонажей
 
-Пакет находится в `packages/companions/` и не зависит от пакета моста. Его можно подключить в другой OpenCode-проект. Настройки читаются из `.opencode/companions.json` проекта, затем из выбранного профиля.
+Пакет находится в `packages/companions/` и не зависит от пакета моста. Его можно подключить в другой OpenCode-проект. `companion:build` создаёт локальный `.app` с постоянным bundle ID и ad-hoc подписью для системных разрешений; глобальная установка не требуется. Настройки читаются из `.opencode/companions.json` проекта, затем из выбранного профиля.
 
 ```json
 {
@@ -70,6 +72,9 @@ Codex стартует с `workspace-write`, `approvalPolicy: on-request`, `appr
   "speech": "coordinator-only",
   "workingPhrase": "Задача в работе.",
   "language": "ru-RU",
+  "dictation": true,
+  "showOnStart": true,
+  "appearance": { "mode": "presets", "roles": {} },
   "maxVisible": 4,
   "scale": 1,
   "agentRoles": {
@@ -84,11 +89,20 @@ Codex стартует с `workspace-write`, `approvalPolicy: on-request`, `appr
 
 Персонажи появляются для реальных сессий; роли берутся из агентов и конфигурации. Пресеты: LEAD с планшетом, CODE в фиолетовом, RESEARCH с книгой, REVIEW в чёрно-оранжевом. Выбор по роли стабилен. Состояния: ожидание, размышление, работа, успех, ошибка, запрос разрешения. Озвучивается завершённый ответ, без reasoning и содержимого инструментов; кодовые блоки и URL убираются из произносимого текста. Новое пользовательское сообщение останавливает речь соответствующего персонажа.
 
-**Текущий графический пак ещё не готов:** проверка отклоняет сгенерированный RGB-атлас без прозрачности, поэтому окно персонажей пока не открывается. Мост и профиль Jarvis работают независимо от него. Детали — в `docs/assets.md`.
-
 Одна очередь AVSpeechSynthesizer обслуживает всю команду. Рот открывается по событиям слов и закрывается при завершении/отмене; это приближение по словам, а не фонемный lip sync. Значок ✦ в строке меню позволяет выключить голос и закрыть окно; персонажей можно перетащить мышью. Учитывается системное уменьшение движения.
 
-Сейчас пресеты выбирают готовую внешность целиком. Конструктор взаимозаменяемых волос/одежды/аксессуаров из обсуждения ещё не реализован; исходный референс сохранён в `assets/reference/team.png`. Состояние графического пака описано в `docs/assets.md`.
+Внешность собирается из двух слоёв: голова с волосами и одежда с предметами в руках. Режим `presets` сохраняет референс; `seeded` детерминированно смешивает слои по ID сессии. Можно переопределить роль:
+
+```json
+{
+  "appearance": {
+    "mode": "seeded",
+    "roles": { "developer": { "head": "researcher", "outfit": "reviewer" } }
+  }
+}
+```
+
+Значения `head` и `outfit`: `coordinator`, `developer`, `researcher`, `reviewer`. Очки, наушники и книги входят в соответствующие нарисованные слои; независимого переключателя каждого аксессуара нет. Цвет и подпись роли сохраняются при смене внешности. Исходник — `assets/reference/team.png`, контракт графики — `docs/assets.md`.
 
 ## MCP для harness и других клиентов
 
@@ -117,4 +131,4 @@ npm run smoke:inference
 
 Результаты и границы проверки — в `docs/validation.md`. `smoke:opencode` запускает временный локальный сервер, не требует аккаунта модели и отключает голос. GitHub Actions подготовлен, но CI считается проверенным только после реального запуска на GitHub.
 
-Источники: [Codex App Server](https://learn.chatgpt.com/docs/app-server), [OpenCode plugins](https://opencode.ai/docs/plugins/), [Jarvis](https://github.com/shantur/jarvis-mcp), [Smart Voice Notify](https://github.com/MasuRii/opencode-smart-voice-notify), [snip plugin](https://github.com/VincentHardouin/opencode-snip), [Plannotator](https://github.com/backnotprop/plannotator/tree/main/apps/opencode-plugin), [исходное обсуждение персонажей](https://chatgpt.com/share/6abe51c0-3a90-83ed-9bb8-0b1b55aff069).
+Источники: [Codex App Server](https://learn.chatgpt.com/docs/app-server), [OpenCode plugins](https://opencode.ai/docs/plugins/), [Jarvis](https://github.com/shantur/jarvis-mcp), [Smart Voice Notify](https://github.com/MasuRii/opencode-smart-voice-notify), [snip plugin](https://github.com/VincentHardouin/opencode-snip), [Plannotator](https://github.com/backnotprop/plannotator/tree/main/apps/opencode-plugin), [Apple Speech](https://developer.apple.com/documentation/speech/sfspeechrecognizer), [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer), [исходное обсуждение персонажей](https://chatgpt.com/share/6abe51c0-3a90-83ed-9bb8-0b1b55aff069).

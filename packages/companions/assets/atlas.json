@@ -1,0 +1,330 @@
+{
+  "version": 1,
+  "columns": [
+    "lead",
+    "code",
+    "research",
+    "review"
+  ],
+  "rows": [
+    "idle",
+    "talking",
+    "blink",
+    "working"
+  ],
+  "cell": {
+    "width": 256,
+    "height": 384
+  },
+  "coordinates": "pixels, origin top-left",
+  "neckAnchor": {
+    "x": 128,
+    "y": 120
+  },
+  "feetBaseline": 368,
+  "headSplitRatio": 0.3125,
+  "atlases": {
+    "team": "team-atlas.png",
+    "head": "head-atlas.png",
+    "body": "body-atlas.png"
+  },
+  "compositeOrder": [
+    "body",
+    "head"
+  ],
+  "appearance": {
+    "headColumn": "hair, face and integrated face accessories",
+    "bodyColumn": "outfit, hands and held props",
+    "independentAccessories": false
+  },
+  "frames": [
+    {
+      "role": "lead",
+      "state": "idle",
+      "column": 0,
+      "row": 0,
+      "bounds": [
+        43,
+        23,
+        214,
+        368
+      ],
+      "sourceAnchor": [
+        174,
+        149,
+        65,
+        350
+      ]
+    },
+    {
+      "role": "code",
+      "state": "idle",
+      "column": 1,
+      "row": 0,
+      "bounds": [
+        24,
+        22,
+        211,
+        369
+      ],
+      "sourceAnchor": [
+        489,
+        157,
+        63,
+        350
+      ]
+    },
+    {
+      "role": "research",
+      "state": "idle",
+      "column": 2,
+      "row": 0,
+      "bounds": [
+        54,
+        23,
+        208,
+        368
+      ],
+      "sourceAnchor": [
+        777,
+        147,
+        66,
+        350
+      ]
+    },
+    {
+      "role": "review",
+      "state": "idle",
+      "column": 3,
+      "row": 0,
+      "bounds": [
+        36,
+        23,
+        205,
+        369
+      ],
+      "sourceAnchor": [
+        1090,
+        147,
+        65,
+        350
+      ]
+    },
+    {
+      "role": "lead",
+      "state": "talking",
+      "column": 0,
+      "row": 1,
+      "bounds": [
+        44,
+        22,
+        214,
+        368
+      ],
+      "sourceAnchor": [
+        173,
+        456,
+        374,
+        660
+      ]
+    },
+    {
+      "role": "code",
+      "state": "talking",
+      "column": 1,
+      "row": 1,
+      "bounds": [
+        22,
+        21,
+        210,
+        369
+      ],
+      "sourceAnchor": [
+        489,
+        465,
+        371,
+        661
+      ]
+    },
+    {
+      "role": "research",
+      "state": "talking",
+      "column": 2,
+      "row": 1,
+      "bounds": [
+        55,
+        23,
+        208,
+        369
+      ],
+      "sourceAnchor": [
+        777,
+        457,
+        374,
+        660
+      ]
+    },
+    {
+      "role": "review",
+      "state": "talking",
+      "column": 3,
+      "row": 1,
+      "bounds": [
+        36,
+        20,
+        206,
+        368
+      ],
+      "sourceAnchor": [
+        1090,
+        456,
+        375,
+        661
+      ]
+    },
+    {
+      "role": "lead",
+      "state": "blink",
+      "column": 0,
+      "row": 2,
+      "bounds": [
+        45,
+        22,
+        214,
+        368
+      ],
+      "sourceAnchor": [
+        173,
+        768,
+        685,
+        974
+      ]
+    },
+    {
+      "role": "code",
+      "state": "blink",
+      "column": 1,
+      "row": 2,
+      "bounds": [
+        21,
+        22,
+        210,
+        369
+      ],
+      "sourceAnchor": [
+        489,
+        776,
+        681,
+        974
+      ]
+    },
+    {
+      "role": "research",
+      "state": "blink",
+      "column": 2,
+      "row": 2,
+      "bounds": [
+        55,
+        21,
+        208,
+        368
+      ],
+      "sourceAnchor": [
+        777,
+        769,
+        686,
+        974
+      ]
+    },
+    {
+      "role": "review",
+      "state": "blink",
+      "column": 3,
+      "row": 2,
+      "bounds": [
+        36,
+        20,
+        206,
+        369
+      ],
+      "sourceAnchor": [
+        1090,
+        768,
+        686,
+        974
+      ]
+    },
+    {
+      "role": "lead",
+      "state": "working",
+      "column": 0,
+      "row": 3,
+      "bounds": [
+        63,
+        20,
+        205,
+        364
+      ],
+      "sourceAnchor": [
+        172,
+        1079,
+        997,
+        1248
+      ]
+    },
+    {
+      "role": "code",
+      "state": "working",
+      "column": 1,
+      "row": 3,
+      "bounds": [
+        36,
+        22,
+        217,
+        366
+      ],
+      "sourceAnchor": [
+        486,
+        1084,
+        991,
+        1248
+      ]
+    },
+    {
+      "role": "research",
+      "state": "working",
+      "column": 2,
+      "row": 3,
+      "bounds": [
+        57,
+        22,
+        205,
+        369
+      ],
+      "sourceAnchor": [
+        775,
+        1080,
+        996,
+        1248
+      ]
+    },
+    {
+      "role": "review",
+      "state": "working",
+      "column": 3,
+      "row": 3,
+      "bounds": [
+        51,
+        22,
+        196,
+        369
+      ],
+      "sourceAnchor": [
+        1090,
+        1082,
+        997,
+        1248
+      ]
+    }
+  ]
+}

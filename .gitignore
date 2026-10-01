@@ -4,3 +4,4 @@ dist/
 .DS_Store
 *.tgz
 packages/companions/native/Companions
+packages/companions/native/*.app/

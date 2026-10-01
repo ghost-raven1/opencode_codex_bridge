@@ -5,12 +5,14 @@ import { join } from "node:path";
 import assert from "node:assert/strict";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
+const native = process.argv.includes("--native");
+if (native && process.platform !== "darwin") throw new Error("Native voice smoke requires macOS");
 const temp = await mkdtemp(join(root, ".local/opencode-smoke-"));
 const config = JSON.parse(await readFile(join(root, ".local/profiles/quiet/opencode.json"), "utf8"));
 for (const server of Object.values(config.mcp)) server.enabled = false;
 await writeFile(join(temp, "opencode.json"), JSON.stringify(config));
 await writeFile(join(temp, "smart-voice-notify.jsonc"), '{"enabled":false}');
-await writeFile(join(temp, "companions.json"), '{"enabled":false}');
+await writeFile(join(temp, "companions.json"), JSON.stringify({ enabled: native, showOnStart: false, speech: "off", dictation: false }));
 const child = spawn("opencode", ["serve", "--port", "0", "--hostname", "127.0.0.1"], {
   cwd: temp, stdio: ["ignore", "pipe", "pipe"],
   env: { ...process.env, XDG_CONFIG_HOME: join(temp, "config"), XDG_DATA_HOME: join(temp, "data"),
@@ -39,10 +41,12 @@ try {
   const ids = JSON.parse(text);
   const configured = await fetch(`${url}/config`).then(r => r.json());
   assert(ids.includes("codex"), `Codex plugin was not loaded: ${JSON.stringify({ ids, plugins: configured.plugin })}. ${logs}`);
+  assert(ids.includes("submit_plan"), "Planner plugin was not loaded");
+  if (native) assert(ids.includes("companion"), `Native voice plugin was not loaded: ${logs}`);
   assert.equal(configured.permission.codex_system, "ask");
   assert(configured.lsp.typescript.command.includes("--stdio"));
   console.log("PASS: real OpenCode loaded CLI plugins; codex tool, OS approval rule and TypeScript LSP configured");
-  console.log(JSON.stringify({ customTools: ids.filter(id => ["codex", "submit_plan"].includes(id)), version: "1.3.2" }));
+  console.log(JSON.stringify({ customTools: ids.filter(id => ["codex", "submit_plan", "companion"].includes(id)), version: "1.3.2", native }));
 } finally {
   child.kill("SIGTERM");
   const kill = setTimeout(() => child.kill("SIGKILL"), 1500);

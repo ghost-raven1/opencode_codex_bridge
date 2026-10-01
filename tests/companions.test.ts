@@ -3,9 +3,9 @@ import { configSchema } from "../packages/companions/src/config.js";
 import { CompanionDirector, spokenText, type CompanionEvent } from "../packages/companions/src/director.js";
 import { appearanceFor } from "../packages/companions/src/presets.js";
 
-function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only") {
+function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only", extra: Record<string, unknown> = {}) {
   const events: CompanionEvent[] = [];
-  const director = new CompanionDirector(configSchema.parse({ speech }), e => events.push(e));
+  const director = new CompanionDirector(configSchema.parse({ speech, ...extra }), e => events.push(e));
   const send = (type: string, properties: unknown) => director.event({ type, properties });
   const message = (role: string, id: string, mode = "build") => send("message.updated", { info: { id, sessionID: "s", role, mode } });
   const text = (id: string, messageID: string, text: string) => send("message.part.updated", { part: { id, messageID, sessionID: "s", type: "text", text } });
@@ -34,6 +34,52 @@ describe("companion event mapping", () => {
     const t = setup(); t.send("session.error", { sessionID: "s" }); t.send("session.idle", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "state").at(-1)?.state).toBe("error");
   });
+  it("keeps approvals visible through idle and tool events until all requests are answered", () => {
+    const t = setup(); t.message("assistant", "a"); t.text("p", "a", "Пока рано озвучивать");
+    t.send("permission.asked", { sessionID: "s", id: "permission" });
+    t.send("question.asked", { sessionID: "s", id: "question" });
+    t.send("session.idle", { sessionID: "s" });
+    t.send("message.part.updated", { part: { sessionID: "s", type: "tool" } });
+    t.send("permission.replied", { sessionID: "s", requestID: "permission", reply: "once" });
+    expect(t.events.filter(e => e.type === "state").at(-1)?.state).toBe("waiting");
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
+    t.send("question.replied", { sessionID: "s", requestID: "question", answers: [] });
+    expect(t.events.at(-1)?.state).toBe("thinking");
+  });
+  it("clears legacy permission IDs on reply", () => {
+    const t = setup(); t.send("permission.updated", { sessionID: "s", id: "p" });
+    t.send("permission.replied", { sessionID: "s", permissionID: "p", response: "once" });
+    expect(t.events.at(-1)?.state).toBe("thinking");
+  });
+  it("cancels aborted speech without claiming success or announcing an error", () => {
+    const t = setup(); t.message("assistant", "a"); t.text("p", "a", "Незавершенный ответ");
+    t.send("session.error", { sessionID: "s", error: { name: "MessageAbortedError" } });
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.filter(e => e.type === "state").at(-1)?.state).toBe("idle");
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
+    expect(t.events.some(e => e.type === "stop")).toBe(true);
+    t.message("user", "next"); t.message("assistant", "b"); t.text("q", "b", "Новый ответ");
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.at(-1)?.text).toBe("Новый ответ");
+  });
+  it("does not interrupt its own error announcement when the error is delivered twice", () => {
+    const t = setup();
+    t.send("message.updated", { info: { sessionID: "s", id: "a", role: "assistant", error: { name: "APIError" } } });
+    const count = t.events.length;
+    t.send("session.error", { sessionID: "s", error: { name: "APIError" } });
+    expect(t.events).toHaveLength(count);
+    expect(t.events.at(-1)?.type).toBe("speak");
+  });
+  it("discards removed and subsequently ignored text before speaking", () => {
+    const t = setup(); t.message("assistant", "a");
+    t.text("deleted", "a", "Deleted"); t.text("ignored", "a", "Ignored"); t.text("keep", "a", "Готово");
+    t.send("message.part.removed", { sessionID: "s", messageID: "a", partID: "deleted" });
+    t.send("message.part.updated", { part: { sessionID: "s", messageID: "a", id: "ignored", type: "text", text: "Ignored", ignored: true } });
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.at(-1)?.text).toBe("Готово");
+    t.send("message.removed", { sessionID: "s", messageID: "a" });
+    expect(t.events.at(-1)?.type).toBe("stop");
+  });
   it("respects coordinator-only speech and uses real agent roles", () => {
     const t = setup(); t.message("assistant", "a", "explore"); t.text("p", "a", "Found it"); t.send("session.idle", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
@@ -47,9 +93,67 @@ describe("companion event mapping", () => {
     const t = setup(); t.send("session.created", { info: { id: "s" } }); t.send("session.deleted", { info: { id: "s" } });
     expect(t.events.at(-1)).toEqual({ type: "remove", characterId: "s" });
   });
+  it("does not allocate characters for unrelated global or late session events", () => {
+    const t = setup();
+    t.send("project.updated", { info: { id: "project" } });
+    t.send("message.updated", { info: { id: "message", role: "assistant" } });
+    t.send("session.idle", { sessionID: "unknown" });
+    t.text("late", "missing", "Late");
+    expect(t.events).toEqual([]);
+  });
+  it("does not resurrect deleted or evicted sessions on delayed parts and errors", () => {
+    const t = setup(); t.send("session.created", { info: { id: "s" } });
+    for (let n = 0; n < 128; n++) t.send("session.created", { info: { id: `session-${n}` } });
+    expect(t.events).toContainEqual({ type: "remove", characterId: "s" });
+    const count = t.events.length;
+    t.text("late", "a", "Late"); t.send("session.error", { sessionID: "s" });
+    expect(t.events).toHaveLength(count);
+    t.message("user", "resume");
+    expect(t.events.at(-1)?.text).toBe("Задача в работе.");
+    t.send("session.deleted", { info: { id: "s" } });
+    const afterDelete = t.events.length;
+    t.message("assistant", "late-assistant");
+    expect(t.events).toHaveLength(afterDelete);
+  });
+  it("restores child session role on resume and removes archived sessions", () => {
+    const t = setup("all"); t.send("session.updated", { info: { id: "s", parentID: "parent" } });
+    expect(t.events.at(-1)?.role).toBe("developer");
+    t.send("session.updated", { info: { id: "s", time: { archived: 123 } } });
+    expect(t.events.at(-1)).toEqual({ type: "remove", characterId: "s" });
+  });
+  it("bounds streamed parts and removes text from previous assistant messages", () => {
+    const t = setup("all", { maxSpeechLength: 8000 }); t.message("assistant", "a");
+    for (let n = 0; n < 130; n++) t.text(`part-${n}`, "a", `text${n}`);
+    t.send("session.idle", { sessionID: "s" });
+    const text = t.events.at(-1)?.text ?? "";
+    expect(text.startsWith("text2 ")).toBe(true);
+    t.message("assistant", "b"); t.text("b-part", "b", "Только новый ответ");
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.at(-1)?.text).toBe("Только новый ответ");
+  });
   it("uses deterministic appearances and different presets by role", () => {
     expect(appearanceFor("agent-a", "developer")).toEqual(appearanceFor("agent-a", "developer"));
     expect(appearanceFor("agent-a", "developer").column).not.toBe(appearanceFor("agent-a", "reviewer").column);
+  });
+  it("combines role-specific head and outfit choices without changing the role badge", () => {
+    const config = configSchema.parse({ appearance: { roles: { developer: { head: "researcher", outfit: "reviewer" } } } });
+    const appearance = appearanceFor("a", "developer", config.appearance);
+    expect(appearance).toMatchObject({ column: 1, label: "CODE", headColumn: 2, bodyColumn: 3 });
+    const t = setup("all", { appearance: config.appearance }); t.message("assistant", "a", "general");
+    expect(t.events.at(-1)?.appearance).toMatchObject({ headColumn: 2, bodyColumn: 3 });
+  });
+  it("seeds head and outfit independently and allows explicit overrides", () => {
+    const seeded = configSchema.parse({ appearance: { mode: "seeded" } }).appearance;
+    const a = appearanceFor("agent-a", "developer", seeded);
+    expect(a).toEqual(appearanceFor("agent-a", "developer", seeded));
+    const combinations = new Set(Array.from({ length: 32 }, (_, n) => {
+      const appearance = appearanceFor(`agent-${n}`, "developer", seeded);
+      return `${appearance.headColumn}:${appearance.bodyColumn}`;
+    }));
+    expect(combinations.size).toBeGreaterThan(8);
+    const override = configSchema.parse({ appearance: { mode: "seeded", roles: { developer: { head: "reviewer" } } } }).appearance;
+    expect(appearanceFor("agent-a", "developer", override)).toMatchObject({ headColumn: 3, bodyColumn: a.bodyColumn });
+    expect(() => configSchema.parse({ appearance: { roles: { developer: { head: "unknown" } } } })).toThrow();
   });
   it("strips code blocks and URLs, and caps speech", () => {
     expect(spokenText("Готово. ```secret code``` https://example.com [Ссылка](https://example.com)", 100)).toBe("Готово. Ссылка");

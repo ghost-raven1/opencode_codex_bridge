@@ -16,7 +16,6 @@ const pluginEntries = [
   ["snip", "node_modules/opencode-snip/.opencode/plugins/index.ts"],
   ["plannotator", "node_modules/@plannotator/opencode/dist/index.js"],
   ["smart-voice", "node_modules/opencode-smart-voice-notify/dist/index.js"],
-  ...(profile === "jarvis" ? [["jarvis-voice", "node_modules/@shantur/jarvis-mcp/opencode-plugin/dist/plugin.js"]] : []),
 ];
 for (const [name, source] of pluginEntries) {
   await writeFile(join(target, "entries", name + ".mjs"), `export { default } from ${JSON.stringify(file(source))};\n`);
@@ -27,7 +26,7 @@ const config = {
   permission: { codex: "ask", codex_system: "ask" },
   mcp: {
     jarvis: { type: "local", command: [process.execPath, join(root, "node_modules/@shantur/jarvis-mcp/dist/index.js")],
-      enabled: profile === "jarvis", environment: { MCP_VOICE_AUTO_OPEN: "false" }, timeout: 120_000 },
+      enabled: false, environment: { MCP_VOICE_AUTO_OPEN: "false" }, timeout: 120_000 },
     openai_docs: { type: "remote", url: "https://developers.openai.com/mcp", enabled: true },
   },
   lsp: {
@@ -36,13 +35,16 @@ const config = {
   },
   command: {
     codex: { description: "Передать задачу Codex через stdio", template: "Use the codex tool for this task. Preserve threadId for follow-ups. Task: $ARGUMENTS" },
-    voice: { description: "Голосовой диалог через Jarvis MCP (профиль jarvis)", template: "Start a Jarvis voice conversation in Russian using jarvis_converse. Request: $ARGUMENTS" },
+    voice: { description: "Диктовка и голос macOS", template: "Use companion with action voice_menu. The user starts dictation from that menu and reviews the resulting draft in the CLI. Do not enable any other microphone or speech service. $ARGUMENTS" },
+    companions: { description: "Показать команду персонажей", template: "Use companion with action preview. $ARGUMENTS" },
+    "voice-test": { description: "Проверить системный голос macOS", template: "Use companion with action test_voice. Do not use any external TTS. $ARGUMENTS" },
   },
 };
 await writeFile(join(target, "opencode.json"), JSON.stringify(config, null, 2) + "\n");
 await writeFile(join(target, "companions.json"), JSON.stringify({
-  enabled: profile === "companions", speech: "coordinator-only", workingPhrase: "Задача в работе.",
-  language: "ru-RU", maxVisible: 4, scale: 1,
+  enabled: profile !== "quiet", speech: "coordinator-only", workingPhrase: "Задача в работе.",
+  language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: true, dictation: true,
+  appearance: { mode: "presets", roles: {} },
   agentRoles: { build: "coordinator", plan: "coordinator", general: "developer", explore: "researcher", review: "reviewer" },
 }, null, 2) + "\n");
 await writeFile(join(target, "smart-voice-notify.jsonc"), JSON.stringify({
