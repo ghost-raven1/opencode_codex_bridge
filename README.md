@@ -1,6 +1,6 @@
 # CodexBridge
 
-Локальная сборка для **OpenCode CLI 1.3.2**: инструмент `codex` вызывает официальный Codex App Server по stdio. Отдельный плагин `@codexbridge/companions` отображает пиксельных персонажей на macOS и озвучивает ответы. OpenCode остаётся основным терминальным интерфейсом.
+Локальная сборка для **OpenCode CLI 1.3.2**: основной агент подключается к моделям через вход Codex, а инструмент `codex` делегирует задачи официальному Codex App Server по stdio. Отдельный плагин `@codexbridge/companions` отображает пиксельных персонажей на macOS и озвучивает ответы. OpenCode остаётся основным терминальным интерфейсом.
 
 ## Запуск
 
@@ -10,6 +10,7 @@
 nvm use
 npm ci
 npm run check
+npm run connect:codex
 npm run setup:snip
 npm run companion:build
 npm run bundle:all
@@ -18,7 +19,11 @@ npm start -- companions /absolute/path/to/project
 
 В CLI: `/codex Исправь ошибку и проверь тесты`. Плагин вернёт `threadId`; передай его следующему вызову инструмента `codex`, чтобы продолжить ту же сессию. Модель берётся из настроек Codex; поле `model` позволяет явно выбрать другую. Мост использует свою зафиксированную зависимость `@openai/codex@0.159.3`, а не случайную глобальную версию.
 
-Если нужно войти: `./node_modules/.bin/codex login`. Учётные данные обрабатывает официальный CLI.
+`npm run connect:codex` подключает существующий вход ChatGPT в Codex и сохраняет каталог моделей. Для нового входа выполни `npm run connect:codex -- --login`: мост откроет официальный браузерный вход через Codex App Server. В уже настроенном OpenCode эти способы доступны через `/connect` → **Codex via bridge**. Учётные данные обрабатывает официальный Codex.
+
+Обычные сообщения OpenCode также используют этот вход: в `/models` выбирай **Codex via bridge**. Сборка сохраняет модель из настроек Codex, если она есть в каталоге, иначе использует модель по умолчанию из каталога. Для коротких служебных запросов используется `gpt-5.6-luna`, когда она присутствует в каталоге. Смена модели сохраняет инструменты и диалоги разрешений OpenCode. После смены аккаунта обнови каталог командами `npm run connect:codex` и `npm run bundle:all`, затем перезапусти CLI.
+
+Мост получает access token через локальный RPC `getAuthStatus` и поручает обновление самому Codex. В хранилище OpenCode записывается только несекретная отметка `codexbridge-managed`; токен используется в памяти для запросов Responses. Основной агент OpenCode отправляет эти запросы через адаптер моста, а инструмент `/codex` делегирует целый ход App Server по stdio. Каталог `model/list` может быть кешированным: доступ к выбранной модели подтверждается завершённым запросом, а не одним наличием в списке. [Протокол Codex App Server](https://learn.chatgpt.com/docs/app-server).
 
 ## Профили
 
@@ -125,8 +130,9 @@ npm run smoke:opencode
 npm run smoke:codex
 # Отдельно: использует лимит настроенной модели Codex
 npm run smoke:inference
+npm run smoke:provider
 ```
 
-Результаты и границы проверки — в `docs/validation.md`. `smoke:opencode` запускает временный локальный сервер, не требует аккаунта модели и отключает голос. GitHub Actions подготовлен, но CI считается проверенным только после реального запуска на GitHub.
+Результаты и границы проверки — в `docs/validation.md`. `smoke:opencode` запускает временный локальный сервер и отключает голос; `smoke:provider` дополнительно проверяет настоящий ответ модели OpenCode через мост и чтение тестового файла. Последний использует текущий вход и лимит Codex. GitHub Actions подготовлен, но CI считается проверенным только после реального запуска на GitHub.
 
 Источники: [Codex App Server](https://learn.chatgpt.com/docs/app-server), [OpenCode plugins](https://opencode.ai/docs/plugins/), [Jarvis](https://github.com/shantur/jarvis-mcp), [Smart Voice Notify](https://github.com/MasuRii/opencode-smart-voice-notify), [snip plugin](https://github.com/VincentHardouin/opencode-snip), [Plannotator](https://github.com/backnotprop/plannotator/tree/main/apps/opencode-plugin), [Apple Speech](https://developer.apple.com/documentation/speech/sfspeechrecognizer), [AVSpeechSynthesizer](https://developer.apple.com/documentation/avfaudio/avspeechsynthesizer), [исходное обсуждение персонажей](https://chatgpt.com/share/6abe51c0-3a90-83ed-9bb8-0b1b55aff069).

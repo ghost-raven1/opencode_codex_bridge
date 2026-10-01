@@ -1,8 +1,10 @@
 import { tool, type Plugin } from "@opencode-ai/plugin";
 import { runCodex } from "./run.js";
+import { createCodexAuthHook } from "./auth.js";
 
 /** OpenCode owns the terminal and human approvals; Codex runs over private stdio. */
 const CodexBridge: Plugin = async () => ({
+  auth: createCodexAuthHook(),
   tool: {
     codex: tool({
       description: "Delegate a coding task to local Codex. Runs in this project; returns threadId for follow-ups. OS access requests use OpenCode permissions. Never retry an interrupted mutation without inspecting its effects.",

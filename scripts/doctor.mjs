@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -18,6 +18,11 @@ for (const path of ["packages/bridge/dist/plugin.js", "packages/companions/dist/
   try { await access(join(root, path), constants.R_OK); check(path, true, "present"); }
   catch { check(path, false, "run build / companion:build"); }
 }
+try {
+  const catalog = JSON.parse(await readFile(join(root, ".local/codex-provider.json"), "utf8"));
+  check("Codex model catalog", catalog.models?.some(model => model.id === catalog.defaultModel),
+    `${catalog.models?.length ?? 0} models; default ${catalog.defaultModel} (run smoke:provider to verify inference)`);
+} catch { check("Codex model catalog", false, "run npm run connect:codex and npm run bundle:all"); }
 try {
   const { validateAtlas } = await import("../packages/companions/dist/atlas.js");
   await validateAtlas(join(root, "packages/companions/assets/team-atlas.png"));

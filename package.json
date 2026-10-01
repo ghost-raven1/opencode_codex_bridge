@@ -23,6 +23,8 @@
     "smoke:lsp": "node scripts/smoke-lsp.mjs",
     "smoke:opencode": "node scripts/smoke-opencode.mjs",
     "smoke:inference": "node scripts/smoke-inference.mjs",
+    "connect:codex": "node scripts/connect-codex.mjs",
+    "smoke:provider": "node scripts/smoke-opencode.mjs --inference",
     "bundle:all": "node scripts/configure.mjs companions && node scripts/configure.mjs jarvis && node scripts/configure.mjs quiet",
     "setup:snip": "node scripts/install-snip.mjs"
   },
