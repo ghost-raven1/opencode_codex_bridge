@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "status": "integrated",
+  "cell": {
+    "width": 256,
+    "height": 384
+  },
+  "columns": [
+    "lead",
+    "code",
+    "research",
+    "review"
+  ],
+  "neckAnchor": {
+    "x": 128,
+    "y": 120
+  },
+  "feetBaseline": 368,
+  "coordinates": "pixels, top-left",
+  "atlases": {
+    "poses": {
+      "file": "poses.png",
+      "rows": [
+        "thinking",
+        "working_alt",
+        "success",
+        "waiting",
+        "error"
+      ]
+    },
+    "transitions": {
+      "file": "transitions.png",
+      "rows": [
+        "idle_shift",
+        "blink_half",
+        "speech_half",
+        "blink_closed",
+        "speech_open"
+      ]
+    }
+  },
+  "layered": false,
+  "transitionRegistration": "ImageGen facial patches registered onto unchanged base idle bodies; final two rows use existing ImageGen base facial expressions",
+  "speechTiming": "Local audio amplitude or system speech word callbacks; visual mouth states, not phonemes.",
+  "sha256": {
+    "poses.png": "b1ce279f0fb14e186171007ca47076c04741e06564057f675261a203677c6df5",
+    "transitions.png": "bf9cecee8ae5b528a6bf7e68cfc7f82927d2de7b736a78211dc0415665b2ea71"
+  }
+}

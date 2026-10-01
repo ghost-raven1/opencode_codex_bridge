@@ -4,6 +4,8 @@ import { z } from "zod";
 
 export const roleSchema = z.enum(["coordinator", "developer", "researcher", "reviewer"]);
 export type Role = z.infer<typeof roleSchema>;
+export const localVoiceSchema = z.enum(["Serena", "Vivian", "Sohee", "Ono_Anna"]);
+export const voiceDefaults = { coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna" } as const;
 export const appearanceSchema = z.object({
   mode: z.enum(["presets", "seeded"]).default("presets"),
   roles: z.record(roleSchema, z.object({ head: roleSchema.optional(), outfit: roleSchema.optional() })).default({}),
@@ -13,7 +15,16 @@ export const configSchema = z.object({
   enabled: z.boolean().default(false),
   showOnStart: z.boolean().default(true),
   dictation: z.boolean().default(true),
-  speech: z.enum(["off", "coordinator-only", "all"]).default("coordinator-only"),
+  speech: z.enum(["off", "coordinator-only", "all"]).default("all"),
+  tts: z.object({
+    engine: z.enum(["macos", "local"]).default("macos"),
+    voices: z.object({
+      coordinator: localVoiceSchema.default(voiceDefaults.coordinator),
+      developer: localVoiceSchema.default(voiceDefaults.developer),
+      researcher: localVoiceSchema.default(voiceDefaults.researcher),
+      reviewer: localVoiceSchema.default(voiceDefaults.reviewer),
+    }).default({}),
+  }).default({}),
   workingPhrase: z.string().max(200).default("Задача в работе."),
   maxSpeechLength: z.number().int().min(100).max(8000).default(1600),
   maxVisible: z.number().int().min(1).max(4).default(4),

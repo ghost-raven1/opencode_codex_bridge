@@ -5,6 +5,8 @@ import { CompanionDirector } from "./director.js";
 import { readConfig } from "./config.js";
 import { validateAtlas } from "./atlas.js";
 import { startNativeHost, type NativeEvent } from "./native-host.js";
+import { LocalTts } from "./local-tts.js";
+import { SpeechRouter } from "./speech-router.js";
 
 /** System voice and dictation remain available when optional character artwork is missing. */
 const Companions: Plugin = async ({ directory, client }) => {
@@ -18,7 +20,7 @@ const Companions: Plugin = async ({ directory, client }) => {
   };
   if (process.platform !== "darwin") { log("System voice and desktop companions require macOS."); return {}; }
   const binary = fileURLToPath(new URL("../native/CodexBridge Companions.app/Contents/MacOS/Companions", import.meta.url));
-  const atlas = fileURLToPath(new URL("../assets/team-atlas.png", import.meta.url));
+  const atlas = fileURLToPath(new URL("../native/CodexBridge Companions.app/Contents/Resources/team-atlas.png", import.meta.url));
   try { await access(binary); }
   catch { log("Run npm run companion:build before enabling system voice."); return {}; }
   const args = ["--config", JSON.stringify(config)];
@@ -43,7 +45,10 @@ const Companions: Plugin = async ({ directory, client }) => {
   const report = (error: unknown): void => {
     log(String(error)); void toast(String(error), "error").catch(() => undefined);
   };
+  let speech: SpeechRouter | undefined;
   const receive = (event: NativeEvent): void => {
+    if (event.type === "closed") speech?.dispose();
+    speech?.receive(event);
     if (event.type === "transcript" && typeof event.text === "string" && event.text.trim()) {
       if (event.text.length > 16000 || pendingTranscripts.length >= 16) {
         report("Очередь диктовки заполнена или запись слишком длинная. Новая запись не принята; восстанови черновики и повтори её.");
@@ -60,13 +65,16 @@ const Companions: Plugin = async ({ directory, client }) => {
   let host;
   try { host = await startNativeHost(binary, args, receive, log); }
   catch (error) { log(String(error)); return {}; }
-  const director = new CompanionDirector(config, event => {
-    try { host.send(event); } catch { /* Closing the companion must not interrupt a coding task. */ }
-  });
+  const send = (event: object): void => {
+    try { host.send(event); } catch { speech?.dispose(); }
+  };
+  speech = new SpeechRouter(config, new LocalTts({ log }), send, log);
+  const director = new CompanionDirector(config, event => speech!.event(event));
+  const dispose = (): void => { speech?.dispose(); host.close(); };
   return {
-    dispose: async () => host.close(),
+    dispose: async () => dispose(),
     event: async ({ event }) => {
-      if (event.type === "server.instance.disposed") host.close();
+      if (event.type === "server.instance.disposed") dispose();
       else director.event(event);
     },
     "chat.message": async (input, output) => {
@@ -85,7 +93,7 @@ const Companions: Plugin = async ({ directory, client }) => {
     tool: {
       companion: tool({
         description: "Control native macOS companions. voice_menu opens the menu where the user explicitly starts dictation. Recognized text is a draft in the CLI, never submitted automatically.",
-        args: { action: tool.schema.enum(["preview", "hide", "show", "reset_position", "voice_menu", "test_voice", "mute", "unmute", "stop", "recover_dictation"]) },
+        args: { action: tool.schema.enum(["preview", "hide", "show", "reset_position", "voice_menu", "test_voice", "mute", "unmute", "stop", "dictation_on", "dictation_off", "recover_dictation"]) },
         async execute({ action }) {
           if (action === "recover_dictation") {
             await scheduleDelivery();
@@ -95,6 +103,7 @@ const Companions: Plugin = async ({ directory, client }) => {
             hide: { type: "hide" }, show: { type: "show" }, reset_position: { type: "reset-position" },
             preview: { type: "preview" }, voice_menu: { type: "show-menu" }, test_voice: { type: "speech-test" },
             mute: { type: "mute", muted: true }, unmute: { type: "mute", muted: false }, stop: { type: "stop-speech" },
+            dictation_on: { type: "dictation-enable" }, dictation_off: { type: "dictation-disable" },
           };
           host.send(events[action]);
           return action === "voice_menu" ? "Меню ✦ открыто. Нажми «Начать диктовку»; после остановки проверь текст в CLI и нажми Enter." : `Companion: ${action}`;

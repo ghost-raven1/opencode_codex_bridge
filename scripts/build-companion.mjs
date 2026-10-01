@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { mkdirSync, writeFileSync, symlinkSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, writeFileSync, symlinkSync, rmSync } from "node:fs";
 
 if (process.platform !== "darwin") throw new Error("Native companion build requires macOS and Xcode Command Line Tools");
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -8,6 +8,14 @@ const native = `${root}packages/companions/native`;
 const bundle = `${native}/CodexBridge Companions.app`;
 mkdirSync(`${root}.local/swift-cache`, { recursive: true });
 mkdirSync(`${bundle}/Contents/MacOS`, { recursive: true });
+mkdirSync(`${bundle}/Contents/Resources`, { recursive: true });
+// LaunchServices gives the app its own privacy identity; keep its artwork inside its signed bundle.
+for (const name of ["team-atlas.png", "head-atlas.png", "body-atlas.png", "poses.png", "transitions.png"]) {
+  const source = `${root}packages/companions/assets/${name}`;
+  const target = `${bundle}/Contents/Resources/${name}`;
+  if (existsSync(source)) copyFileSync(source, target);
+  else rmSync(target, { force: true });
+}
 writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>

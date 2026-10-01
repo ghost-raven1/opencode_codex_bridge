@@ -20,6 +20,8 @@ final class CharacterView: NSView {
     var atlas: NSImage?
     var headAtlas: NSImage?
     var bodyAtlas: NSImage?
+    var poseAtlas: NSImage?
+    var transitionAtlas: NSImage?
     var characters: [Character] = []
     var speaker: String?
     var mouthUntil: TimeInterval = 0
@@ -55,14 +57,18 @@ final class CharacterView: NSView {
         for (index, character) in characters.enumerated() {
             let x = CGFloat(index) * width
             let speaking = speaker == character.id
-            let blink = now.truncatingRemainder(dividingBy: 4.3) < 0.14
+            let blink = (now + Double(index) * 0.73).truncatingRemainder(dividingBy: 4.3) < 0.14
             let row = speaking && now < mouthUntil ? 1 : blink ? 2 : character.state == "working" ? 3 : 0
             let motion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0 : sin(now * 2 + Double(index)) * 1.5
             let cellWidth = atlas.size.width / 4, cellHeight = atlas.size.height / 4
             let factor = min(width / cellWidth, 220 / cellHeight)
             let target = NSRect(x: x + (width - cellWidth * factor) / 2, y: 36 + motion,
                                 width: cellWidth * factor, height: cellHeight * factor)
-            if let headAtlas, let bodyAtlas {
+            if character.headColumn == character.bodyColumn, let poseAtlas, let transitionAtlas {
+                let frame = animationFrame(character, now: now + Double(index) * 0.73,
+                    speaking: speaking, mouthOpen: now < mouthUntil, base: atlas, poses: poseAtlas, transitions: transitionAtlas)
+                drawFrame(frame.image, column: character.bodyColumn, row: frame.row, rows: frame.rows, target: target)
+            } else if let headAtlas, let bodyAtlas {
                 drawFrame(bodyAtlas, column: character.bodyColumn, row: row, target: target)
                 drawFrame(headAtlas, column: character.headColumn, row: row, target: target)
             } else {
@@ -88,10 +94,33 @@ final class CharacterView: NSView {
     }
 
     /// Both layers share a neck anchor; compositing preserves the drawn hair and outfit accessories.
-    private func drawFrame(_ image: NSImage, column: Int, row: Int, target: NSRect) {
+    private func drawFrame(_ image: NSImage, column: Int, row: Int, rows: Int = 4, target: NSRect) {
         let source = NSRect(x: CGFloat(column) * image.size.width / 4,
-            y: CGFloat(3 - row) * image.size.height / 4, width: image.size.width / 4, height: image.size.height / 4)
+            y: CGFloat(rows - 1 - row) * image.size.height / CGFloat(rows),
+            width: image.size.width / 4, height: image.size.height / CGFloat(rows))
         image.draw(in: target, from: source, operation: .sourceOver, fraction: 1, respectFlipped: false, hints: nil)
+    }
+
+    /// Drawn poses follow task state; mouth frames are gated by real speech activity, not estimated text length.
+    private func animationFrame(_ character: Character, now: TimeInterval, speaking: Bool, mouthOpen: Bool,
+        base: NSImage, poses: NSImage, transitions: NSImage) -> (image: NSImage, row: Int, rows: Int) {
+        let reduced = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        if speaking {
+            guard mouthOpen && !reduced else { return (base, 0, 4) }
+            return Int(now * 12) % 3 == 0 ? (transitions, 2, 5) : (transitions, 4, 5)
+        }
+        let posesByState = ["thinking": 0, "working": 1, "success": 2, "waiting": 3, "error": 4]
+        if let row = posesByState[character.state] {
+            if character.state == "working" && !reduced && now.truncatingRemainder(dividingBy: 2.4) > 1.8 {
+                return (base, 3, 4)
+            }
+            return (poses, row, 5)
+        }
+        guard !reduced else { return (base, 0, 4) }
+        let blink = now.truncatingRemainder(dividingBy: 4.3)
+        if blink < 0.07 || (blink > 0.14 && blink < 0.21) { return (transitions, 1, 5) }
+        if blink < 0.14 { return (transitions, 3, 5) }
+        return now.truncatingRemainder(dividingBy: 6) > 4.6 ? (transitions, 0, 5) : (base, 0, 4)
     }
 
     func snapshot(_ path: String) {

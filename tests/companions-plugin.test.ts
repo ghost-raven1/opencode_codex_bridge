@@ -4,9 +4,9 @@ import { configSchema } from "../packages/companions/src/config.js";
 
 const mocks = vi.hoisted(() => ({
   receive: undefined as undefined | ((event: Record<string, unknown> & { type: string }) => void),
-  send: vi.fn(), close: vi.fn(),
+  send: vi.fn(), close: vi.fn(), synthesize: vi.fn(), disposeWorker: vi.fn(),
 }));
-vi.mock("node:fs/promises", () => ({ access: vi.fn(async () => {}) }));
+vi.mock("node:fs/promises", () => ({ access: vi.fn(async () => {}), unlink: vi.fn(async () => {}) }));
 vi.mock("../packages/companions/src/atlas.js", () => ({ validateAtlas: vi.fn(async () => { throw new Error("Missing atlas"); }) }));
 vi.mock("../packages/companions/src/config.js", async importOriginal => ({
   ...await importOriginal<object>(), readConfig: vi.fn(),
@@ -16,6 +16,12 @@ vi.mock("../packages/companions/src/native-host.js", () => ({
     mocks.receive = receive; return { send: mocks.send, close: mocks.close };
   }),
 }));
+vi.mock("../packages/companions/src/local-tts.js", () => ({
+  LocalTts: class {
+    synthesize = mocks.synthesize;
+    dispose = mocks.disposeWorker;
+  },
+}));
 import Companions from "../packages/companions/src/plugin.js";
 import { readConfig } from "../packages/companions/src/config.js";
 import { startNativeHost } from "../packages/companions/src/native-host.js";
@@ -24,6 +30,8 @@ Object.defineProperty(process, "platform", { value: "darwin" });
 afterAll(() => Object.defineProperty(process, "platform", platform));
 beforeEach(() => {
   vi.clearAllMocks(); mocks.receive = undefined;
+  mocks.send.mockReset();
+  mocks.synthesize.mockReset().mockResolvedValue({ path: "/project/.local/tts/audio/test.wav", duration: 1, sampleRate: 24000 });
   vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true }));
 });
 function input() {
@@ -108,5 +116,47 @@ describe("CLI system voice integration", () => {
     vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: false }));
     expect(await Companions(input().context)).toEqual({});
     expect(startNativeHost).not.toHaveBeenCalled();
+  });
+  it("disposes the local speech worker when the native app closes and ignores later speech", async () => {
+    vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true, tts: { engine: "local" } }));
+    const hooks = await Companions(input().context);
+    const message = (id: string) => ({ event: { type: "message.updated", properties: { info: {
+      id, sessionID: "s", role: "user", agent: "build",
+    } } } } as never);
+    await hooks.event?.(message("before-close"));
+    await vi.waitFor(() => expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ type: "play-audio" })));
+    mocks.receive?.({ type: "closed" });
+    expect(mocks.disposeWorker).toHaveBeenCalledOnce();
+    const commands = mocks.send.mock.calls.length;
+    await hooks.event?.(message("after-close"));
+    expect(mocks.synthesize).toHaveBeenCalledOnce();
+    expect(mocks.send).toHaveBeenCalledTimes(commands);
+  });
+  it("disposes the worker if an audio command cannot reach the native app without interrupting the task", async () => {
+    vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true, tts: { engine: "local" } }));
+    mocks.send.mockImplementation((event: { type: string }) => {
+      if (event.type === "play-audio") throw new Error("Native voice pipe is closed");
+    });
+    const hooks = await Companions(input().context);
+    await expect(hooks.event?.({ event: { type: "message.updated", properties: { info: {
+      id: "before-failure", sessionID: "s", role: "user", agent: "build",
+    } } } } as never)).resolves.toBeUndefined();
+    await vi.waitFor(() => expect(mocks.disposeWorker).toHaveBeenCalledOnce());
+    await hooks.event?.({ event: { type: "message.updated", properties: { info: {
+      id: "after-failure", sessionID: "s", role: "user", agent: "build",
+    } } } } as never);
+    expect(mocks.synthesize).toHaveBeenCalledOnce();
+    await hooks.dispose?.();
+  });
+  it("toggles dictation availability without starting a recording or submitting a prompt", async () => {
+    const t = input(); const hooks = await Companions(t.context);
+    await hooks.tool!.companion!.execute({ action: "dictation_off" }, {} as never);
+    await hooks.tool!.companion!.execute({ action: "dictation_on" }, {} as never);
+    expect(mocks.send.mock.calls.map(([event]) => event)).toEqual([
+      { type: "dictation-disable" }, { type: "dictation-enable" },
+    ]);
+    expect(mocks.synthesize).not.toHaveBeenCalled();
+    expect(t.client.tui.appendPrompt).not.toHaveBeenCalled();
+    expect(t.client.tui.submitPrompt).not.toHaveBeenCalled();
   });
 });

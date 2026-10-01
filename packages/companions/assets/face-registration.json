@@ -1,0 +1,58 @@
+[
+  {
+    "role": "lead",
+    "faceRect": [
+      95,
+      61,
+      150,
+      106
+    ],
+    "translation": [
+      3,
+      2
+    ],
+    "meanColorError": 24.48
+  },
+  {
+    "role": "code",
+    "faceRect": [
+      112,
+      60,
+      161,
+      104
+    ],
+    "translation": [
+      6,
+      3
+    ],
+    "meanColorError": 24.27
+  },
+  {
+    "role": "research",
+    "faceRect": [
+      100,
+      64,
+      158,
+      111
+    ],
+    "translation": [
+      6,
+      4
+    ],
+    "meanColorError": 27.89
+  },
+  {
+    "role": "review",
+    "faceRect": [
+      119,
+      58,
+      165,
+      110
+    ],
+    "translation": [
+      -3,
+      0
+    ],
+    "meanColorError": 28.45
+  }
+]

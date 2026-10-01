@@ -7,6 +7,16 @@ func argument(_ name: String) -> String? {
     return CommandLine.arguments[index + 1]
 }
 
+func readConfiguration() -> [String: Any] {
+    guard let raw = argument("--config"), let data = raw.data(using: .utf8) else { return [:] }
+    return (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
+}
+
+func configuredDictation(_ config: [String: Any]) -> Bool {
+    UserDefaults.standard.object(forKey: "companions.dictationEnabled") as? Bool
+        ?? config["dictation"] as? Bool ?? true
+}
+
 /// Stdout is a JSONL control channel; recognized speech is never written to logs.
 func emit(_ event: [String: Any]) {
     guard var data = try? JSONSerialization.data(withJSONObject: event, options: [.sortedKeys]) else { return }
@@ -31,29 +41,34 @@ var exitStatus: Int32 = 0
     var startItem: NSMenuItem?
     var finishItem: NSMenuItem?
     var cancelItem: NSMenuItem?
+    var dictationToggleItem: NSMenuItem?
     var voiceItems: [NSMenuItem] = []
     var language = "ru-RU"
     var dictationEnabled = true
+    var localSpeech = false
     var maxVisible = 4
     var scale: CGFloat = 1
     var speechTest = CommandLine.arguments.contains("--speech-test")
     var speechTestCompleted = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        var config: [String: Any] = [:]
-        if let raw = argument("--config"), let data = raw.data(using: .utf8) {
-            config = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
-        }
+        let config = readConfiguration()
         maxVisible = min(max(config["maxVisible"] as? Int ?? 4, 1), 4)
         scale = min(max(config["scale"] as? Double ?? 1, 0.5), 2)
         language = config["language"] as? String ?? "ru-RU"
-        dictationEnabled = config["dictation"] as? Bool ?? true
+        dictationEnabled = configuredDictation(config)
+        localSpeech = (config["tts"] as? [String: Any])?["engine"] as? String == "local"
         speech.selectVoice(identifier: config["voiceIdentifier"] as? String, language: language)
         if let path = argument("--atlas") {
             view.atlas = NSImage(contentsOfFile: path)
             let directory = URL(fileURLWithPath: path).deletingLastPathComponent()
             view.headAtlas = NSImage(contentsOf: directory.appendingPathComponent("head-atlas.png"))
             view.bodyAtlas = NSImage(contentsOf: directory.appendingPathComponent("body-atlas.png"))
+            let poses = NSImage(contentsOf: directory.appendingPathComponent("poses.png"))
+            let transitions = NSImage(contentsOf: directory.appendingPathComponent("transitions.png"))
+            if poses?.size == NSSize(width: 1024, height: 1920), transitions?.size == NSSize(width: 1024, height: 1920) {
+                view.poseAtlas = poses; view.transitionAtlas = transitions
+            }
             if view.atlas == nil { emit(["type": "error", "code": "atlas", "message": "Не удалось открыть атлас персонажей; системный голос доступен."]) }
         }
         configureCallbacks(); configurePanel(); configureMenu()
@@ -80,6 +95,10 @@ var exitStatus: Int32 = 0
     func configureCallbacks() {
         speech.onStarted = { [weak self] id, text in self?.view.speaker = id; self?.view.bubble = text }
         speech.onReset = { [weak self] in self?.view.speaker = nil; self?.view.mouthUntil = 0; self?.view.bubble = "" }
+        speech.onAmplitude = { [weak self] open in
+            self?.view.mouthUntil = open ? Date.timeIntervalSinceReferenceDate + 0.06 : 0
+        }
+        speech.onAudioFinished = { id, phase in emit(["type": "audio-finished", "id": id, "phase": phase]) }
         speech.onEvent = { [weak self] phase, id, range in
             var event: [String: Any] = ["type": "speech", "phase": phase, "characterId": id]
             if let range {
@@ -100,11 +119,13 @@ var exitStatus: Int32 = 0
             }
         }
         dictation.onPreparing = { [weak self] in
+            emit(["type": "speech-control", "action": "suspend", "suspended": true])
             self?.speech.suspended = true; self?.speech.stop(); self?.updateMenu()
         }
         dictation.onState = { [weak self] active in
             self?.speech.suspended = active; self?.updateMenu()
             emit(["type": "dictation", "active": active])
+            emit(["type": "speech-control", "action": "suspend", "suspended": active])
         }
         dictation.onTranscript = { text in emit(["type": "transcript", "text": text]) }
         dictation.onError = { message in emit(["type": "error", "code": "dictation", "message": message]) }
@@ -128,18 +149,23 @@ var exitStatus: Int32 = 0
 
     func configureMenu() {
         let menu = NSMenu()
+        if localSpeech {
+            let engine = menu.addItem(withTitle: "Qwen3-TTS · 4 локальных голоса", action: nil, keyEquivalent: "")
+            engine.isEnabled = false
+        }
         let voiceMenu = NSMenu()
         for voice in AVSpeechSynthesisVoice.speechVoices().sorted(by: { ($0.language, $0.name) < ($1.language, $1.name) }) {
             let entry = NSMenuItem(title: "\(voice.name) — \(voice.language)", action: #selector(selectVoice(_:)), keyEquivalent: "")
             entry.target = self; entry.representedObject = voice.identifier
             voiceMenu.addItem(entry); voiceItems.append(entry)
         }
-        let voices = menu.addItem(withTitle: "Системный голос macOS", action: nil, keyEquivalent: "")
+        let voices = menu.addItem(withTitle: localSpeech ? "Резервный голос macOS" : "Системный голос macOS", action: nil, keyEquivalent: "")
         voices.submenu = voiceMenu
         menu.addItem(withTitle: "Проверить голос", action: #selector(testSpeech), keyEquivalent: "")
         muteItem = menu.addItem(withTitle: "Выключить голос", action: #selector(toggleMute), keyEquivalent: "")
         menu.addItem(withTitle: "Остановить речь", action: #selector(stopSpeech), keyEquivalent: "")
         menu.addItem(.separator())
+        dictationToggleItem = menu.addItem(withTitle: "Выключить диктовку", action: #selector(toggleDictation), keyEquivalent: "")
         startItem = menu.addItem(withTitle: "Начать диктовку…", action: #selector(startDictation), keyEquivalent: "")
         finishItem = menu.addItem(withTitle: "Завершить диктовку", action: #selector(finishDictation), keyEquivalent: "")
         cancelItem = menu.addItem(withTitle: "Отменить диктовку", action: #selector(cancelDictation), keyEquivalent: "")
@@ -158,6 +184,7 @@ var exitStatus: Int32 = 0
     func updateMenu() {
         muteItem?.state = speech.muted ? .on : .off
         visibilityItem?.title = windowState?.hidden == true ? "Показать компаньонов" : "Скрыть компаньонов"
+        dictationToggleItem?.title = dictationEnabled ? "Выключить диктовку" : "Включить диктовку"
         startItem?.isEnabled = dictationEnabled && !dictation.active
         finishItem?.isEnabled = dictation.active; cancelItem?.isEnabled = dictation.active
         item?.button?.title = dictation.active ? "● ✦" : "✦"
@@ -166,7 +193,8 @@ var exitStatus: Int32 = 0
 
     func emitReady() {
         emit(["type": "ready", "voice": speech.voice?.identifier ?? "system-default",
-              "language": speech.voice?.language ?? language, "graphics": view.atlas != nil])
+              "language": speech.voice?.language ?? language, "graphics": view.atlas != nil,
+              "pid": ProcessInfo.processInfo.processIdentifier])
     }
 
     func readCommands() {
@@ -195,13 +223,16 @@ var exitStatus: Int32 = 0
         case "show": showCompanions()
         case "reset-position": resetPosition()
         case "window-status": emitWindowStatus()
-        case "mute": speech.setMuted(value["muted"] as? Bool ?? !speech.muted); updateMenu()
+        case "mute": setMuted(value["muted"] as? Bool ?? !speech.muted)
         case "stop-speech": stopSpeech()
         case "speech-test": testSpeech()
         case "show-menu": item?.button?.performClick(nil)
         case "dictation-start": startDictation()
         case "dictation-stop": finishDictation()
         case "dictation-cancel": cancelDictation()
+        case "dictation-enable": setDictationEnabled(true)
+        case "dictation-disable": setDictationEnabled(false)
+        case "dictation-status": emitDictationStatus()
         default: receiveCharacter(value)
         }
         view.needsDisplay = true
@@ -224,7 +255,15 @@ var exitStatus: Int32 = 0
             resize()
             presentCharacters()
         case "speak":
-            if let text = value["text"] as? String { speech.enqueue(characterId: id, text: text) }
+            if let text = value["text"] as? String {
+                speech.enqueue(characterId: id, text: text, role: value["role"] as? String ?? "coordinator",
+                    audioId: value["audioId"] as? String)
+            }
+        case "play-audio":
+            if let path = value["path"] as? String, let audioId = value["audioId"] as? String {
+                speech.enqueueAudio(characterId: id, text: value["text"] as? String ?? "",
+                    role: value["role"] as? String ?? "coordinator", path: path, audioId: audioId)
+            }
         case "stop": speech.stop(characterId: id)
         case "remove":
             speech.stop(characterId: id); view.characters.removeAll { $0.id == id }; resize()
@@ -235,8 +274,9 @@ var exitStatus: Int32 = 0
 
     func populatePreview() {
         guard view.atlas != nil else { return }
+        let state = argument("--snapshot-state") ?? "idle"
         view.characters = ["LEAD", "CODE", "RESEARCH", "REVIEW"].prefix(maxVisible).enumerated().map {
-            Character(id: "preview-\($0.offset)", column: $0.offset, label: $0.element, state: "idle")
+            Character(id: "preview-\($0.offset)", column: $0.offset, label: $0.element, state: state)
         }
         resize(); presentCharacters()
     }
@@ -280,13 +320,27 @@ var exitStatus: Int32 = 0
     @objc func testSpeech() {
         guard !dictation.active else { return }
         speech.setMuted(false); updateMenu()
+        emit(["type": "speech-control", "action": "mute", "muted": false])
+        if localSpeech && !speechTest { emit(["type": "test-voices"]); return }
         speech.enqueue(characterId: view.characters.first?.id ?? "system-speech-test", text: "Проверка системного голоса. Задача в работе.")
     }
 
-    @objc func toggleMute() { speech.setMuted(!speech.muted); updateMenu() }
-    @objc func stopSpeech() { speech.stop() }
+    func setMuted(_ muted: Bool) {
+        emit(["type": "speech-control", "action": "mute", "muted": muted])
+        speech.setMuted(muted); updateMenu()
+    }
+    @objc func toggleMute() { setMuted(!speech.muted) }
+    @objc func stopSpeech() { emit(["type": "speech-control", "action": "stop"]); speech.stop() }
+    func setDictationEnabled(_ enabled: Bool) {
+        dictationEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: "companions.dictationEnabled")
+        if !enabled { dictation.cancel() }
+        updateMenu(); emitDictationStatus()
+    }
+    func emitDictationStatus() { emit(dictation.status(enabled: dictationEnabled, language: language)) }
+    @objc func toggleDictation() { setDictationEnabled(!dictationEnabled) }
     @objc func startDictation() {
-        guard dictationEnabled else { return }
+        guard dictationEnabled else { emitDictationStatus(); return }
         dictation.start(language: language)
     }
     @objc func finishDictation() { dictation.finish() }
@@ -299,7 +353,24 @@ var exitStatus: Int32 = 0
 }
 
 signal(SIGPIPE, SIG_IGN)
-if CommandLine.arguments.contains("--list-voices") {
+if let directory = argument("--ipc-directory"), !FileManager.default.fileExists(atPath: directory) { exit(0) }
+if let directory = argument("--ipc-directory") {
+    emit(["type": "process", "pid": ProcessInfo.processInfo.processIdentifier])
+    let parentPid = argument("--ipc-parent-pid").flatMap { Int32($0) }
+    DispatchQueue.global(qos: .utility).async {
+        while FileManager.default.fileExists(atPath: directory) {
+            if let parentPid, kill(parentPid, 0) == -1 && errno == ESRCH { break }
+            Thread.sleep(forTimeInterval: 0.25)
+        }
+        _exit(0)
+    }
+}
+if CommandLine.arguments.contains("--dictation-status") {
+    MainActor.assumeIsolated {
+        let config = readConfiguration()
+        emit(NativeDictation().status(enabled: configuredDictation(config), language: config["language"] as? String ?? "ru-RU"))
+    }
+} else if CommandLine.arguments.contains("--list-voices") {
     for voice in AVSpeechSynthesisVoice.speechVoices() {
         emit(["identifier": voice.identifier, "name": voice.name, "language": voice.language])
     }

@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -60,12 +60,22 @@ const config = {
     companions: { description: "Показать команду персонажей", template: "Use companion with action preview. $ARGUMENTS" },
     "companions-hide": { description: "Скрыть персонажей", template: "Use companion with action hide." },
     "companions-show": { description: "Показать персонажей", template: "Use companion with action show." },
-    "voice-test": { description: "Проверить системный голос macOS", template: "Use companion with action test_voice. Do not use any external TTS. $ARGUMENTS" },
+    "voice-test": { description: "Проверить голоса команды", template: "Use companion with action test_voice. Use the configured local speech engine. $ARGUMENTS" },
+    "dictation-off": { description: "Выключить диктовку", template: "Use companion with action dictation_off." },
+    "dictation-on": { description: "Разрешить диктовку", template: "Use companion with action dictation_on. Do not start recording." },
   },
 };
 await writeFile(join(target, "opencode.json"), JSON.stringify(config, null, 2) + "\n");
+const localModel = JSON.parse(await readFile(join(root, "packages/companions/tts/model.json"), "utf8"));
+const localTtsInstalled = await Promise.all([
+  access(join(root, ".local/tts/.venv/bin/python")),
+  access(join(root, ".local/tts/models", localModel.directory, "model.safetensors")),
+]).then(() => true, () => false);
 await writeFile(join(target, "companions.json"), JSON.stringify({
-  enabled: profile !== "quiet", speech: "coordinator-only", workingPhrase: "Задача в работе.",
+  enabled: profile !== "quiet", speech: "all", workingPhrase: "Задача в работе.",
+  tts: { engine: localTtsInstalled ? "local" : "macos", voices: {
+    coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna",
+  } },
   language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: true, dictation: true,
   appearance: { mode: "presets", roles: {} },
   agentRoles: {},

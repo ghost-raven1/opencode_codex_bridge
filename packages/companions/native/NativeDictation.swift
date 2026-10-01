@@ -8,6 +8,7 @@ import Speech
     var onError: ((String) -> Void)?
     var onPreparing: (() -> Void)?
     private(set) var active = false
+    private(set) var recording = false
     private var token: UUID?
     private var engine: AVAudioEngine?
     private var request: SFSpeechAudioBufferRecognitionRequest?
@@ -70,7 +71,7 @@ import Speech
         }
         do { engine.prepare(); try engine.start() }
         catch { fail("Не удалось запустить микрофон: \(error.localizedDescription)"); return }
-        onState?(true)
+        recording = true; onState?(true)
         let limit = Timer(timeInterval: 60, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated { self?.finish() }
         }
@@ -91,6 +92,31 @@ import Speech
 
     func cancel() { complete(deliver: false) }
 
+    /// Query system permissions and recognizer readiness without opening the microphone.
+    func status(enabled: Bool, language: String) -> [String: Any] {
+        let availableRecognizer = SFSpeechRecognizer(locale: Locale(identifier: language))
+        let microphone: String
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .authorized: microphone = "authorized"
+        case .denied: microphone = "denied"
+        case .restricted: microphone = "restricted"
+        case .notDetermined: microphone = "not-determined"
+        @unknown default: microphone = "unknown"
+        }
+        let permission: String
+        switch SFSpeechRecognizer.authorizationStatus() {
+        case .authorized: permission = "authorized"
+        case .denied: permission = "denied"
+        case .restricted: permission = "restricted"
+        case .notDetermined: permission = "not-determined"
+        @unknown default: permission = "unknown"
+        }
+        return ["type": "dictation-status", "enabled": enabled, "active": active, "recording": recording,
+                "language": language, "microphonePermission": microphone, "speechPermission": permission,
+                "available": availableRecognizer?.isAvailable ?? false,
+                "onDeviceRecognition": availableRecognizer?.supportsOnDeviceRecognition ?? false]
+    }
+
     private func installInputTap(_ input: AVAudioInputNode, request: SFSpeechAudioBufferRecognitionRequest, format: AVAudioFormat) throws {
 #if compiler(>=6.4)
         if #available(macOS 27.0, *) {
@@ -106,6 +132,7 @@ import Speech
     private func stopAudio() {
         limitTimer?.invalidate(); limitTimer = nil
         engine?.stop()
+        recording = false
         if tapInstalled { engine?.inputNode.removeTap(onBus: 0); tapInstalled = false }
     }
 
