@@ -8,7 +8,8 @@ function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only", 
   const director = new CompanionDirector(configSchema.parse({ speech, ...extra }), e => events.push(e));
   const send = (type: string, properties: unknown) => director.event({ type, properties });
   const message = (role: string, id: string, mode = "build") => send("message.updated", { info: { id, sessionID: "s", role, mode } });
-  const text = (id: string, messageID: string, text: string) => send("message.part.updated", { part: { id, messageID, sessionID: "s", type: "text", text } });
+  const text = (id: string, messageID: string, text: string, extra: Record<string, unknown> = {}) =>
+    send("message.part.updated", { part: { id, messageID, sessionID: "s", type: "text", text, ...extra } });
   return { events, send, message, text, director };
 }
 describe("companion event mapping", () => {
@@ -22,6 +23,75 @@ describe("companion event mapping", () => {
     t.text("user-part", "u", "DO NOT READ USER INPUT");
     t.send("session.status", { sessionID: "s", status: { type: "idle" } }); t.send("session.idle", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Привет"]);
+  });
+  it("speaks completed progress before a tool and final text exactly once", () => {
+    const t = setup("coordinator-only", { workingPhrase: "" }); t.message("user", "u"); t.message("assistant", "progress");
+    t.text("p", "progress", "Рабочее дерево", { time: { start: 1 } });
+    t.text("p", "progress", "Рабочее дерево чистое. Проверю последний коммит с авторизацией.", { time: { start: 1, end: 2 } });
+    expect(t.events.at(-1)).toMatchObject({ type: "speak", text: "Рабочее дерево чистое. Проверю последний коммит с авторизацией." });
+    t.send("message.part.updated", { part: { id: "tool", messageID: "progress", sessionID: "s", type: "tool", tool: "bash",
+      state: { status: "running", input: { command: "git status" } } } });
+    t.send("message.updated", { info: { id: "progress", sessionID: "s", role: "assistant", time: { completed: 3 } } });
+    t.message("assistant", "final"); t.text("f", "final", "Замечаний нет.", { time: { start: 4, end: 5 } });
+    t.send("message.updated", { info: { id: "final", sessionID: "s", role: "assistant", time: { completed: 6 } } });
+    t.text("f", "final", "Замечаний нет.", { time: { start: 4, end: 5 } });
+    t.send("session.idle", { sessionID: "s" }); t.send("session.status", { sessionID: "s", status: { type: "idle" } });
+    expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual([
+      "Рабочее дерево чистое. Проверю последний коммит с авторизацией.", "Замечаний нет.",
+    ]);
+  });
+  it("does not voice streaming fragments and deduplicates individual parts of one message", () => {
+    const t = setup(); t.message("assistant", "a");
+    t.text("p", "a", "Про", { time: { start: 1 } }); t.text("p", "a", "Проверяю код", { time: { start: 1 } });
+    t.send("session.status", { sessionID: "s", status: { type: "busy" } });
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
+    t.text("p", "a", "Проверяю код", { time: { start: 1, end: 2 } });
+    t.text("q", "a", "Проверяю тесты", { time: { start: 3, end: 4 } });
+    t.send("message.updated", { info: { id: "a", sessionID: "s", role: "assistant", time: { completed: 5 } } });
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Проверяю код", "Проверяю тесты"]);
+  });
+  it("uses message completion as a fallback when a text part has no end timestamp", () => {
+    const t = setup(); t.message("assistant", "a"); t.text("p", "a", "Проверю файл");
+    t.send("message.updated", { info: { id: "a", sessionID: "s", role: "assistant", time: { completed: 2 } } });
+    expect(t.events.at(-1)).toMatchObject({ type: "speak", text: "Проверю файл" });
+    t.text("p", "a", "Проверю файл", { time: { start: 1, end: 2 } }); t.send("session.idle", { sessionID: "s" });
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(1);
+  });
+  it("does not count an empty part as spoken before a late completed part arrives", () => {
+    const t = setup(); t.message("assistant", "a"); t.text("p", "a", "");
+    t.send("message.updated", { info: { id: "a", sessionID: "s", role: "assistant", time: { completed: 2 } } });
+    t.text("p", "a", "Готовый ответ", { time: { start: 1, end: 2 } });
+    expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Готовый ответ"]);
+  });
+  it("keeps synthetic, ignored and reasoning content silent even with completion timestamps", () => {
+    const t = setup(); t.message("assistant", "a");
+    t.text("synthetic", "a", "Synthetic", { synthetic: true, time: { start: 1, end: 2 } });
+    t.text("ignored", "a", "Ignored", { ignored: true, time: { start: 1, end: 2 } });
+    t.send("message.part.updated", { part: { sessionID: "s", messageID: "a", id: "reasoning", type: "reasoning", text: "Private", time: { end: 2 } } });
+    t.send("message.part.updated", { part: { sessionID: "s", messageID: "a", id: "tool", type: "tool", output: "Secret", time: { end: 2 } } });
+    t.send("message.updated", { info: { sessionID: "s", id: "a", role: "assistant", time: { completed: 3 } } });
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(0);
+  });
+  it.each(["coordinator-only", "all"] as const)("keeps %s policy for subagent progress", speech => {
+    const t = setup(speech); t.send("session.created", { info: { id: "s", parentID: "root" } });
+    t.message("assistant", "a", "explore"); t.text("p", "a", "Изучаю документацию", { time: { start: 1, end: 2 } });
+    expect(t.events.filter(e => e.type === "speak")).toHaveLength(speech === "all" ? 1 : 0);
+  });
+  it("never replays cancelled text or stale assistant completion after a new user task", () => {
+    const t = setup("all", { workingPhrase: "" }); t.message("user", "u"); t.message("assistant", "a");
+    t.text("progress", "a", "Начинаю проверку", { time: { start: 1, end: 2 } });
+    t.send("session.error", { sessionID: "s", error: { name: "MessageAbortedError" } });
+    expect(t.events.filter(e => e.type === "stop").length).toBeGreaterThan(0);
+    t.text("late", "a", "Старый ответ", { time: { end: 3 } });
+    t.send("message.updated", { info: { sessionID: "s", id: "a", role: "assistant", parentID: "u", time: { completed: 4 } } });
+    t.message("user", "u2"); t.message("assistant", "b");
+    t.send("message.updated", { info: { sessionID: "s", id: "late-assistant", role: "assistant", parentID: "u", time: { completed: 5 } } });
+    t.text("late-parent", "late-assistant", "Ответ прошлой задачи", { time: { end: 5 } });
+    t.text("new", "b", "Новая задача готова", { time: { end: 6 } });
+    t.send("session.idle", { sessionID: "s" });
+    expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Начинаю проверку", "Новая задача готова"]);
   });
   it("never voices reasoning or tool output", () => {
     const t = setup(); t.message("assistant", "a");

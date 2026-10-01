@@ -16,8 +16,10 @@ interface Session {
   state: State;
   lastUser?: string;
   assistant?: string;
-  parts: Map<string, { messageId: string; text: string }>;
+  parts: Map<string, { messageId: string; text: string; complete: boolean }>;
   spoken: Set<string>;
+  invalidated: Set<string>;
+  assistantComplete: boolean;
   pending: Set<string>;
   aborted: boolean;
   agent?: string;
@@ -59,7 +61,7 @@ export class CompanionDirector {
     if (!entry) {
       if (this.sessions.size >= 128) this.remove(this.sessions.keys().next().value!);
       entry = { role: "coordinator", state: "idle", parts: new Map(), spoken: new Set(), pending: new Set(),
-        aborted: false, taskParts: new Map() };
+        invalidated: new Set(), assistantComplete: false, aborted: false, taskParts: new Map() };
       this.sessions.set(id, entry);
     }
     // Evict least recently active sessions, rather than active sessions created first.
@@ -113,10 +115,29 @@ export class CompanionDirector {
     const session = this.sessions.get(id)!;
     if (session.state === "error" || (session.aborted && error.name === "MessageAbortedError")) return;
     this.emit({ type: "stop", characterId: id });
+    this.invalidate(session, session.assistant);
     session.pending.clear(); session.parts.clear();
     session.aborted = error.name === "MessageAbortedError";
     this.state(id, session.aborted ? "idle" : "error");
     if (!session.aborted) this.speak(id, "В задаче возникла ошибка. Подробности в терминале.");
+  }
+
+  private invalidate(session: Session, messageId?: string): void {
+    if (!messageId) return;
+    session.invalidated.add(messageId);
+    if (session.invalidated.size > 128) session.invalidated.delete(session.invalidated.values().next().value!);
+  }
+
+  /** OpenCode 1.3.2 commits text-end with TextPart.time.end, before tools or session idle. */
+  private flushSpeech(id: string, completedMessage = false): void {
+    const session = this.sessions.get(id)!;
+    if (!session.assistant || session.pending.size || session.state === "error" || session.aborted) return;
+    const parts = [...session.parts].filter(([partId, part]) => part.messageId === session.assistant &&
+      part.text.trim() && !session.spoken.has(partId) && (part.complete || session.assistantComplete || completedMessage));
+    if (!parts.length) return;
+    for (const [partId] of parts) session.spoken.add(partId);
+    while (session.spoken.size > 256) session.spoken.delete(session.spoken.values().next().value!);
+    this.speak(id, parts.map(([, part]) => part.text).join(" "));
   }
 
   private idle(id: string): void {
@@ -124,12 +145,7 @@ export class CompanionDirector {
     // A queued idle event cannot dismiss approval, failure, or a user's cancellation.
     if (session.pending.size || session.state === "error" || session.aborted) return;
     this.state(id, session.assistant ? "success" : "idle");
-    if (!session.assistant || session.spoken.has(session.assistant)) return;
-    const text = [...session.parts.values()].filter(p => p.messageId === session.assistant).map(p => p.text).join(" ");
-    if (!text) return;
-    session.spoken.add(session.assistant);
-    if (session.spoken.size > 64) session.spoken.delete(session.spoken.values().next().value!);
-    this.speak(id, text);
+    this.flushSpeech(id, true);
   }
 
   event(input: unknown): void {
@@ -157,19 +173,25 @@ export class CompanionDirector {
       const messageId = string(info.id);
       if (!messageId) return;
       if (info.role === "user" && session.lastUser !== messageId) {
+        this.invalidate(session, session.assistant);
         const assigned = session.taskMessageID === messageId || (session.taskMessageID === undefined && !session.lastUser);
         if (!assigned) session.task = undefined;
         session.taskMessageID = messageId; session.taskParts.clear();
         session.lastUser = messageId;
-        session.parts.clear(); session.assistant = undefined; session.pending.clear(); session.aborted = false;
+        session.parts.clear(); session.assistant = undefined; session.assistantComplete = false;
+        session.pending.clear(); session.aborted = false;
         this.emit({ type: "stop", characterId: id });
         session.agent = string(info.agent ?? info.mode) || session.agent;
         session.role = this.taskRole(session);
         this.state(id, "thinking");
         this.speak(id, this.config.workingPhrase);
       } else if (info.role === "assistant") {
+        if (session.aborted || session.invalidated.has(messageId) ||
+          (session.lastUser && typeof info.parentID === "string" && info.parentID !== session.lastUser)) return;
         const fresh = session.assistant !== messageId;
         if (fresh) {
+          this.invalidate(session, session.assistant);
+          session.assistantComplete = false;
           for (const [key, value] of session.parts) if (value.messageId !== messageId) session.parts.delete(key);
         }
         session.assistant = messageId;
@@ -178,13 +200,15 @@ export class CompanionDirector {
           session.agent = string(info.agent ?? info.mode); session.role = this.taskRole(session);
         }
         if (info.error) this.failure(id, object(info.error));
-        else if (fresh) {
-          session.aborted = false;
-          if (!session.pending.size) this.state(id, "thinking");
+        else {
+          if (fresh && !session.pending.size) this.state(id, "thinking");
+          if (typeof object(info.time).completed === "number") session.assistantComplete = true;
+          this.flushSpeech(id);
         }
       }
     } else if (type === "message.part.updated") {
       const partId = string(part.id), messageId = string(part.messageID);
+      if (session.invalidated.has(messageId)) return;
       if (part.type === "tool" && part.tool === "task") {
         const toolState = object(part.state), metadata = object(toolState.metadata), input = object(toolState.input);
         const childId = string(metadata.sessionId);
@@ -196,8 +220,10 @@ export class CompanionDirector {
       } else if (part.type === "text" && partId && messageId) {
         if (part.ignored || part.synthetic) session.parts.delete(partId);
         else if (typeof part.text === "string") {
-          session.parts.set(partId, { messageId, text: part.text.slice(0, this.config.maxSpeechLength * 2) });
+          session.parts.set(partId, { messageId, text: part.text.slice(0, this.config.maxSpeechLength * 2),
+            complete: typeof object(part.time).end === "number" });
           if (session.parts.size > 128) session.parts.delete(session.parts.keys().next().value!);
+          this.flushSpeech(id);
         }
       } else if (!session.pending.size && session.state !== "error" && !session.aborted) {
         if (part.type === "tool") this.state(id, "working");
@@ -210,6 +236,7 @@ export class CompanionDirector {
     }
     else if (type === "message.removed") {
       const messageId = string(props.messageID);
+      this.invalidate(session, messageId);
       for (const [key, value] of session.parts) if (value.messageId === messageId) session.parts.delete(key);
       if (session.assistant === messageId) { session.assistant = undefined; this.emit({ type: "stop", characterId: id }); }
     } else if (type === "session.error") this.failure(id, object(props.error));
@@ -222,6 +249,7 @@ export class CompanionDirector {
       const kind = type.startsWith("permission") ? "permission" : "question";
       session.pending.delete(`${kind}:${string(props.requestID ?? props.permissionID ?? props.id)}`);
       if (!session.pending.size && session.state === "waiting") this.state(id, "thinking");
+      this.flushSpeech(id);
     } else if (type === "session.idle" || (type === "session.status" && object(props.status).type === "idle")) this.idle(id);
     else if (type === "session.status" && !session.pending.size && !session.aborted) this.state(id, "thinking");
   }
