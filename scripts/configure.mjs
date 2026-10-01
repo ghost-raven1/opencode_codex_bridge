@@ -1,6 +1,7 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { mcpConfiguration } from "./lib/mcp-config.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const profile = process.argv[2] ?? "companions";
@@ -45,11 +46,7 @@ const config = {
     options: { baseURL: "https://chatgpt.com/backend-api/codex" }, models } },
   plugin: pluginEntries.map(([name]) => pathToFileURL(join(target, "entries", name + ".mjs")).href),
   permission: { codex: "ask", codex_system: "ask" },
-  mcp: {
-    jarvis: { type: "local", command: [process.execPath, join(root, "node_modules/@shantur/jarvis-mcp/dist/index.js")],
-      enabled: false, environment: { MCP_VOICE_AUTO_OPEN: "false" }, timeout: 120_000 },
-    openai_docs: { type: "remote", url: "https://developers.openai.com/mcp", enabled: true },
-  },
+  mcp: mcpConfiguration(root),
   lsp: {
     typescript: { command: [process.execPath, join(root, "node_modules/typescript-language-server/lib/cli.mjs"), "--stdio"],
       extensions: [".ts", ".tsx", ".js", ".jsx", ".mts", ".cts", ".mjs", ".cjs"] },
@@ -76,7 +73,7 @@ await writeFile(join(target, "companions.json"), JSON.stringify({
   tts: { engine: localTtsInstalled ? "local" : "macos", voices: {
     coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna",
   } },
-  language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: true, dictation: true,
+  language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: false, dictation: true,
   appearance: { mode: "presets", roles: {} },
   agentRoles: {},
 }, null, 2) + "\n");

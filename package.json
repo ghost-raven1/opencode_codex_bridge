@@ -12,12 +12,13 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "typecheck": "npm run typecheck --workspaces",
-    "test": "vitest run",
+    "test": "vitest run --configLoader runner",
     "check": "npm run typecheck && npm test && npm run build",
     "bundle": "node scripts/configure.mjs",
     "doctor": "node scripts/doctor.mjs",
     "companion:build": "node scripts/build-companion.mjs",
     "setup:tts": "node scripts/setup-local-tts.mjs",
+    "setup:playwright": "node scripts/setup-playwright.mjs",
     "smoke:voice": "node scripts/smoke-local-voice.mjs",
     "smoke:dictation": "node scripts/smoke-dictation.mjs",
     "smoke:codex": "node scripts/smoke-codex.mjs",
@@ -38,6 +39,7 @@
   },
   "dependencies": {
     "@plannotator/opencode": "0.27.24",
+    "@playwright/mcp": "0.0.83",
     "@shantur/jarvis-mcp": "1.0.1",
     "opencode-smart-voice-notify": "1.4.0",
     "opencode-snip": "2.0.0",
