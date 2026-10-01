@@ -21,7 +21,7 @@ struct Motion {
     var kind: String
     var start: TimeInterval
     var previous: Character?
-    func duration(reduced: Bool) -> Double { reduced ? 0.15 : kind == "enter" ? 0.6 : kind == "turn" ? 0.7 : 0.45 }
+    func duration(reduced: Bool) -> Double { reduced ? 0.15 : kind == "enter" ? 1.2 : kind == "turn" ? 1.4 : 0.45 }
     func progress(_ now: TimeInterval, reduced: Bool) -> Double { min(1, max(0, (now - start) / duration(reduced: reduced))) }
 }
 
@@ -52,7 +52,7 @@ enum FacialMotion {
                      time: Double, blinkElapsed: Double?) -> [Int] {
         var rows: [Int]
         if speaking {
-            rows = [!open ? 0 : level < 0.2 ? 1 : 2 + Int(max(0, time) * 8) % 6]
+            rows = [!open ? 0 : level < 0.2 ? 1 : 2 + Int(max(0, time) * 4) % 6]
         } else {
             rows = [["success": 14, "error": 15, "working": 16, "thinking": 16, "waiting": 17][state] ?? 0]
         }

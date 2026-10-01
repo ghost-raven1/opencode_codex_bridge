@@ -26,7 +26,7 @@
         8,
         9
       ],
-      "durationMs": 1400
+      "durationMs": 4000
     },
     "thinking": {
       "atlas": "thinking-v3.png",
@@ -42,7 +42,7 @@
         8,
         9
       ],
-      "durationMs": 1600
+      "durationMs": 4500
     },
     "success": {
       "atlas": "success-v3.png",
@@ -56,7 +56,7 @@
         6,
         7
       ],
-      "durationMs": 1100
+      "durationMs": 3200
     },
     "waiting": {
       "atlas": "waiting-v3.png",
@@ -68,7 +68,7 @@
         4,
         5
       ],
-      "durationMs": 1500
+      "durationMs": 3600
     },
     "error": {
       "atlas": "error-v3.png",
@@ -80,7 +80,7 @@
         4,
         5
       ],
-      "durationMs": 1200
+      "durationMs": 3200
     }
   },
   "facial": {

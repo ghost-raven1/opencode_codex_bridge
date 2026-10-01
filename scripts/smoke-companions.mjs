@@ -92,7 +92,7 @@ async function captureVisuals() {
     state: "idle", appearance: { column, headColumn: column, bodyColumn: column, label } }));
   entries.forEach(entry => host.send(entry));
   for (const background of ["light", "dark"]) await snapshot("entrance", background, 0.15);
-  await new Promise(resolve => setTimeout(resolve, 650));
+  await new Promise(resolve => setTimeout(resolve, 1250));
   const longCaption = "Рабочее дерево чистое. Проверю последний коммит с авторизацией и связанный код моста; замечания дам с привязкой к строкам.\n\n".repeat(14);
   for (const background of ["light", "dark"]) await snapshot("long-caption", background, 0, longCaption);
   for (const state of ["idle", "thinking", "working", "waiting", "success", "error"]) {
@@ -102,7 +102,7 @@ async function captureVisuals() {
   entries.forEach((entry, column) => host.send({ ...entry,
     appearance: { ...entry.appearance, headColumn: (column + 1) % 4 } }));
   for (const background of ["light", "dark"]) await snapshot("transform", background, 0.2);
-  await new Promise(resolve => setTimeout(resolve, 750));
+  await new Promise(resolve => setTimeout(resolve, 1450));
   for (const background of ["light", "dark"]) await snapshot("mixed", background);
   entries.forEach(entry => host.send({ type: "remove", characterId: entry.characterId }));
   for (const background of ["light", "dark"]) await snapshot("leave", background, 0.15);
@@ -143,12 +143,12 @@ try {
   await windowState("preview preserves the real session", event => event.demo === false && containsReal(event) && event.rendering);
   for (const column of [0, 2, 3]) host.send({ ...realCharacter,
     appearance: { column, headColumn: column, bodyColumn: column, label: "REVIEW" } });
-  await new Promise(resolve => setTimeout(resolve, 750));
+  await new Promise(resolve => setTimeout(resolve, 1450));
   await windowState("rapid role changes keep the latest role", event => containsReal(event) && event.columns?.[0] === 3);
   host.send({ type: "remove", characterId: realCharacter.characterId });
   await new Promise(resolve => setTimeout(resolve, 50));
   host.send(realCharacter);
-  await new Promise(resolve => setTimeout(resolve, 650));
+  await new Promise(resolve => setTimeout(resolve, 1250));
   await windowState("new activity cancels departure", event => containsReal(event) && event.columns?.[0] === 1 && event.visible);
   if (reduced) await windowState("reduce motion uses the reduced renderer", event => event.reducedMotion === true);
   host.send({ type: "remove", characterId: realCharacter.characterId });

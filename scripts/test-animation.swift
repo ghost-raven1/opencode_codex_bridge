@@ -19,7 +19,8 @@ import AppKit
         }
         let motion = Motion(kind: "turn", start: 10)
         precondition(motion.progress(9, reduced: false) == 0)
-        precondition(motion.progress(11, reduced: false) == 1)
+        precondition(motion.progress(10.7, reduced: false) < 0.51)
+        precondition(motion.progress(11.4, reduced: false) == 1)
         precondition(motion.duration(reduced: true) == 0.15)
         if CommandLine.arguments.count > 1 {
             let directory = URL(fileURLWithPath: CommandLine.arguments[1])
@@ -27,6 +28,12 @@ import AppKit
             var frames = 0
             for name in ["ambient", "entrance", "transform", "working", "thinking", "success", "waiting", "error"] {
                 guard let clip = library.clips[name] else { fatalError("Missing clip \(name)") }
+                let transition = name == "entrance" || name == "transform"
+                precondition(clip.durationMs / Double(clip.frames.count) >= (transition ? 200 : 300), "Body poses flicker too quickly")
+                if transition {
+                    let motion = Motion(kind: name == "entrance" ? "enter" : "turn", start: 0)
+                    precondition(clip.durationMs == motion.duration(reduced: false) * 1000, "Transition cuts off drawn clip")
+                }
                 for index in clip.frames.indices {
                     let elapsed = (Double(index) + 0.5) / Double(clip.frames.count) * clip.durationMs / 1000
                     guard let frame = library.sample(name, elapsed: elapsed) else { fatalError("Unreadable \(name) frame \(index)") }

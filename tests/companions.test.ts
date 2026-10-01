@@ -8,9 +8,10 @@ function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only", 
   const director = new CompanionDirector(configSchema.parse({ speech, ...extra }), e => events.push(e));
   const send = (type: string, properties: unknown) => director.event({ type, properties });
   const message = (role: string, id: string, mode = "build") => send("message.updated", { info: { id, sessionID: "s", role, mode } });
+  const complete = (id: string) => send("message.updated", { info: { id, sessionID: "s", role: "assistant", time: { completed: 1 }, finish: "stop" } });
   const text = (id: string, messageID: string, text: string, extra: Record<string, unknown> = {}) =>
     send("message.part.updated", { part: { id, messageID, sessionID: "s", type: "text", text, ...extra } });
-  return { events, send, message, text, director };
+  return { events, send, message, text, director, complete };
 }
 describe("companion event mapping", () => {
   it("announces a new user task once and cancels the previous speech", () => {
@@ -22,6 +23,7 @@ describe("companion event mapping", () => {
   it("speaks final assistant text once despite both idle notifications", () => {
     const t = setup(); t.message("assistant", "a"); t.text("p", "a", "При"); t.text("p", "a", "Привет");
     t.text("user-part", "u", "DO NOT READ USER INPUT");
+    t.complete("a");
     t.send("session.status", { sessionID: "s", status: { type: "idle" } }); t.send("session.idle", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Привет"]);
   });
@@ -132,8 +134,9 @@ describe("companion event mapping", () => {
     expect(t.events.some(e => e.type === "stop")).toBe(true);
     t.director.assignTask("s", { task: "Новая задача", messageID: "next" });
     t.message("user", "next"); t.message("assistant", "b"); t.text("q", "b", "Новый ответ");
+    t.complete("b");
     t.send("session.idle", { sessionID: "s" });
-    expect(t.events.at(-1)?.text).toBe("Новый ответ");
+    expect(t.events.filter(e => e.type === "speak").at(-1)?.text).toBe("Новый ответ");
   });
   it("does not interrupt its own error announcement when the error is delivered twice", () => {
     const t = setup();
@@ -148,8 +151,9 @@ describe("companion event mapping", () => {
     t.text("deleted", "a", "Deleted"); t.text("ignored", "a", "Ignored"); t.text("keep", "a", "Готово");
     t.send("message.part.removed", { sessionID: "s", messageID: "a", partID: "deleted" });
     t.send("message.part.updated", { part: { sessionID: "s", messageID: "a", id: "ignored", type: "text", text: "Ignored", ignored: true } });
+    t.complete("a");
     t.send("session.idle", { sessionID: "s" });
-    expect(t.events.at(-1)?.text).toBe("Готово");
+    expect(t.events.filter(e => e.type === "speak").at(-1)?.text).toBe("Готово");
     t.send("message.removed", { sessionID: "s", messageID: "a" });
     expect(t.events.at(-1)?.type).toBe("stop");
   });
@@ -167,9 +171,10 @@ describe("companion event mapping", () => {
     const t = setup(); t.message("user", "u"); t.text("task", "u", "Проверь изменения на регрессии");
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("reviewer");
     t.message("assistant", "a", "general"); t.text("answer", "a", "Реализуй новую функцию и исследуй документацию");
+    t.complete("a");
     t.send("session.idle", { sessionID: "s" });
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("reviewer");
-    expect(t.events.at(-1)?.type).toBe("speak");
+    expect(t.events.filter(e => e.type === "speak").at(-1)?.role).toBe("reviewer");
   });
   it("assigns a full task before user events without losing role or primary speech", () => {
     const t = setup();
@@ -240,12 +245,14 @@ describe("companion event mapping", () => {
   it("bounds streamed parts and removes text from previous assistant messages", () => {
     const t = setup("all", { maxSpeechLength: 8000 }); t.message("assistant", "a");
     for (let n = 0; n < 130; n++) t.text(`part-${n}`, "a", `text${n}`);
+    t.complete("a");
     t.send("session.idle", { sessionID: "s" });
-    const text = t.events.at(-1)?.text ?? "";
+    const text = t.events.filter(e => e.type === "speak").at(-1)?.text ?? "";
     expect(text.startsWith("text2 ")).toBe(true);
     t.message("assistant", "b"); t.text("b-part", "b", "Только новый ответ");
+    t.complete("b");
     t.send("session.idle", { sessionID: "s" });
-    expect(t.events.at(-1)?.text).toBe("Только новый ответ");
+    expect(t.events.filter(e => e.type === "speak").at(-1)?.text).toBe("Только новый ответ");
   });
   it("uses deterministic appearances and different presets by role", () => {
     expect(appearanceFor("agent-a", "developer")).toEqual(appearanceFor("agent-a", "developer"));

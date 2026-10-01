@@ -12,7 +12,7 @@ SOURCE = Path(__file__).resolve().parent
 ASSETS = SOURCE.parents[1]
 ROLES = ['lead', 'code', 'research', 'review']
 CELL = (256, 384)
-CLIPS = {'ambient': (0, 8, 1200), 'entrance': (8, 6, 600), 'transform': (14, 6, 700)}
+CLIPS = {'ambient': (0, 8, 3200), 'entrance': (8, 6, 1200), 'transform': (14, 6, 1400)}
 REGISTRATION = json.loads((SOURCE/'registration.json').read_text())
 ROWS = {
     'lead': [0, 315, 628, 934, 1232, 1536],
@@ -199,7 +199,7 @@ def main():
                 scene.alpha_composite(cell, (col*256, 24))
             ImageDraw.Draw(scene).text((16, 8), f'{name.upper()} {row+1}/{count} | LEAD / CODE / RESEARCH / REVIEW', fill='#c6d1df')
             previews.append(scene.convert('RGB'))
-            durations.append(duration)
+            durations.append(round(duration / count))
         atlas.save(ASSETS/f'{name}-v2.png', optimize=True)
         contact = Image.new('RGBA', atlas.size, '#17202f')
         contact.alpha_composite(atlas)

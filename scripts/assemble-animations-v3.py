@@ -10,9 +10,9 @@ ASSETS = ROOT / 'packages/companions/assets'
 SOURCE = ASSETS / 'source/animation-v3'
 ROLES = ['lead', 'code', 'research', 'review']
 CELL = (256, 384)
-SPECS = [('working', 'activity', 0, 10, 1400), ('thinking', 'activity', 10, 10, 1600),
-         ('success', 'reactions', 0, 8, 1100), ('waiting', 'reactions', 8, 6, 1500),
-         ('error', 'reactions', 14, 6, 1200)]
+SPECS = [('working', 'activity', 0, 10, 4000), ('thinking', 'activity', 10, 10, 4500),
+         ('success', 'reactions', 0, 8, 3200), ('waiting', 'reactions', 8, 6, 3600),
+         ('error', 'reactions', 14, 6, 3200)]
 
 
 def digest(image):

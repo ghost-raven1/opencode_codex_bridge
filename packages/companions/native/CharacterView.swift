@@ -59,17 +59,17 @@ final class CharacterView: NSView {
             if !old.looksLike(character) {
                 let previous = motions[old.id].flatMap { $0.kind == "turn" && $0.progress(time, reduced: reduced) < 0.5 ? $0.previous : nil } ?? old
                 motions[old.id] = Motion(kind: "turn", start: time, previous: previous)
-                stateStarted[old.id] = time + 0.7
+                stateStarted[old.id] = time + motions[old.id]!.duration(reduced: reduced)
             } else if motions[old.id]?.kind == "leave" {
                 motions[old.id] = Motion(kind: "enter", start: time)
-                stateStarted[old.id] = time + 0.6
+                stateStarted[old.id] = time + motions[old.id]!.duration(reduced: reduced)
             }
             else if old.state != character.state { stateStarted[old.id] = time }
             characters[index] = character
         } else {
             characters.append(character); motions[character.id] = Motion(kind: "enter", start: time)
             ambient[character.id] = AmbientMotion(now: time)
-            stateStarted[character.id] = time + 0.6
+            stateStarted[character.id] = time + motions[character.id]!.duration(reduced: reduced)
         }
     }
 
@@ -163,7 +163,7 @@ final class CharacterView: NSView {
            let clip = clips.sample(motion.kind == "enter" ? "entrance" : "transform", elapsed: progress * motion.duration(reduced: false)) { return clip }
         if speaking {
             if faceAtlas != nil { return (base, 0, 4) }
-            if time < mouthUntil, let transitionAtlas { return (transitionAtlas, Int(time * 12) % 3 == 0 ? 2 : 4, 5) }
+            if time < mouthUntil, let transitionAtlas { return (transitionAtlas, Int(time * 4) % 3 == 0 ? 2 : 4, 5) }
             return (base, 0, 4)
         }
         if !reduced, blink, faceAtlas == nil, let transitionAtlas { return (transitionAtlas, 3, 5) }
@@ -175,7 +175,8 @@ final class CharacterView: NSView {
                let clip = clips.sample(character.state, elapsed: elapsed) { return clip }
             return (base, 0, 4)
         }
-        if !reduced, let gesture = ambient[character.id]?.gestureStart, time - gesture < 1.2,
+        if !reduced, let gesture = ambient[character.id]?.gestureStart,
+           let definition = clips.clips["ambient"], time - gesture < definition.durationMs / 1000,
            ["idle", "working", "thinking"].contains(character.state), let clip = clips.sample("ambient", elapsed: time - gesture) { return clip }
         if let poseAtlas, let row = ["thinking": 0, "working": 1, "success": 2, "waiting": 3, "error": 4][character.state] { return (poseAtlas, row, 5) }
         return (base, 0, 4)

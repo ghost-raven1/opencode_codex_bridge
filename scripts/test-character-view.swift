@@ -18,7 +18,7 @@ import AppKit
         view.snapshotTime = 1003; view.remove(working.id)
         view.snapshotTime = 1003.1; view.update(thinking)
         if !view.reduced {
-            let returned = view.animationFrame(thinking, time: 1003.8, speaking: false, blink: false,
+            let returned = view.animationFrame(thinking, time: 1004.4, speaking: false, blink: false,
                 motion: nil, progress: 1, base: base)
             precondition(returned.0 === thought && returned.1 == 0, "Return during departure skipped the new state clip")
         }

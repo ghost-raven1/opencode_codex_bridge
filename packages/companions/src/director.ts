@@ -24,6 +24,9 @@ interface Session {
   spoken: Set<string>;
   invalidated: Set<string>;
   assistantComplete: boolean;
+  assistantFinish?: string;
+  activeTools: Set<string>;
+  idleRequested: boolean;
   pending: Set<string>;
   aborted: boolean;
   agent?: string;
@@ -82,7 +85,8 @@ export class CompanionDirector {
       if (this.sessions.size >= 128) this.remove(this.sessions.keys().next().value!);
       entry = { role: "coordinator", state: "idle", parts: new Map(), spoken: new Set(), pending: new Set(),
         invalidated: new Set(), assistantComplete: false, aborted: false, taskParts: new Map(), visible: false,
-        assigned: new Map(), compaction: false, continuation: false, runs: new Map(), users: new Set() };
+        assigned: new Map(), compaction: false, continuation: false, runs: new Map(), users: new Set(),
+        activeTools: new Set(), idleRequested: false };
       this.sessions.set(id, entry);
     }
     // Evict least recently active sessions, rather than active sessions created first.
@@ -169,6 +173,7 @@ export class CompanionDirector {
     session.taskMessageID = messageId; session.taskId = messageId; session.pendingUser = undefined;
     session.compaction = false; session.continuation = false; session.taskParts.clear();
     session.parts.clear(); session.assistant = undefined; session.assistantComplete = false;
+    session.assistantFinish = undefined; session.activeTools.clear(); session.idleRequested = false;
     session.pending.clear(); session.aborted = false; session.spoken.clear();
     session.role = this.taskRole(session); this.state(id, "thinking");
     if (!session.parentID) this.speak(id, this.config.workingPhrase);
@@ -203,10 +208,20 @@ export class CompanionDirector {
     this.speak(id, parts.map(([, part]) => part.text).join(" "));
   }
 
-  private idle(id: string): void {
+  /** The task tool's return is authoritative even when its child's stream was missed. */
+  completeTask(id: string): void {
+    if (this.sessions.has(id)) this.idle(id, true);
+  }
+
+  private idle(id: string, completedTask = false): void {
     const session = this.sessions.get(id)!;
     // A queued idle event cannot dismiss approval, failure, or a user's cancellation.
     if (!session.visible || session.pending.size || session.state === "error" || session.aborted) return;
+    session.idleRequested = true;
+    // Idle has no message/task ID: an older notification can arrive during a new turn.
+    if (!completedTask && (session.activeTools.size || !session.assistantComplete ||
+      ["tool-calls", "unknown"].includes(session.assistantFinish ?? ""))) return;
+    session.idleRequested = false;
     this.state(id, session.assistant ? "success" : "idle");
     this.flushSpeech(id, true);
   }
@@ -267,6 +282,7 @@ export class CompanionDirector {
       (info.summary === true || info.mode === "compaction" || info.agent === "compaction")) {
       const messageId = string(info.id);
       this.invalidate(session, messageId); session.compaction = true;
+      session.assistantComplete = false; session.idleRequested = false;
       for (const [key, value] of session.parts) if (value.messageId === messageId) session.parts.delete(key);
       return;
     }
@@ -293,6 +309,7 @@ export class CompanionDirector {
         if (fresh) {
           this.invalidate(session, session.assistant);
           session.assistantComplete = false;
+          session.assistantFinish = undefined; session.idleRequested = false; session.activeTools.clear();
           for (const [key, value] of session.parts) if (value.messageId !== messageId) session.parts.delete(key);
         }
         session.assistant = messageId;
@@ -303,8 +320,11 @@ export class CompanionDirector {
         if (info.error) this.failure(id, object(info.error));
         else {
           if (fresh && !session.pending.size) this.state(id, "thinking");
-          if (typeof object(info.time).completed === "number") session.assistantComplete = true;
+          if (typeof object(info.time).completed === "number") {
+            session.assistantComplete = true; session.assistantFinish = string(info.finish);
+          }
           this.flushSpeech(id);
+          if (session.idleRequested) this.idle(id);
         }
       }
     } else if (type === "message.part.updated") {
@@ -314,6 +334,11 @@ export class CompanionDirector {
         session.compaction = true; session.continuation = true; return;
       }
       if (part.type === "tool" && (session.aborted || (messageId && messageId !== session.assistant))) return;
+      if (part.type === "tool" && partId) {
+        const status = object(part.state).status;
+        if (status === "running" || status === "pending") session.activeTools.add(partId);
+        else if (status === "completed" || status === "error") session.activeTools.delete(partId);
+      }
       if (part.type === "tool" && part.tool === "task") {
         const toolState = object(part.state), metadata = object(toolState.metadata), input = object(toolState.input);
         const childId = string(metadata.sessionId);
@@ -339,8 +364,10 @@ export class CompanionDirector {
         if (part.type === "tool") this.state(id, "working");
         else if (part.type === "reasoning") this.state(id, "thinking");
       }
+      if (session.idleRequested) this.idle(id);
     } else if (type === "message.part.removed") {
       const partId = string(props.partID);
+      session.activeTools.delete(partId);
       session.parts.delete(partId);
       if (session.taskParts.has(partId)) this.updateTaskPart(id, partId);
       for (const [runId, run] of session.runs) if (run.partId === partId) { this.remove(run.id); session.runs.delete(runId); }
@@ -366,6 +393,9 @@ export class CompanionDirector {
       this.flushSpeech(id);
       this.flushRuns(id);
     } else if (type === "session.idle" || (type === "session.status" && object(props.status).type === "idle")) this.idle(id);
-    else if (type === "session.status" && !session.pending.size && !session.aborted && session.state !== "error") this.state(id, "thinking");
+    else if (type === "session.status" && !session.pending.size && !session.aborted && session.state !== "error") {
+      session.idleRequested = false;
+      this.state(id, session.activeTools.size ? "working" : "thinking");
+    }
   }
 }

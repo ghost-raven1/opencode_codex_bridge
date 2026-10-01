@@ -117,7 +117,7 @@ const Companions: Plugin = async ({ directory, client }) => {
         agent: typeof args.subagent_type === "string" ? args.subagent_type : undefined,
         task: [args.description, args.prompt].filter(value => typeof value === "string").join("\n") });
       // This fallback runs after execution; a child whose stream was missed is already finished.
-      director.event({ type: "session.idle", properties: { sessionID: output.metadata.sessionId } });
+      director.completeTask(output.metadata.sessionId);
     },
     tool: {
       companion: tool({
