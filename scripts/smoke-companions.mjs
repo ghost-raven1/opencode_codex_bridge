@@ -58,7 +58,7 @@ const realCharacter = { type: "state", characterId: "smoke-real-agent", state: "
   appearance: { column: 1, headColumn: 1, bodyColumn: 1, label: "CODE" } };
 const containsReal = event => event.count === 1 && event.characters?.[0] === realCharacter.characterId;
 
-async function snapshot(name, background, offset = 0, caption) {
+async function snapshot(name, background, offset = 0, caption, expectedCaption = caption) {
   const directory = join(root, ".local/companions-snapshots", captureGroup);
   await mkdir(directory, { recursive: true });
   const path = join(directory, `${name}-${background}.png`);
@@ -69,12 +69,12 @@ async function snapshot(name, background, offset = 0, caption) {
     pending = event => {
       if (event.type === "error") { clearTimeout(timer); pending = undefined; reject(new Error(event.message)); return; }
       if (event.type !== "snapshot" || event.path !== capture) return;
-      if (caption !== undefined) {
+      if (expectedCaption !== undefined) {
         try {
-          assert.equal(event.bubble?.characters, caption.length, "Caption was truncated");
-          assert.equal(event.bubble?.laidOutCharacters, caption.length, "Some caption glyphs were never laid out");
+          assert.equal(event.bubble?.characters, expectedCaption.length, "Caption was truncated");
+          assert.equal(event.bubble?.laidOutCharacters, expectedCaption.length, "Some caption glyphs were never laid out");
           assert(event.bubble.visibleHeight <= 168, "Caption grew outside the window");
-          if (caption.length > 1000) assert.equal(event.bubble.scrollable, true, "Long caption cannot scroll");
+          if (expectedCaption.length > 1000) assert.equal(event.bubble.scrollable, true, "Long caption cannot scroll");
         } catch (error) { clearTimeout(timer); pending = undefined; reject(error); return; }
       }
       clearTimeout(timer); pending = undefined; resolve();
@@ -139,6 +139,11 @@ try {
   host.send({ type: "preview" });
   await windowState("explicit preview displays the demo", event => event.demo === true && event.count === 4 &&
     event.characters?.every(id => id.startsWith("preview-")) && event.rendering);
+  const previewCaption = "Проверка публичной реплики в демонстрации.";
+  host.send({ type: "caption", characterId: "preview-0", text: previewCaption });
+  await snapshot("preview-caption", "dark", 0, undefined, previewCaption);
+  host.send({ type: "stop-speech" });
+  await snapshot("stop-clears-caption", "dark", 0, undefined, "");
   host.send({ type: "show" });
   await windowState("preview preserves the real session", event => event.demo === false && containsReal(event) && event.rendering);
   for (const column of [0, 2, 3]) host.send({ ...realCharacter,

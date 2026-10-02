@@ -12,6 +12,7 @@ from sprite_matte import clean_matte
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "packages/companions/assets"
+PREVIEWS = ROOT / ".local/artwork-previews/base"
 CELL = (256, 384)
 NECK = (128, 120)
 FOOT = 368
@@ -126,6 +127,7 @@ def remove_speckles(alpha: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:
+    PREVIEWS.mkdir(parents=True, exist_ok=True)
     source = Image.open(ASSETS / "source/team-generated-rgb.png").convert("RGB")
     extracted = remove_checkerboard(source)
     atlases = {name: Image.new("RGBA", (CELL[0] * 4, CELL[1] * 4))
@@ -189,7 +191,7 @@ def main() -> None:
     (ASSETS / "atlas.json").write_text(json.dumps(manifest, indent=2) + "\n")
     preview = Image.new("RGBA", atlases["team"].size, "#17202f")
     preview.alpha_composite(atlases["team"])
-    preview.convert("RGB").save(ASSETS / "preview-dark.png")
+    preview.convert("RGB").save(PREVIEWS / "preview-dark.png")
     mixed = Image.new("RGBA", (CELL[0] * 4, CELL[1] * 4), "#17202f")
     for head_column in range(4):
         for body_column in range(4):
@@ -197,7 +199,7 @@ def main() -> None:
             for name, column in (("body", body_column), ("head", head_column)):
                 part = atlases[name].crop((column * CELL[0], 0, (column + 1) * CELL[0], CELL[1]))
                 mixed.alpha_composite(part, destination)
-    mixed.convert("RGB").save(ASSETS / "preview-combinations.png")
+    mixed.convert("RGB").save(PREVIEWS / "preview-combinations.png")
     alpha = np.asarray(atlases["team"])[:, :, 3]
     print(f"Prepared RGBA atlas {atlases['team'].size}; transparent pixels {np.mean(alpha == 0):.1%}")
     print("Verified all 16 frames reconstruct exactly from head + body; inspect both preview PNGs.")

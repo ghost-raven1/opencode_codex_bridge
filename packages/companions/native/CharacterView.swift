@@ -8,14 +8,11 @@ final class CharacterView: NSView {
     var mixedHeadAtlas: NSImage?
     var mixedBodyAtlas: NSImage?
     var faceAtlas: NSImage?
-    var poseAtlas: NSImage?
-    var transitionAtlas: NSImage?
-    let clips = AnimationLibrary()
     private let sprites = SpriteCache()
     var characters: [Character] = []
     private var motions: [String: Motion] = [:]
     private var ambient: [String: AmbientMotion] = [:]
-    private var stateStarted: [String: TimeInterval] = [:]
+    private var badges: [String: CharacterBadgeView] = [:]
     var speaker: String?
     var mouthUntil: TimeInterval = 0
     var mouthLevel: Double = 0
@@ -59,41 +56,55 @@ final class CharacterView: NSView {
             if !old.looksLike(character) {
                 let previous = motions[old.id].flatMap { $0.kind == "turn" && $0.progress(time, reduced: reduced) < 0.5 ? $0.previous : nil } ?? old
                 motions[old.id] = Motion(kind: "turn", start: time, previous: previous)
-                stateStarted[old.id] = time + motions[old.id]!.duration(reduced: reduced)
             } else if motions[old.id]?.kind == "leave" {
                 motions[old.id] = Motion(kind: "enter", start: time)
-                stateStarted[old.id] = time + motions[old.id]!.duration(reduced: reduced)
             }
-            else if old.state != character.state { stateStarted[old.id] = time }
             characters[index] = character
         } else {
             characters.append(character); motions[character.id] = Motion(kind: "enter", start: time)
             ambient[character.id] = AmbientMotion(now: time)
-            stateStarted[character.id] = time + motions[character.id]!.duration(reduced: reduced)
         }
+        let badge = badges[character.id] ?? CharacterBadgeView(frame: .zero)
+        if badge.superview == nil { addSubview(badge); badges[character.id] = badge }
+        badge.update(character, color: accents[character.column])
+        layoutBadges()
     }
 
     func remove(_ id: String, immediately: Bool = false) {
         guard characters.contains(where: { $0.id == id }) else { return }
-        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; stateStarted[id] = nil }
+        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
         else { motions[id] = Motion(kind: "leave", start: now) }
     }
 
     func replace(_ entries: [Character], animated: Bool = true) {
-        characters = []; motions = [:]; ambient = [:]; stateStarted = [:]
+        badges.values.forEach { $0.removeFromSuperview() }; badges = [:]
+        characters = []; motions = [:]; ambient = [:]
         for entry in entries { update(entry) }
-        if !animated { motions = [:]; for entry in entries { stateStarted[entry.id] = now } }
+        if !animated { motions = [:]; layoutBadges() }
     }
 
     @discardableResult func tick() -> Bool {
         let before = characters.count, time = now
         for (id, motion) in motions where motion.progress(time, reduced: reduced) >= 1 {
-            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; stateStarted[id] = nil }
+            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
             motions[id] = nil
         }
         for id in ambient.keys { ambient[id]?.advance(time) }
+        layoutBadges()
         needsDisplay = true
         return before != characters.count
+    }
+
+    override func layout() { super.layout(); layoutBadges() }
+
+    private func layoutBadges() {
+        let width = bounds.width / CGFloat(max(characters.count, 1))
+        for (index, character) in characters.enumerated() {
+            guard let badge = badges[character.id] else { continue }
+            badge.frame = NSRect(x: CGFloat(index) * width + 10, y: 12, width: width - 20, height: 28)
+            let motion = motions[character.id], progress = motion?.progress(now, reduced: reduced) ?? 1
+            badge.alphaValue = motion?.kind == "leave" ? 1 - progress : motion?.kind == "enter" ? min(1, progress * 2) : 1
+        }
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -109,14 +120,15 @@ final class CharacterView: NSView {
             let displayed = motion?.kind == "turn" && progress < 0.5 ? motion?.previous ?? character : character
             let accent = accents[character.column]
             let speaking = speaker == character.id, blink = ambient[character.id].map { time >= $0.blinkAt && time < $0.blinkAt + 0.30 } ?? false
-            let row = speaking && time < mouthUntil ? 1 : blink ? 2 : character.state == "working" ? 3 : 0
             let faceRows = FacialMotion.rows(state: displayed.state, speaking: speaking, open: time < mouthUntil,
                                              level: mouthLevel, time: time,
                                              blinkElapsed: !reduced && blink ? time - (ambient[character.id]?.blinkAt ?? time) : nil)
             let factor = min(width / 256, 220.0 / 384)
-            let breath = reduced ? 1 : 1 + sin(time * 1.8 + Double(index) * 1.7) * 0.004
+            let gesture = ambient[character.id]?.gestureStart
+            let pose = LayeredMotion.pose(state: displayed.state, time: time,
+                gestureElapsed: gesture.map { time - $0 }, speaking: speaking, reduced: reduced, seed: index)
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
-                                width: 256 * factor, height: 384 * factor * breath)
+                                width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
             var opacity = 1.0
             if let motion {
                 if motion.kind == "enter" { opacity = min(1, progress * 2) }
@@ -128,58 +140,28 @@ final class CharacterView: NSView {
             }
             let scale = (window?.frame.width ?? bounds.width) / max(1, bounds.width)
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
-            var image: NSImage?
-            if displayed.headColumn != displayed.bodyColumn, let headAtlas, let bodyAtlas {
-                var sourceHead = headAtlas, sourceBody = bodyAtlas
-                if let mixedHeadAtlas, let mixedBodyAtlas {
-                    sourceHead = mixedHeadAtlas; sourceBody = mixedBodyAtlas
-                }
-                image = sprites.frame(sourceBody,
-                                      column: displayed.bodyColumn, row: faceAtlas == nil ? row : 0, rows: 4,
-                                      radius: radius, head: sourceHead,
-                                      headColumn: displayed.headColumn, face: faceAtlas,
-                                      faceColumn: displayed.headColumn, faceRows: faceRows)
+            if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
+                sprites.frame(sourceBody, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius)?
+                    .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
+                let head = sprites.frame(sourceHead, column: displayed.headColumn, row: 0, rows: 4, radius: radius,
+                    face: faceAtlas, faceColumn: displayed.headColumn, faceRows: faceRows)
+                let neck = LayeredMotion.neck
+                let pivot = NSPoint(x: target.minX + neck.x * target.width / 256,
+                                    y: target.minY + neck.y * target.height / 384)
+                NSGraphicsContext.saveGraphicsState()
+                let transform = NSAffineTransform()
+                transform.translateX(by: pivot.x + pose.headX * factor, yBy: pivot.y + pose.headY * factor)
+                transform.rotate(byDegrees: pose.headAngle)
+                transform.translateX(by: -pivot.x, yBy: -pivot.y); transform.concat()
+                head?.draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
+                NSGraphicsContext.restoreGraphicsState()
             } else {
-                let frame = animationFrame(displayed, time: time, speaking: speaking, blink: blink, motion: motion, progress: progress, base: atlas)
-                image = sprites.frame(frame.0, column: displayed.bodyColumn, row: frame.1, rows: frame.2, radius: radius,
-                                      face: frame.0 === atlas && frame.1 == 0 ? faceAtlas : nil,
-                                      faceColumn: displayed.headColumn, faceRows: faceRows)
+                sprites.frame(atlas, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius,
+                    face: faceAtlas, faceColumn: displayed.headColumn, faceRows: faceRows)?
+                    .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
             }
-            image?.draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
             if !reduced, let motion { drawParticles(target, kind: motion.kind, progress: progress, accent: accent, seed: index) }
-            let badge = NSRect(x: x + 10, y: 12, width: width - 20, height: 28)
-            NSColor(calibratedWhite: 0.06, alpha: 0.9 * opacity).setFill()
-            NSBezierPath(roundedRect: badge, xRadius: 8, yRadius: 8).fill()
-            let symbol = character.state == "error" ? "! " : character.state == "success" ? "✓ " : character.state == "waiting" ? "? " : ""
-            (symbol + character.label as NSString).draw(in: badge.insetBy(dx: 10, dy: 5), withAttributes: [
-                .font: NSFont.monospacedSystemFont(ofSize: 12, weight: .bold), .foregroundColor: accent.withAlphaComponent(opacity)
-            ])
         }
-    }
-
-    func animationFrame(_ character: Character, time: TimeInterval, speaking: Bool, blink: Bool,
-                                motion: Motion?, progress: Double, base: NSImage) -> (NSImage, Int, Int) {
-        if !reduced, let motion, motion.kind != "leave",
-           let clip = clips.sample(motion.kind == "enter" ? "entrance" : "transform", elapsed: progress * motion.duration(reduced: false)) { return clip }
-        if speaking {
-            if faceAtlas != nil { return (base, 0, 4) }
-            if time < mouthUntil, let transitionAtlas { return (transitionAtlas, Int(time * 4) % 3 == 0 ? 2 : 4, 5) }
-            return (base, 0, 4)
-        }
-        if !reduced, blink, faceAtlas == nil, let transitionAtlas { return (transitionAtlas, 3, 5) }
-        if let definition = clips.clips[character.state] {
-            let started = stateStarted[character.id] ?? time
-            let gesture = ambient[character.id]?.gestureStart ?? -.infinity
-            let elapsed = time - max(started, gesture)
-            if !reduced, elapsed >= 0, elapsed < definition.durationMs / 1000,
-               let clip = clips.sample(character.state, elapsed: elapsed) { return clip }
-            return (base, 0, 4)
-        }
-        if !reduced, let gesture = ambient[character.id]?.gestureStart,
-           let definition = clips.clips["ambient"], time - gesture < definition.durationMs / 1000,
-           ["idle", "working", "thinking"].contains(character.state), let clip = clips.sample("ambient", elapsed: time - gesture) { return clip }
-        if let poseAtlas, let row = ["thinking": 0, "working": 1, "success": 2, "waiting": 3, "error": 4][character.state] { return (poseAtlas, row, 5) }
-        return (base, 0, 4)
     }
 
     private func drawParticles(_ rect: NSRect, kind: String, progress: Double, accent: NSColor, seed: Int) {

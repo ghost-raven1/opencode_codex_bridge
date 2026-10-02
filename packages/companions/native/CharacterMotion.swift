@@ -25,7 +25,7 @@ struct Motion {
     func progress(_ now: TimeInterval, reduced: Bool) -> Double { min(1, max(0, (now - start) / duration(reduced: reduced))) }
 }
 
-/// Each character has its own irregular blink and prop gesture schedule.
+/// Each character has its own irregular blink and head gesture schedule.
 struct AmbientMotion {
     var blinkAt: TimeInterval
     var gestureAt: TimeInterval
@@ -38,12 +38,6 @@ struct AmbientMotion {
         if now > blinkAt + 0.30 { blinkAt = now + Double.random(in: 2.3...5.8) }
         if now >= gestureAt { gestureStart = now; gestureAt = now + Double.random(in: 8...15) }
     }
-}
-
-struct AnimationClip: Decodable {
-    var atlas: String
-    var frames: [Int]
-    var durationMs: Double
 }
 
 /// Drawn mouth shapes follow audio energy; these are visual states, not phoneme inference.
@@ -60,33 +54,5 @@ enum FacialMotion {
             rows.append(8 + min(5, Int(elapsed / 0.30 * 6)))
         }
         return rows
-    }
-}
-
-/// Optional drawn clips fall back to the original atlas when artwork is unavailable.
-final class AnimationLibrary {
-    var images: [String: NSImage] = [:]
-    var clips: [String: AnimationClip] = [:]
-    func load(_ directory: URL) {
-        struct Manifest: Decodable { var clips: [String: AnimationClip] }
-        images = [:]; clips = [:]
-        for name in ["animation-v2.json", "animation-v3.json"] {
-            if let data = try? Data(contentsOf: directory.appendingPathComponent(name)),
-               let manifest = try? JSONDecoder().decode(Manifest.self, from: data) {
-                clips.merge(manifest.clips) { _, newer in newer }
-            }
-        }
-        for name in Set(clips.values.map { $0.atlas }) {
-            if let image = NSImage(contentsOf: directory.appendingPathComponent(name)) { images[name] = image }
-        }
-    }
-    func sample(_ name: String, elapsed: Double) -> (NSImage, Int, Int)? {
-        guard let clip = clips[name], !clip.frames.isEmpty, clip.durationMs > 0,
-              let image = images[clip.atlas], image.size.width == 1024,
-              image.size.height.truncatingRemainder(dividingBy: 384) == 0 else { return nil }
-        let index = min(clip.frames.count - 1, max(0, Int(elapsed * 1000 / clip.durationMs * Double(clip.frames.count))))
-        let rows = Int(image.size.height / 384), row = clip.frames[index]
-        guard row >= 0, row < rows else { return nil }
-        return (image, row, rows)
     }
 }

@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT.parents[1]
+PREVIEWS = ROOT.parents[4] / '.local/artwork-previews/animation-v3'
 CELL = (256, 384)
 ROLES = {'lead': 0, 'review': 3}
 spec = importlib.util.spec_from_file_location('registration_v2', ROOT.parent/'animation-v2/prepare.py')
@@ -95,6 +96,7 @@ def key_magenta(crop):
 
 
 def body(role, kind):
+    (PREVIEWS/role).mkdir(parents=True, exist_ok=True)
     image = Image.open(ROOT/role/f'{kind}-generated.png')
     atlas = Image.new('RGBA',(1024,1920))
     metrics = []
@@ -115,7 +117,7 @@ def body(role, kind):
     atlas.save(ROOT/role/f'{kind}-registered.png', optimize=True)
     for name,color in [('dark','#17202f'),('light','#ffffff')]:
         contact = Image.new('RGBA',atlas.size,color); contact.alpha_composite(atlas)
-        contact.convert('RGB').save(ROOT/role/f'{kind}-{name}.png')
+        contact.convert('RGB').save(PREVIEWS/role/f'{kind}-{name}.png')
     return metrics
 
 
@@ -143,6 +145,7 @@ def masks(role):
 
 
 def faces(role, base):
+    (PREVIEWS/role).mkdir(parents=True, exist_ok=True)
     image = Image.open(ROOT/role/'face-generated.png').convert('RGBA')
     crops = list(source_cells(image,3,6))
     reference_bounds = Image.fromarray((foreground(crops[0][2])*255).astype('uint8')).getbbox()
@@ -184,7 +187,7 @@ def faces(role, base):
                         'normalize':normalize,'maskBounds':patch.getbbox(),'skinAdjustment':adjustment.tolist(),
                         'sha256':hashlib.sha256(patch.tobytes()).hexdigest()})
     assert len({f['sha256'] for f in metrics})==18
-    overlays.save(ROOT/role/'face-registered.png',optimize=True);qa.convert('RGB').save(ROOT/role/'face-before-after.png')
+    overlays.save(ROOT/role/'face-registered.png',optimize=True);qa.convert('RGB').save(PREVIEWS/role/'face-before-after.png')
     return {'sourceLandmarks':source,'targetLandmarks':target,'sourceFromTargetAffine':affine.tolist(),'frames':metrics}
 
 

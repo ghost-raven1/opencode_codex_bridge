@@ -7,16 +7,12 @@ final class SpriteCache {
     private var frames: [String: NSImage] = [:]
 
     func frame(_ image: NSImage, column: Int, row: Int, rows: Int, radius: CGFloat,
-               head: NSImage? = nil, headColumn: Int = 0,
                face: NSImage? = nil, faceColumn: Int = 0, faceRows: [Int] = []) -> NSImage? {
         let radius = (min(4, max(0.5, radius)) * 4).rounded() / 4
-        let key = "\(ObjectIdentifier(image))-\(column)-\(row)-\(rows)-\(radius)-\(headColumn)-\(head.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)"
+        let key = "\(ObjectIdentifier(image))-\(column)-\(row)-\(rows)-\(radius)-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)"
         if let cached = frames[key] { return cached }
         guard let crop = crop(image, column: column, row: row, rows: rows) else { return nil }
         var original = CIImage(cgImage: crop)
-        if let head, let top = self.crop(head, column: headColumn, row: row, rows: rows) {
-            original = CIImage(cgImage: top).composited(over: original)
-        }
         if let face {
             for row in faceRows where row >= 0 && row < 18 {
                 if let patch = self.crop(face, column: faceColumn, row: row, rows: 18) {

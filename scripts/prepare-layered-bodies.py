@@ -9,6 +9,7 @@ from PIL import Image, ImageChops, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "packages/companions/assets"
 SOURCE = ASSETS / "source/layered-bodies"
+PREVIEWS = ROOT / ".local/artwork-previews/layered-bodies"
 CELL = (256, 384)
 ROLES = ["lead", "code", "research", "review"]
 STATES = ["idle", "talking", "blink", "working"]
@@ -103,10 +104,11 @@ def previews(heads, bodies, prefix):
                     target = (bi * 256, hi * 384)
                     preview.alpha_composite(cell(bodies, bi, row), target)
                     preview.alpha_composite(cell(heads, hi, row), target)
-            preview.convert("RGB").save(SOURCE / f"{prefix}-{state}-{background}.png")
+            preview.convert("RGB").save(PREVIEWS / f"{prefix}-{state}-{background}.png")
 
 
 def main():
+    PREVIEWS.mkdir(parents=True, exist_ok=True)
     team = Image.open(ASSETS / "team-atlas.png").convert("RGBA")
     old_heads = Image.open(ASSETS / "head-atlas.png").convert("RGBA")
     old_bodies = Image.open(ASSETS / "body-atlas.png").convert("RGBA")

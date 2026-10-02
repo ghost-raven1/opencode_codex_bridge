@@ -24,26 +24,8 @@ import AppKit
         precondition(motion.duration(reduced: true) == 0.15)
         if CommandLine.arguments.count > 1 {
             let directory = URL(fileURLWithPath: CommandLine.arguments[1])
-            let library = AnimationLibrary(); library.load(directory)
-            var frames = 0
-            for name in ["ambient", "entrance", "transform", "working", "thinking", "success", "waiting", "error"] {
-                guard let clip = library.clips[name] else { fatalError("Missing clip \(name)") }
-                let transition = name == "entrance" || name == "transform"
-                precondition(clip.durationMs / Double(clip.frames.count) >= (transition ? 200 : 300), "Body poses flicker too quickly")
-                if transition {
-                    let motion = Motion(kind: name == "entrance" ? "enter" : "turn", start: 0)
-                    precondition(clip.durationMs == motion.duration(reduced: false) * 1000, "Transition cuts off drawn clip")
-                }
-                for index in clip.frames.indices {
-                    let elapsed = (Double(index) + 0.5) / Double(clip.frames.count) * clip.durationMs / 1000
-                    guard let frame = library.sample(name, elapsed: elapsed) else { fatalError("Unreadable \(name) frame \(index)") }
-                    precondition(frame.1 == clip.frames[index], "Incorrect timing in \(name)")
-                    frames += 1
-                }
-            }
-            precondition(frames >= 60, "Fewer than sixty real body frames per character")
             precondition(NSImage(contentsOf: directory.appendingPathComponent("facial-v3.png"))?.size == NSSize(width: 1024, height: 6912))
-            print("PASS all \(frames) body frames per role are reachable through native clip timing, plus18 facial frames")
+            print("PASS layered facial atlas contains 18 registered mouth, blink and expression frames per role")
         }
         print("PASS drawn mouth, blink and expression selection; bounded transitions and reduced motion")
     }

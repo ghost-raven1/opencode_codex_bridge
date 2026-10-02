@@ -34,6 +34,7 @@ var exitStatus: Int32 = 0
     let dictation = NativeDictation()
     let draftMenu = DraftMenu()
     var realCharacters: [Character] = []
+    var captions = CaptionState()
     var demonstration = false
     var timer: Timer?
     var speechTestTimer: Timer?
@@ -70,12 +71,6 @@ var exitStatus: Int32 = 0
             view.mixedHeadAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-head-atlas.png"))
             view.mixedBodyAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-body-atlas.png"))
             view.faceAtlas = NSImage(contentsOf: directory.appendingPathComponent("facial-v3.png"))
-            view.clips.load(directory)
-            let poses = NSImage(contentsOf: directory.appendingPathComponent("poses.png"))
-            let transitions = NSImage(contentsOf: directory.appendingPathComponent("transitions.png"))
-            if poses?.size == NSSize(width: 1024, height: 1920), transitions?.size == NSSize(width: 1024, height: 1920) {
-                view.poseAtlas = poses; view.transitionAtlas = transitions
-            }
             if view.atlas == nil { emit(["type": "error", "code": "atlas", "message": "Не удалось открыть атлас персонажей; системный голос доступен."]) }
         }
         configureCallbacks(); configurePanel(); configureMenu()
@@ -102,8 +97,16 @@ var exitStatus: Int32 = 0
 
     func configureCallbacks() {
         view.onBubbleChange = { [weak self] in self?.resize() }
-        speech.onStarted = { [weak self] id, text in self?.view.speaker = id; self?.view.bubble = text }
-        speech.onReset = { [weak self] in self?.view.speaker = nil; self?.view.mouthUntil = 0; self?.view.mouthLevel = 0; self?.view.bubble = "" }
+        speech.onStarted = { [weak self] id, text in
+            guard let self else { return }
+            self.view.speaker = id
+            if !self.captions.contains(id) { self.captions.update(id, text: text) }
+            self.refreshCaption()
+        }
+        speech.onReset = { [weak self] in
+            self?.view.speaker = nil; self?.view.mouthUntil = 0; self?.view.mouthLevel = 0
+            self?.refreshCaption()
+        }
         speech.onLevel = { [weak self] level in self?.view.mouthLevel = level }
         speech.onAmplitude = { [weak self] open in
             self?.view.mouthUntil = open ? Date.timeIntervalSinceReferenceDate + 0.06 : 0
@@ -281,8 +284,12 @@ var exitStatus: Int32 = 0
                 view.remove(evicted.id, immediately: true)
             }
             view.update(character)
+            refreshCaption()
             resize()
             presentCharacters()
+        case "caption":
+            captions.update(id, text: value["text"] as? String ?? "")
+            refreshCaption()
         case "speak":
             if let text = value["text"] as? String {
                 speech.enqueue(characterId: id, text: text, role: value["role"] as? String ?? "coordinator",
@@ -295,12 +302,18 @@ var exitStatus: Int32 = 0
             }
         case "stop": speech.stop(characterId: id)
         case "remove":
-            if value["visualOnly"] as? Bool != true { speech.stop(characterId: id) }
+            if value["visualOnly"] as? Bool != true { speech.stop(characterId: id); captions.update(id, text: "") }
             realCharacters.removeAll { $0.id == id }
             view.remove(id, immediately: value["visualOnly"] as? Bool == true)
+            refreshCaption()
             resize(); presentCharacters()
         default: break
         }
+    }
+
+    func refreshCaption() {
+        let text = captions.text(visible: Set(view.characters.map { $0.id }), preferred: view.speaker)
+        if view.bubble != text { view.bubble = text }
     }
 
     func populatePreview() {
@@ -311,6 +324,7 @@ var exitStatus: Int32 = 0
             Character(id: "preview-\($0.offset)", column: $0.offset, label: $0.element, state: state)
         }
         view.replace(entries, animated: argument("--snapshot") == nil)
+        refreshCaption()
         resize(); presentCharacters()
     }
 
@@ -346,6 +360,7 @@ var exitStatus: Int32 = 0
     @objc func showCompanions() {
         windowState.setHidden(false)
         if demonstration { demonstration = false; view.replace(realCharacters) }
+        refreshCaption()
         view.tick(); resize(); presentCharacters()
         emitWindowStatus()
     }
@@ -376,7 +391,10 @@ var exitStatus: Int32 = 0
         speech.setMuted(muted); updateMenu()
     }
     @objc func toggleMute() { setMuted(!speech.muted) }
-    @objc func stopSpeech() { emit(["type": "speech-control", "action": "stop"]); speech.stop() }
+    @objc func stopSpeech() {
+        emit(["type": "speech-control", "action": "stop"]); speech.stop()
+        captions = CaptionState(); refreshCaption()
+    }
     func setDictationEnabled(_ enabled: Bool) {
         dictationEnabled = enabled
         UserDefaults.standard.set(enabled, forKey: "companions.dictationEnabled")

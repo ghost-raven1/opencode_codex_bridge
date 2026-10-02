@@ -43,6 +43,7 @@ export class SpeechRouter {
   private queue: Utterance[] = [];
   private active?: Utterance;
   private preparing?: Utterance;
+  private captions = new Set<string>();
   private muted = false;
   private suspended = false;
   private closed = false;
@@ -55,9 +56,16 @@ export class SpeechRouter {
 
   event(event: CompanionEvent): void {
     if (this.closed) return;
-    if (event.type === "stop" || (event.type === "remove" && !(event as CompanionEvent & { visualOnly?: boolean }).visualOnly)) this.cancel(event.characterId);
+    if (event.type === "stop" || (event.type === "remove" && !(event as CompanionEvent & { visualOnly?: boolean }).visualOnly)) {
+      this.clearCaptions(event.characterId); this.cancel(event.characterId);
+    }
+    if (this.closed) return;
     if (event.type !== "speak") { this.send(event); return; }
-    if (this.muted || this.suspended || !event.text) return;
+    if (!event.text) return;
+    // Public captions must not wait for a model, audio playback, or an enabled speaker.
+    this.captions.add(event.characterId);
+    this.send({ type: "caption", characterId: event.characterId, text: event.text });
+    if (this.closed || this.muted || this.suspended) return;
     const chunks = speechChunks(event.text);
     if (this.queue.length + chunks.length > 32) { this.log("Очередь озвучки заполнена; полный ответ остаётся в терминале."); return; }
     this.queue.push(...chunks.map(text => ({ id: randomUUID(), characterId: event.characterId,
@@ -73,6 +81,7 @@ export class SpeechRouter {
       if (event.action === "mute") this.muted = event.muted === true;
       if (event.action === "suspend") this.suspended = event.suspended === true;
       if (event.action === "stop" || this.muted || this.suspended) this.cancel();
+      if (event.action === "stop") this.clearCaptions();
       // The native Stop may cross an already generated play command in the two IPC directions.
       if (event.action === "stop" && characterId) this.send({ type: "stop", characterId });
     } else if (event.type === "audio-finished" && this.active?.id === event.id) {
@@ -161,8 +170,16 @@ export class SpeechRouter {
       ...(this.active ? [this.active.characterId] : [])]), this.active?.characterId);
   }
 
+  private clearCaptions(characterId?: string): void {
+    for (const id of [...this.captions]) {
+      if (characterId !== undefined && id !== characterId) continue;
+      this.captions.delete(id);
+      if (!this.closed) this.send({ type: "caption", characterId: id, text: "" });
+    }
+  }
+
   dispose(): void {
     if (this.closed) return;
-    this.closed = true; this.cancel(); this.generator.dispose();
+    this.closed = true; this.captions.clear(); this.cancel(); this.generator.dispose();
   }
 }

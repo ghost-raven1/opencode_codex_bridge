@@ -7,13 +7,47 @@ const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 function setup() {
   const pending: { resolve: (audio: { path: string; duration: number; sampleRate: number }) => void; reject: () => void }[] = [];
   const synthesize = vi.fn(() => new Promise<{ path: string; duration: number; sampleRate: number }>((resolve, reject) => pending.push({ resolve, reject })));
-  const send = vi.fn(), log = vi.fn(), remove = vi.fn(async (_path: string) => {}), dispose = vi.fn();
-  const router = new SpeechRouter(configSchema.parse({ tts: { engine: "local" } }), { synthesize, dispose }, send, log, remove);
-  return { router, synthesize, send, log, remove, dispose, pending,
+  const send = vi.fn(), captions = vi.fn(), log = vi.fn(), remove = vi.fn(async (_path: string) => {}), dispose = vi.fn();
+  const router = new SpeechRouter(configSchema.parse({ tts: { engine: "local" } }), { synthesize, dispose },
+    event => (event as { type: string }).type === "caption" ? captions(event) : send(event), log, remove);
+  return { router, synthesize, send, captions, log, remove, dispose, pending,
     finish: async (index = 0) => { pending[index]!.resolve({ path: `/audio/${index}.wav`, duration: 2, sampleRate: 24000 }); await tick(); } };
 }
 
 describe("local role voices", () => {
+  it("publishes the full public caption before synthesis and keeps it after speech ends", async () => {
+    const t = setup(), text = "Проверяю публичный ответ до готовности синтезатора. ".repeat(12).trim();
+    t.router.event({ type: "speak", characterId: "a", text });
+    expect(t.captions).toHaveBeenCalledWith({ type: "caption", characterId: "a", text });
+    expect(t.captions.mock.invocationCallOrder[0]).toBeLessThan(t.synthesize.mock.invocationCallOrder[0]!);
+    expect(t.send).not.toHaveBeenCalled();
+    await t.finish();
+    t.router.receive({ type: "audio-finished", id: t.send.mock.calls[0]![0].audioId, phase: "end" });
+    expect(t.captions).toHaveBeenCalledTimes(1);
+    t.router.dispose();
+  });
+  it.each(["mute", "suspend"])("publishes captions while native %s disables audio", action => {
+    const t = setup();
+    t.router.receive({ type: "speech-control", action, muted: true, suspended: true });
+    t.router.event({ type: "speak", characterId: "a", text: "Ответ остаётся доступным для чтения." });
+    expect(t.captions).toHaveBeenCalledOnce(); expect(t.synthesize).not.toHaveBeenCalled();
+    t.router.receive({ type: "speech-control", action: "stop" });
+    expect(t.captions).toHaveBeenLastCalledWith({ type: "caption", characterId: "a", text: "" });
+    t.router.dispose();
+  });
+  it("clears only the cancelled task caption, preserves visual eviction, and sends nothing on disposal", () => {
+    const t = setup();
+    t.router.receive({ type: "speech-control", action: "mute", muted: true });
+    for (const characterId of ["a", "b"]) t.router.event({ type: "speak", characterId, text: "Публичная реплика." });
+    const eviction = { type: "remove" as const, characterId: "b", visualOnly: true };
+    t.router.event(eviction);
+    expect(t.captions).toHaveBeenCalledTimes(2);
+    t.router.event({ type: "stop", characterId: "a" });
+    expect(t.captions).toHaveBeenLastCalledWith({ type: "caption", characterId: "a", text: "" });
+    t.router.event({ type: "remove", characterId: "b" });
+    expect(t.captions).toHaveBeenLastCalledWith({ type: "caption", characterId: "b", text: "" });
+    const count = t.captions.mock.calls.length; t.router.dispose(); expect(t.captions).toHaveBeenCalledTimes(count);
+  });
   it("changes role during playback without stopping speech; the next utterance uses the free preferred voice", async () => {
     const config = configSchema.parse({ tts: { engine: "local" } }), send = vi.fn();
     const synthesize = vi.fn(async () => ({ path: "/audio/test.wav", duration: 2, sampleRate: 24000 }));

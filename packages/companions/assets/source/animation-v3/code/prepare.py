@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT.parents[1]
+PREVIEWS = ROOT.parents[4] / '.local/artwork-previews/animation-v3'
 spec = importlib.util.spec_from_file_location('extract_v2', ROOT.parent/'animation-v2'/'prepare.py')
 helper = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(helper)
@@ -46,6 +47,7 @@ def source_cells(image, columns, rows):
 
 
 def register_body(role, kind):
+    (PREVIEWS/role).mkdir(parents=True, exist_ok=True)
     image = Image.open(ROOT/role/f'{kind}-raw.png')
     atlas = Image.new('RGBA', (1024, 1920))
     metrics = []
@@ -89,7 +91,7 @@ def register_body(role, kind):
     for theme, background in [('dark', '#17202f'), ('light', '#f2eee7')]:
         contact = Image.new('RGBA', atlas.size, background)
         contact.alpha_composite(atlas)
-        contact.convert('RGB').save(ROOT/role/f'{kind}-{theme}.png')
+        contact.convert('RGB').save(PREVIEWS/role/f'{kind}-{theme}.png')
     return metrics
 
 
@@ -131,6 +133,7 @@ def face_masks(role):
 
 
 def register_faces(role, base):
+    (PREVIEWS/role).mkdir(parents=True, exist_ok=True)
     image = Image.open(ROOT/role/'face-raw.png').convert('RGBA')
     crops = list(source_cells(image, 3, 6))
     reference_bounds = Image.fromarray((colored(crops[0][2])*255).astype('uint8')).getbbox()
@@ -180,7 +183,7 @@ def register_faces(role, base):
                         'sha256': hashlib.sha256(patch.tobytes()).hexdigest()})
     assert len({frame['sha256'] for frame in metrics}) == 18
     atlas.save(ROOT/role/'face-registered.png', optimize=True)
-    qa.convert('RGB').save(ROOT/role/'face-before-after.png')
+    qa.convert('RGB').save(PREVIEWS/role/'face-before-after.png')
     return {'sourceLandmarks': source, 'targetLandmarks': target, 'sourceFromTargetAffine': matrix.tolist(), 'frames': metrics}
 
 

@@ -8,6 +8,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'packages/companions/assets'
 SOURCE = ASSETS / 'source/animation-v3'
+ARCHIVE = ASSETS / 'source/full-body-clips'
+PREVIEWS = ROOT / '.local/artwork-previews/animation-v3'
 ROLES = ['lead', 'code', 'research', 'review']
 CELL = (256, 384)
 SPECS = [('working', 'activity', 0, 10, 4000), ('thinking', 'activity', 10, 10, 4500),
@@ -34,13 +36,15 @@ def validate(image, role, kind, index):
 
 
 def main():
+    ARCHIVE.mkdir(parents=True, exist_ok=True)
+    PREVIEWS.mkdir(parents=True, exist_ok=True)
     clips, records = {}, []
     counts = {role: {'body': 20, 'face': 0} for role in ROLES}
     unique = {role: set() for role in ROLES}
-    previous = json.loads((ASSETS / 'animation-v2.json').read_text())
+    previous = json.loads((ARCHIVE / 'animation-v2.json').read_text())
     # Validate the sixty actual RGBA cells, including the twenty existing drawings.
     for clip in previous['clips'].values():
-        image = Image.open(ASSETS / clip['atlas']).convert('RGBA')
+        image = Image.open(ARCHIVE / clip['atlas']).convert('RGBA')
         for col, role in enumerate(ROLES):
             for row in clip['frames']:
                 unique[role].add(digest(image.crop((col * 256, row * 384, col * 256 + 256, row * 384 + 384))))
@@ -65,17 +69,17 @@ def main():
                                 'bounds': bounds, 'sha256': sha, 'source': f'{role}/{source}-registered.png',
                                 'sourceIndex': start + row})
         filename = f'{name}-v3.png'
-        atlas.save(ASSETS / filename, optimize=True)
+        atlas.save(ARCHIVE / filename, optimize=True)
         clips[name] = {'atlas': filename, 'frames': list(range(count)), 'durationMs': duration}
         for background, color in [('dark', '#17202f'), ('light', '#ffffff')]:
             contact = Image.new('RGBA', atlas.size, color); contact.alpha_composite(atlas)
-            contact.convert('RGB').save(SOURCE / f'{name}-{background}.png')
+            contact.convert('RGB').save(PREVIEWS / f'{name}-{background}.png')
         frames = []
         for row in range(count):
             frame = Image.new('RGBA', (1024, 384), '#17202f')
             frame.alpha_composite(atlas.crop((0, row * 384, 1024, row * 384 + 384)))
             frames.append(frame.convert('RGB'))
-        frames[0].save(SOURCE / f'{name}-preview.gif', save_all=True, append_images=frames[1:],
+        frames[0].save(PREVIEWS / f'{name}-preview.gif', save_all=True, append_images=frames[1:],
                        duration=round(duration/count), loop=0, disposal=2)
     faces = Image.new('RGBA', (1024, 6912))
     for col, role in enumerate(ROLES):
@@ -101,7 +105,7 @@ def main():
             closeup = character.crop((60, 25, 195, 130)).resize((216, 168), Image.Resampling.NEAREST)
             strip.alpha_composite(closeup, (column * 216, 0))
         preview.append(strip.convert('RGB'))
-    preview[0].save(SOURCE / 'facial-preview.gif', save_all=True, append_images=preview[1:],
+    preview[0].save(PREVIEWS / 'facial-preview.gif', save_all=True, append_images=preview[1:],
                     duration=[180] * 8 + [80] * 6 + [350] * 4, loop=0, disposal=2)
     assert all(value == {'body': 60, 'face': 18} for value in counts.values()), counts
     manifest = {'version': 3, 'cell': {'width': 256, 'height': 384}, 'columns': ROLES,
@@ -109,7 +113,7 @@ def main():
                 'facial': {'atlas': 'facial-v3.png', 'mouth': list(range(8)), 'blink': list(range(8, 14)),
                            'emotion': list(range(14, 18)), 'registration': 'base idle inner-face patches'},
                 'counts': counts, 'frames': records}
-    (ASSETS / 'animation-v3.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    (ARCHIVE / 'animation-v3.json').write_text(json.dumps(manifest, indent=2) + '\n')
     print(json.dumps({'verifiedUniqueDrawings': counts, 'totalBody': 240, 'totalFacial': 72}))
 
 

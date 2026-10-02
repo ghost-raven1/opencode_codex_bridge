@@ -8,26 +8,24 @@ import AppKit
         precondition(panel.canBecomeKey && !panel.canBecomeMain, "Speech text cannot receive Cmd+C")
         let view = CharacterView(frame: panel.contentView!.bounds)
         panel.contentView = view
-        let base = NSImage(size: NSSize(width: 1024, height: 1536))
-        let thought = NSImage(size: NSSize(width: 1024, height: 3840))
-        view.clips.images["thinking.png"] = thought
-        view.clips.clips["thinking"] = AnimationClip(atlas: "thinking.png", frames: Array(0..<10), durationMs: 1600)
         let working = Character(id: "agent", column: 1, label: "CODE", state: "working")
         let thinking = Character(id: "agent", column: 1, label: "CODE", state: "thinking")
         view.snapshotTime = 1000; view.update(working)
         view.snapshotTime = 1003; view.remove(working.id)
         view.snapshotTime = 1003.1; view.update(thinking)
-        if !view.reduced {
-            let returned = view.animationFrame(thinking, time: 1004.4, speaking: false, blink: false,
-                motion: nil, progress: 1, base: base)
-            precondition(returned.0 === thought && returned.1 == 0, "Return during departure skipped the new state clip")
-        }
+        view.snapshotTime = 1005; view.tick()
+        precondition(view.characters.count == 1, "New work did not cancel departure")
         view.snapshotTime = 1010; view.replace([thinking], animated: false)
-        if !view.reduced {
-            let snapshot = view.animationFrame(thinking, time: 1010, speaking: false, blink: false,
-                motion: nil, progress: 1, base: base)
-            precondition(snapshot.0 === thought && snapshot.1 == 0, "Unanimated snapshot did not show the requested state")
+        let badge = view.subviews.compactMap { $0 as? CharacterBadgeView }.first!
+        for index in 0..<1000 {
+            view.snapshotTime = 1010 + Double(index) / 24
+            let character = Character(id: "agent", column: index % 4, label: "CODEX · REVIEW", state: ["working", "thinking", "success", "waiting", "error"][index % 5])
+            view.update(character); view.tick()
+            let badges = view.subviews.compactMap { $0 as? CharacterBadgeView }
+            precondition(badges.count == 1 && badges[0] === badge, "Badge controls are recreated on every frame")
         }
-        print("PASS key-capable companion panel, state clip after cancelled departure, immediate state snapshots")
+        view.remove("agent", immediately: true)
+        precondition(view.subviews.compactMap { $0 as? CharacterBadgeView }.isEmpty)
+        print("PASS key-capable panel, cancelled departure, stable badge controls across 1000 updates and cleanup")
     }
 }

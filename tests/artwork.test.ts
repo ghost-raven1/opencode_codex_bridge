@@ -5,16 +5,17 @@ import { describe, expect, it } from "vitest";
 import { cell, rgbaPng } from "./helpers/rgba-png.js";
 
 const directory = fileURLToPath(new URL("../packages/companions/assets/", import.meta.url));
+const archive = directory + "source/full-body-clips/";
 const hash = (pixels: Buffer) => createHash("sha256").update(pixels).digest("hex");
 const roles = ["lead", "code", "research", "review"];
-const manifests = [2, 3].map(version => JSON.parse(readFileSync(`${directory}animation-v${version}.json`, "utf8")));
+const manifests = [2, 3].map(version => JSON.parse(readFileSync(`${archive}animation-v${version}.json`, "utf8")));
 
 describe("reviewed companion artwork", () => {
-  it("ships sixty distinct drawn body frames per role with transparent borders and registered feet", () => {
+  it("preserves sixty distinct source poses per role with transparent borders and registered feet", () => {
     const hashes = roles.map(() => new Set<string>());
     for (const manifest of manifests) {
       for (const clip of Object.values(manifest.clips) as { atlas: string; frames: number[]; durationMs: number }[]) {
-        const image = rgbaPng(directory + clip.atlas);
+        const image = rgbaPng(archive + clip.atlas);
         expect(image.width).toBe(1024); expect(clip.durationMs).toBeGreaterThan(0);
         for (const row of clip.frames) {
           expect((row + 1) * 384).toBeLessThanOrEqual(image.height);

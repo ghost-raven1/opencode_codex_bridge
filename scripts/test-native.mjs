@@ -11,7 +11,8 @@ try {
   for (const [name, sources, test] of [
     ["bubble", ["SpeechBubbleView.swift"], "test-speech-bubble.swift"],
     ["animation", ["CharacterMotion.swift"], "test-animation.swift"],
-    ["character", ["CharacterView.swift", "CharacterMotion.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "WindowState.swift"], "test-character-view.swift"],
+    ["character", ["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "CharacterBadgeView.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "WindowState.swift"], "test-character-view.swift"],
+    ["layered", ["LayeredMotion.swift", "CaptionState.swift"], "test-layered.swift"],
   ]) {
     const binary = join(temporary, name);
     let result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),

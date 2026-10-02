@@ -9,7 +9,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 SOURCE = Path(__file__).resolve().parent
-ASSETS = SOURCE.parents[1]
+ASSETS = SOURCE.parent / 'full-body-clips'
+PREVIEWS = SOURCE.parents[4] / '.local/artwork-previews/animation-v2'
 ROLES = ['lead', 'code', 'research', 'review']
 CELL = (256, 384)
 CLIPS = {'ambient': (0, 8, 3200), 'entrance': (8, 6, 1200), 'transform': (14, 6, 1400)}
@@ -170,6 +171,8 @@ def register(crop, source_center, bounds):
 
 
 def main():
+    ASSETS.mkdir(parents=True, exist_ok=True)
+    PREVIEWS.mkdir(parents=True, exist_ok=True)
     frames = {role: [] for role in ROLES}
     metrics = []
     for role in ROLES:
@@ -203,11 +206,11 @@ def main():
         atlas.save(ASSETS/f'{name}-v2.png', optimize=True)
         contact = Image.new('RGBA', atlas.size, '#17202f')
         contact.alpha_composite(atlas)
-        contact.convert('RGB').save(SOURCE/f'{name}-contact.png')
+        contact.convert('RGB').save(PREVIEWS/f'{name}-contact.png')
         clips[name] = {'atlas': f'{name}-v2.png', 'frames': list(range(count)), 'durationMs': duration}
     palette = previews[0].quantize(colors=256)
     gif_frames = [frame.quantize(palette=palette, dither=Image.Dither.NONE) for frame in previews]
-    gif_frames[0].save(SOURCE/'animation-v2-preview.gif', save_all=True, append_images=gif_frames[1:], duration=durations, loop=0, disposal=2)
+    gif_frames[0].save(PREVIEWS/'animation-v2-preview.gif', save_all=True, append_images=gif_frames[1:], duration=durations, loop=0, disposal=2)
     manifest = {
         'version': 2, 'cell': {'width': 256, 'height': 384}, 'columns': ROLES,
         'coordinates': 'pixels, origin top-left', 'feetBaseline': 368,
