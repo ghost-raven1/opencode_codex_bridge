@@ -145,7 +145,7 @@ export class CompanionDirector {
     const session = this.sessions.get(id);
     if (!session) return;
     this.emit({ characterId: id, ...(session.taskId ? { taskId: session.taskId } : {}),
-      ...(event.type === "state" && session.invocationId ? { invocationId: session.invocationId } : {}),
+      ...((event.type === "state" || event.type === "speak") && session.invocationId ? { invocationId: session.invocationId } : {}),
       ...(session.runId ? { runId: session.runId } : {}), ...event });
   }
 

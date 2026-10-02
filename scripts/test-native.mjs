@@ -21,11 +21,13 @@ try {
     ["music-control", ["MusicRhythm.swift", "MusicControl.swift"], "test-music-control.swift"],
     ["voice-commands", ["VoiceCommands.swift"], "test-voice-commands.swift"],
     ["scale", ["ScaleControl.swift"], "test-scale.swift"],
-    ["speech", ["NativeSpeech.swift"], "test-native-speech.swift"],
+    ["speech", ["NativeSpeech.swift", "NativeAudioStream.swift", "NativeAudioEngine.swift"], "test-native-speech.swift"],
+    ["speech-stream", ["NativeSpeech.swift", "NativeAudioStream.swift", "NativeAudioEngine.swift"], "test-native-audio-stream.swift"],
     ["speech-status", ["NativeSpeechStatus.swift"], "test-native-speech-status.swift"],
   ]) {
     const binary = join(temporary, name);
     let result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),
+      "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
       "-framework", "AppKit", ...sources.map(source => join(root, "packages/companions/native", source)), join(root, "scripts", test), "-o", binary],
     { stdio: "inherit" });
     if (result.status !== 0) throw new Error(`${name} test build failed`);

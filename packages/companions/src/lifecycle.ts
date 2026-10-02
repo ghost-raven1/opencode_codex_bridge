@@ -55,7 +55,8 @@ export class CompanionLifecycle {
       clearTimeout(resident.timer); resident.timer = undefined;
       resident.recent = ++this.sequence;
       this.reconcile();
-      this.forward({ ...event, name: resident.event.name, voice: resident.voice });
+      this.forward({ ...event, invocationId: event.invocationId ?? resident.event.invocationId,
+        name: resident.event.name, voice: resident.voice });
       this.schedule(id, resident);
     } else if (event.type === "stop") this.forward(event);
   }

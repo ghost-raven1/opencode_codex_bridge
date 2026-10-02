@@ -34,16 +34,20 @@ describe("speech voice stability", () => {
     t.say("Теперь новое сообщение в новой роли.");
     expect(t.synthesize.mock.calls.at(-1)?.[0]).toMatchObject({ voice: "Sohee" });
   });
-  it("keeps the rest of a reply on macOS after a latency fallback, then retries Qwen for a new reply", async () => {
+  it("keeps the rest of a reply on macOS after a latency fallback, keeps later messages locked until a new invocation", async () => {
     const t = setup(); t.say(); await t.ready(0); t.finish();
-    await vi.advanceTimersByTimeAsync(4_000);
+    await vi.advanceTimersByTimeAsync(20_000);
     expect(t.speaks().at(-1)).toMatchObject({ type: "speak" });
     await t.ready(1);
     expect(t.synthesize).toHaveBeenCalledTimes(2);
     expect(t.remove).toHaveBeenCalledWith("/audio/1.wav");
     t.finish(); t.finish();
     expect(t.speaks().map(event => event.type)).toEqual(["play-audio", "speak", "speak"]);
-    t.say("Новая публичная реплика.");
+    t.say("Новая публичная реплика в той же задаче.");
+    expect(t.synthesize).toHaveBeenCalledTimes(2);
+    expect(t.speaks().at(-1).type).toBe("speak"); t.finish();
+    t.router.event({ type: "state", characterId: "a", invocationId: "new-task", state: "working" });
+    t.say("Теперь новая задача.");
     expect(t.synthesize).toHaveBeenCalledTimes(3);
     await t.ready(2);
     expect(t.speaks().at(-1)).toMatchObject({ type: "play-audio" });
@@ -56,7 +60,7 @@ describe("speech voice stability", () => {
     expect(t.speaks().map(event => event.type)).toEqual(["play-audio", "speak", "speak", "speak"]);
     expect(t.synthesize).toHaveBeenCalledTimes(2);
   });
-  it("does not switch a long fallback reply back to Qwen when the failure cooldown expires", async () => {
+  it("does not switch a long fallback reply back to Qwen after a long pause in the same invocation", async () => {
     const t = setup(); t.say(); t.pending[0]!.reject(new Error("generation failed"));
     await vi.advanceTimersByTimeAsync(0);
     t.router.receive({ type: "audio-started", id: t.speaks()[0].audioId });

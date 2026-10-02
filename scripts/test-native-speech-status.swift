@@ -8,13 +8,15 @@ import AppKit
         status.attach(to: menu) { requested += 1 }
         precondition(status.summary.title.contains("нет готовой реплики") && status.summary.title.contains("ожидает: 0"))
         precondition(!status.recovery.isEnabled)
-        for (phase, text) in [("synthesizing", "готовим"), ("queued", "ждём"), ("local", "локальный"), ("system", "резерв macOS")] {
+        for (phase, text) in [("synthesizing", "готовим"), ("queued", "ждём"), ("local", "локальный"), ("system", "резерв macOS"), ("buffering", "буферизация")] {
             status.receive(["phase": phase, "pending": 2, "reason": "SECRET RAW TEXT", "canRecover": true])
             precondition(status.summary.title.contains(text) && status.summary.title.contains("ожидает: 2"))
             precondition(!status.recovery.isEnabled && !status.detail.title.contains("SECRET"))
         }
         status.receive(["phase": "system", "pending": 0, "reason": "system-selected", "canRecover": false])
         precondition(status.summary.title.contains("говорит голос macOS"))
+        status.receive(["phase": "system", "pending": 1, "reason": "partial-stream-failure", "canRecover": false])
+        precondition(status.detail.title.contains("не повторяется") && status.detail.title.contains("следующие фрагменты"))
         status.receive(["phase": "error", "pending": 0, "reason": "system-unavailable", "canRecover": true])
         precondition(status.recovery.isEnabled && status.detail.title.contains("не ответил"))
         status.update(muted: false, suspended: false, playback: "local")

@@ -100,6 +100,7 @@ var exitStatus: Int32 = 0
     }
 
     func configureCallbacks() {
+        configureStreamCallbacks()
         view.onBubbleChange = { [weak self] in self?.resize() }
         speech.onStarted = { [weak self] id, text in
             guard let self else { return }
@@ -257,6 +258,7 @@ var exitStatus: Int32 = 0
     }
 
     func receive(_ value: [String: Any]) {
+        if receiveStream(value) { return }
         guard let type = value["type"] as? String else { return }
         switch type {
         case "drafts": draftMenu.update(value)

@@ -235,8 +235,10 @@ describe("local role voices", () => {
     t.router.receive({ type: "speech", characterId: "a", phase: "word" });
     expect(t.send).toHaveBeenCalledTimes(1);
     t.router.receive({ type: "audio-finished", id: t.send.mock.calls[0]![0].audioId, phase: "end" });
-    expect(t.send).toHaveBeenCalledTimes(2);
-    expect(t.synthesize).toHaveBeenCalledTimes(1);
+    expect(t.send).toHaveBeenCalledTimes(1);
+    expect(t.synthesize).toHaveBeenCalledTimes(2);
+    await t.finish(1);
+    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "b" }));
     t.router.dispose();
   });
   it("keeps current audio playing when prefetched synthesis fails, then falls back in order", async () => {
@@ -290,7 +292,8 @@ describe("local role voices", () => {
     t.router.receive({ type: "audio-finished", id: oldId, phase: "cancel" });
     expect(t.send).toHaveBeenCalledTimes(before);
     t.router.receive({ type: "audio-finished", id: t.send.mock.calls.at(-1)![0].audioId, phase: "end" });
-    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ characterId: "b", type: "speak" }));
+    await t.finish(1);
+    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ characterId: "b", type: "play-audio" }));
     t.router.dispose();
   });
   it("cleans up completed synthesis after disposal without playing it", async () => {

@@ -1,24 +1,28 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, rmSync } from "node:fs";
-import { realpath, rm, stat, unlink } from "node:fs/promises";
+import { rm, unlink } from "node:fs/promises";
 import { homedir } from "node:os";
-import { isAbsolute, join, relative, resolve, sep } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { speechBudget } from "./speech-budget.js";
 import type { DiagnosticSink } from "./diagnostic-log.js";
+import { discardLocalAudio, localAudio, localAudioPath } from "./local-tts-audio.js";
+import { speechStreamPolicy, type LocalSpeechAudio, type LocalSpeechRequest, type LocalSpeechStreamObserver } from "./speech-stream.js";
 
-export interface LocalSpeechRequest { id: string; text: string; voice: string; instructions?: string }
-export interface LocalSpeechAudio { path: string; duration: number; sampleRate: number }
+export type { LocalSpeechAudio, LocalSpeechRequest } from "./speech-stream.js";
 interface Options {
   python?: string; worker?: string; audioDirectory?: string; log?: (message: string) => void;
   startupTimeoutMs?: number; requestTimeoutMs?: number; diagnostic?: DiagnosticSink;
 }
-interface Pending {
-  resolve: (audio: LocalSpeechAudio) => void; reject: (error: Error) => void; timer: NodeJS.Timeout;
-  maxDuration: number;
-  receiving?: boolean;
+interface PendingBase { reject: (error: Error) => void; timer?: NodeJS.Timeout; maxDuration: number; directory: string }
+interface LegacyPending extends PendingBase { mode: "legacy"; resolve: (audio: LocalSpeechAudio) => void; receiving?: boolean }
+interface StreamPending extends PendingBase {
+  mode: "stream"; resolve: () => void; observer: LocalSpeechStreamObserver; started: boolean; ended: boolean;
+  index: number; duration: number; sampleRate?: number; validation: Promise<void>; unsubscribe: () => void;
 }
+type Pending = LegacyPending | StreamPending;
+interface IssuedChunk { duration: number; child: ChildProcessWithoutNullStreams; path: string }
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const frameLimit = 128 * 1024;
 
@@ -34,6 +38,8 @@ export class LocalTts {
   private rejectReady?: (error: Error) => void;
   private startupTimer?: NodeJS.Timeout;
   private readonly pending = new Map<string, Pending>();
+  private readonly issued = new Map<string, Map<number, IssuedChunk>>();
+  private readonly retired = new Map<string, string>();
   private buffer: Buffer = Buffer.alloc(0);
   private ready = false;
   private workerStartedAt = 0;
@@ -68,9 +74,71 @@ export class LocalTts {
     const child = this.child;
     return new Promise((resolveRequest, reject) => {
       const timer = setTimeout(() => this.fail("Local speech generation timed out", true, "request-timeout"), this.options.requestTimeoutMs ?? 120_000);
-      this.pending.set(request.id, { resolve: resolveRequest, reject, timer, maxDuration });
+      this.pending.set(request.id, { mode: "legacy", resolve: resolveRequest, reject, timer, maxDuration, directory: this.audioDirectory });
       child.stdin.write(encoded, error => { if (error && this.child === child) this.fail("Local speech input channel failed", true, "input-failed"); });
     });
+  }
+
+  /** Keep one text generation incremental; only playback completion releases its credits. */
+  async stream(request: LocalSpeechRequest, observer: LocalSpeechStreamObserver, signal?: AbortSignal): Promise<void> {
+    const encoded = JSON.stringify({ ...request, type: "synthesize", stream: true }) + "\n";
+    if (!request.id || request.id.length > 128 || Buffer.byteLength(encoded) > 64 * 1024) throw new Error("Invalid local speech request");
+    if (signal?.aborted) throw new Error("Local speech generation cancelled");
+    let unsubscribe = () => {};
+    try {
+      await Promise.race([this.start(), new Promise<never>((_resolve, reject) => {
+        const abort = () => reject(new Error("Local speech generation cancelled"));
+        signal?.addEventListener("abort", abort, { once: true });
+        unsubscribe = () => signal?.removeEventListener("abort", abort);
+      })]);
+    } finally { unsubscribe(); }
+    if (signal?.aborted) throw new Error("Local speech generation cancelled");
+    if (this.disposed) throw new Error("Local speech worker is closed");
+    if (!this.child || !this.ready) throw new Error("Local speech worker is unavailable");
+    if (this.pending.has(request.id) || this.issued.has(request.id) || this.retired.has(request.id)) throw new Error("Duplicate local speech request identifier");
+    if (this.pending.size >= 16) throw new Error("Local speech queue is full");
+    return new Promise<void>((resolveRequest, reject) => {
+      const abort = () => this.rejectStream(request.id, new Error("Local speech generation cancelled"));
+      const pending: StreamPending = { mode: "stream", resolve: resolveRequest, reject, directory: this.audioDirectory,
+        maxDuration: speechBudget(request.text).seconds, observer, started: false, ended: false,
+        index: 0, duration: 0, validation: Promise.resolve(), unsubscribe: () => signal?.removeEventListener("abort", abort) };
+      this.pending.set(request.id, pending);
+      signal?.addEventListener("abort", abort, { once: true });
+      this.write(encoded);
+    });
+  }
+
+  consumed(id: string, index: number): void {
+    const chunks = this.issued.get(id), issued = chunks?.get(index);
+    if (!issued) return;
+    chunks!.delete(index);
+    if (!chunks!.size) this.issued.delete(id);
+    if (issued.child === this.child) this.write(JSON.stringify({ type: "consume", id, index }) + "\n");
+  }
+
+  private write(encoded: string): void {
+    const child = this.child;
+    if (!child || !this.ready) return;
+    child.stdin.write(encoded, error => { if (error && this.child === child) this.fail("Local speech input channel failed", true, "input-failed"); });
+  }
+
+  private retire(id: string, directory: string): void {
+    this.retired.set(id, directory);
+    while (this.retired.size > 512) this.retired.delete(this.retired.keys().next().value!);
+  }
+
+  private rejectStream(id: string, error: Error): void {
+    const pending = this.pending.get(id);
+    if (!pending || pending.mode !== "stream") return;
+    clearTimeout(pending.timer); pending.unsubscribe(); this.pending.delete(id);
+    this.retire(id, pending.directory);
+    this.write(JSON.stringify({ type: "cancel", id }) + "\n");
+    pending.reject(error);
+  }
+
+  private streamTimer(pending: StreamPending, blocked = false): void {
+    clearTimeout(pending.timer); pending.timer = undefined;
+    if (!blocked) pending.timer = setTimeout(() => this.fail("Local speech generation timed out", true, "request-timeout"), this.options.requestTimeoutMs ?? 120_000);
   }
 
   private start(): Promise<void> {
@@ -131,8 +199,12 @@ export class LocalTts {
         this.ready = true; clearTimeout(this.startupTimer); this.resolveReady?.();
         this.options.diagnostic?.("worker-ready", { elapsedMs: Date.now() - this.workerStartedAt });
         this.resolveReady = undefined; this.rejectReady = undefined;
-      } else if (value.type === "audio" && typeof value.id === "string" && this.pending.has(value.id)) {
-        const pending = this.pending.get(value.id)!;
+      } else if (typeof value.id === "string" && this.pending.get(value.id)?.mode === "stream") {
+        this.receiveStream(value.id, value, this.pending.get(value.id) as StreamPending);
+      } else if (typeof value.id === "string" && this.retired.has(value.id)) {
+        if (value.type === "audio-chunk") void this.discardLate(value.id, value, this.retired.get(value.id)!);
+      } else if (value.type === "audio" && typeof value.id === "string" && this.pending.get(value.id)?.mode === "legacy") {
+        const pending = this.pending.get(value.id)! as LegacyPending;
         if (pending.receiving) { this.fail("Local speech worker returned a duplicate response", true, "duplicate-response"); return; }
         pending.receiving = true;
         void this.completeAudio(value.id, value);
@@ -148,22 +220,76 @@ export class LocalTts {
     if (this.buffer.length > frameLimit) this.fail("Local speech output exceeded its frame limit", true, "frame-limit");
   }
 
+  private receiveStream(id: string, value: Record<string, unknown>, pending: StreamPending): void {
+    if (value.type === "stream-start" && !pending.started) {
+      pending.started = true; this.streamTimer(pending);
+      try { pending.observer.start?.(); } catch { this.rejectStream(id, new Error("Local speech observer failed")); }
+    } else if (value.type === "stream-blocked" && pending.started && !pending.ended && typeof value.blocked === "boolean") {
+      this.streamTimer(pending, value.blocked);
+    } else if (value.type === "audio-chunk" && pending.started && !pending.ended && value.index === pending.index) {
+      pending.index += 1; this.streamTimer(pending);
+      pending.validation = pending.validation.then(() => this.completeChunk(id, value, pending));
+    } else if (value.type === "stream-end" && pending.started && !pending.ended && value.chunks === pending.index && pending.index > 0) {
+      pending.ended = true; clearTimeout(pending.timer);
+      pending.validation = pending.validation.then(() => {
+        if (this.pending.get(id) !== pending) return;
+        pending.unsubscribe(); this.pending.delete(id); this.retire(id, pending.directory); pending.resolve();
+      });
+    } else if (value.type === "error" || value.type === "stream-cancelled") {
+      this.options.diagnostic?.("worker-error", { audioId: id, reason: "synthesis-failed" });
+      this.rejectStream(id, new Error("Local speech generation failed"));
+    } else {
+      if (value.type === "audio-chunk" || value.type === "audio") void this.discardLate(id, value, pending.directory);
+      this.fail("Local speech worker returned an invalid stream sequence", true, "unexpected-response");
+    }
+  }
+
+  private async discardLate(id: string, value: Record<string, unknown>, directory: string): Promise<void> {
+    try {
+      const path = await localAudioPath(directory, value.path);
+      const issued = [...this.issued.values()].some(chunks => [...chunks.values()].some(chunk => chunk.path === path));
+      if (!issued) await unlink(path).catch(() => undefined);
+    } catch { /* Missing or outside this worker's cache. */ }
+    // Duplicate delivery must not release a buffer still owned by the native player.
+    if (!this.issued.get(id)?.has(value.index as number) && Number.isInteger(value.index) && (value.index as number) >= 0) {
+      this.write(JSON.stringify({ type: "consume", id, index: value.index }) + "\n");
+    }
+  }
+
+  private async completeChunk(id: string, value: Record<string, unknown>, pending: StreamPending): Promise<void> {
+    if (this.pending.get(id) !== pending) { await this.discardLate(id, value, pending.directory); return; }
+    let audio: LocalSpeechAudio;
+    try { audio = await localAudio(pending.directory, value); }
+    catch {
+      await this.discardLate(id, value, pending.directory);
+      if (this.pending.get(id) === pending) this.fail("Local speech worker returned an invalid audio file", true, "invalid-audio");
+      return;
+    }
+    if (this.pending.get(id) !== pending) { await this.discardLate(id, value, pending.directory); return; }
+    const buffered = [...this.issued.values()].flatMap(chunks => [...chunks.values()]).reduce((sum, chunk) => sum + chunk.duration, 0);
+    if (audio.duration > 2.08 + 1e-9 || pending.duration + audio.duration > pending.maxDuration + 1e-9 ||
+        buffered + audio.duration > speechStreamPolicy.maxBufferedSeconds + 1e-9 ||
+        (pending.sampleRate !== undefined && pending.sampleRate !== audio.sampleRate)) {
+      await discardLocalAudio(pending.directory, audio.path);
+      this.fail("Local speech stream exceeded its audio budget", true, "invalid-audio");
+      return;
+    }
+    pending.duration += audio.duration; pending.sampleRate = audio.sampleRate;
+    const chunks = this.issued.get(id) ?? new Map<number, IssuedChunk>(), index = value.index as number;
+    chunks.set(index, { ...audio, child: this.child! }); this.issued.set(id, chunks);
+    try { pending.observer.chunk({ ...audio, index }); }
+    catch {
+      this.consumed(id, index); await discardLocalAudio(pending.directory, audio.path);
+      this.rejectStream(id, new Error("Local speech observer failed"));
+    }
+  }
+
   private async completeAudio(id: string, value: Record<string, unknown>): Promise<void> {
     const pending = this.pending.get(id);
-    if (!pending) return;
+    if (!pending || pending.mode !== "legacy") return;
     let audio: LocalSpeechAudio;
     try {
-      if (typeof value.path !== "string" || !isAbsolute(value.path) || !value.path.endsWith(".wav") ||
-          typeof value.duration !== "number" || !Number.isFinite(value.duration) || value.duration <= 0 || value.duration > 180 ||
-          typeof value.sampleRate !== "number" || !Number.isInteger(value.sampleRate) || value.sampleRate < 8000 || value.sampleRate > 96000) {
-        throw new Error();
-      }
-      const [directory, path] = await Promise.all([realpath(this.audioDirectory), realpath(value.path)]);
-      const inside = relative(directory, path);
-      if (!inside || inside === ".." || inside.startsWith(`..${sep}`) || isAbsolute(inside)) throw new Error();
-      const file = await stat(path);
-      if (!file.isFile() || file.size <= 44 || file.size > 32 * 1024 * 1024) throw new Error();
-      audio = { path, duration: value.duration, sampleRate: value.sampleRate };
+      audio = await localAudio(pending.directory, value);
     } catch {
       if (this.pending.get(id) === pending) this.fail("Local speech worker returned an invalid audio file", true, "invalid-audio");
       return;
@@ -183,7 +309,11 @@ export class LocalTts {
     if (report) this.options.diagnostic?.("worker-error", { reason, pending: this.pending.size });
     const error = new Error(message);
     this.rejectReady?.(error); this.resolveReady = undefined; this.rejectReady = undefined;
-    for (const pending of this.pending.values()) { clearTimeout(pending.timer); pending.reject(error); }
+    for (const [id, pending] of this.pending) {
+      clearTimeout(pending.timer);
+      if (pending.mode === "stream") { pending.unsubscribe(); this.retire(id, pending.directory); }
+      pending.reject(error);
+    }
     this.pending.clear(); this.stop();
     if (report) {
       try { this.options.log?.(message); } catch { /* Diagnostics cannot disrupt the parent session. */ }

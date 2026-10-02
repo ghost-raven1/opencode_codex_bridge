@@ -12,10 +12,11 @@ import AppKit
     private var localVoice = true
     private let titles = ["idle": "нет готовой реплики", "synthesizing": "готовим голос", "queued": "ждём воспроизведения",
                           "local": "говорит локальный голос", "system": "говорит резерв macOS", "muted": "голос выключен",
-                          "dictating": "пауза на диктовку", "error": "голос недоступен", "recovering": "восстанавливаем голос"]
+                          "dictating": "пауза на диктовку", "buffering": "буферизация", "error": "голос недоступен", "recovering": "восстанавливаем голос"]
     private let explanations = ["local-unavailable": "Локальный голос не ответил; используем голос macOS.",
         "local-slow": "Подготовка заняла слишком долго; используем голос macOS.",
         "playback-failed": "Звук не воспроизвёлся; пробуем голос macOS.",
+        "partial-stream-failure": "Часть фразы уже прозвучала и не повторяется; следующие фрагменты озвучит macOS.",
         "system-unavailable": "Голос macOS не ответил. Текст доступен в терминале.",
         "system-selected": "Выбран системный голос macOS.", "restored": "Готово для следующих реплик; прежние не повторяются.",
         "recovery-failed": "Восстановление не завершилось. Можно попробовать ещё раз.",
@@ -59,7 +60,7 @@ import AppKit
         else if visible == "muted" { detail.title = reason == "disabled" ? explanations["disabled"]! : "Включи голос в меню, чтобы слышать новые реплики." }
         else if visible == "recovering" { detail.title = "Восстанавливаем для следующих реплик; прежние не повторяются." }
         else if let explanation = explanations[reason] { detail.title = explanation }
-        else { detail.title = ["synthesizing": "Звук ещё готовится.", "queued": "Готовые фрагменты ждут воспроизведения.",
+        else { detail.title = ["synthesizing": "Звук ещё готовится.", "buffering": "Ждём продолжение тем же голосом.", "queued": "Готовые фрагменты ждут воспроизведения.",
                                "local": "Воспроизведение началось.", "system": "Воспроизведение началось."][visible] ?? "Озвучим следующий готовый текст." }
         recovery.isEnabled = eligible && pending == 0 && playback == nil && !muted && !suspended && !requested && ["idle", "error"].contains(phase)
     }

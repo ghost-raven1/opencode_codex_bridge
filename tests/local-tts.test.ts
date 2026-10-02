@@ -97,7 +97,9 @@ describe("local speech worker channel", () => {
   });
   it.each(["ok", "limit"])("routes %s overrun rejection to full macOS speech without playing a truncated WAV", async voice => {
     const f = await fixture({ duration: 45 }), send = vi.fn();
-    const router = new SpeechRouter(configSchema.parse({ tts: { engine: "local" } }), f.tts, send, () => {});
+    const router = new SpeechRouter(configSchema.parse({ tts: { engine: "local" } }), {
+      synthesize: request => f.tts.synthesize(request), dispose: () => f.tts.dispose(),
+    }, send, () => {});
     const text = "Публичная короткая фраза".padEnd(32, ".");
     try {
       router.event({ type: "speak", characterId: "agent", voice, text });

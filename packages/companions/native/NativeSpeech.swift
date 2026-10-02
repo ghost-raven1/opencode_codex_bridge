@@ -38,6 +38,7 @@ enum SystemSpeechProfile {
         let text: String
         var path: String? = nil
         var audioId: String? = nil
+        var streaming = false
     }
     private(set) var synthesizer = AVSpeechSynthesizer()
     var voice: AVSpeechSynthesisVoice?
@@ -49,15 +50,26 @@ enum SystemSpeechProfile {
     var onLevel: ((Double) -> Void)?
     var onAudioFinished: ((String, String) -> Void)?
     var onAudioStarted: ((String) -> Void)?
+    var onChunkAccepted: ((String, Int) -> Void)?
+    var onChunkConsumed: ((String, Int) -> Void)?
+    var onBuffering: ((String, Bool, Double) -> Void)?
+    var makeStream: () -> NativeAudioStream = { NativeAudioStream() }
     private var active: AVSpeechUtterance?
     private var player: AVAudioPlayer?
+    private var stream: NativeAudioStream?
+    private var knownStreams = Set<String>()
     private var meter: Timer?
     private var current: Entry?
     private var started = false
     private var queue: [Entry] = []
     private(set) var muted = false
-    var suspended = false
-    var playbackPhase: String? { current.map { started ? ($0.path == nil ? "system" : "local") : "queued" } }
+    var suspended = false { didSet { if suspended { stop() } } }
+    var playbackPhase: String? {
+        current.map { entry in
+            if stream?.buffering == true { return "buffering" }
+            return started ? (entry.path == nil && !entry.streaming ? "system" : "local") : "queued"
+        }
+    }
 
     override init() { super.init(); synthesizer.delegate = self }
 
@@ -89,17 +101,63 @@ enum SystemSpeechProfile {
         queue.append(Entry(characterId: characterId, text: text, path: path, audioId: audioId)); speakNext()
     }
 
+    /// Only the router's active stream is admitted; future streams remain in the TypeScript queue.
+    func startStream(characterId: String, text: String, audioId: String) {
+        guard knownStreams.insert(audioId).inserted else { return }
+        guard !muted, !suspended, current == nil, queue.isEmpty else { onAudioFinished?(audioId, "cancel"); return }
+        let output = makeStream()
+        current = Entry(characterId: characterId, text: String(text.prefix(8000)), audioId: audioId, streaming: true)
+        stream = output; started = false
+        output.onAccepted = { [weak self, weak output] index in
+            guard let self, self.stream === output else { return }; self.onChunkAccepted?(audioId, index)
+        }
+        output.onConsumed = { [weak self, weak output] index in
+            guard let self, self.stream === output else { return }; self.onChunkConsumed?(audioId, index)
+        }
+        output.onStarted = { [weak self, weak output] in
+            guard let self, self.stream === output else { return }
+            self.started = true; self.onAudioStarted?(audioId)
+            guard self.stream === output else { return }
+            self.onEvent?("start", characterId, nil)
+            if self.stream === output { self.onStarted?(characterId, text) }
+        }
+        output.onLevel = { [weak self, weak output] level in
+            guard let self, self.stream === output else { return }
+            self.onLevel?(level); self.onAmplitude?(level > 0.2)
+        }
+        output.onBuffering = { [weak self, weak output] buffering, seconds in
+            guard let self, self.stream === output else { return }; self.onBuffering?(audioId, buffering, seconds)
+        }
+        output.onFinished = { [weak self, weak output] phase in
+            guard let self, self.stream === output else { return }; self.complete(phase: phase)
+        }
+    }
+
+    func appendStream(audioId: String, index: Int, path: String, duration: Double, sampleRate: Double) {
+        guard current?.audioId == audioId else { return }
+        stream?.append(index: index, path: path, duration: duration, sampleRate: sampleRate)
+    }
+
+    func endStream(audioId: String, chunks: Int) { if current?.audioId == audioId { stream?.end(chunks: chunks) } }
+    func playStream(audioId: String) { if current?.audioId == audioId { stream?.forcePlay() } }
+
     func stop(characterId id: String? = nil) {
         let removed = queue.filter { id == nil || $0.characterId == id }
         queue.removeAll { id == nil || $0.characterId == id }
-        for entry in removed { if let audioId = entry.audioId { onAudioFinished?(audioId, "cancel") } }
+        var cancelled: Entry?
         if let entry = current, id == nil || entry.characterId == id {
+            let cancelledStream = stream; stream = nil
             active = nil; current = nil; started = false
+            cancelledStream?.cancel()
             synthesizer.stopSpeaking(at: .immediate)
             player?.stop(); player = nil; meter?.invalidate(); meter = nil
-            onEvent?("cancel", entry.characterId, nil); onReset?()
+            cancelled = entry
+        }
+        if let entry = cancelled {
+            onReset?(); onEvent?("cancel", entry.characterId, nil)
             if let audioId = entry.audioId { onAudioFinished?(audioId, "cancel") }
         }
+        for entry in removed { if let audioId = entry.audioId { onAudioFinished?(audioId, "cancel") } }
         speakNext()
     }
 
@@ -157,9 +215,9 @@ enum SystemSpeechProfile {
     }
     private func complete(phase: String) {
         guard let entry = current else { return }
-        active = nil; current = nil; started = false; player = nil; meter?.invalidate(); meter = nil
-        onEvent?(phase, entry.characterId, nil); onReset?()
+        stream = nil; active = nil; current = nil; started = false; player = nil; meter?.invalidate(); meter = nil
+        onReset?(); onEvent?(phase, entry.characterId, nil)
         if let audioId = entry.audioId { onAudioFinished?(audioId, phase) }
-        if queue.isEmpty { onDrained?() } else { speakNext() }
+        if current == nil, queue.isEmpty { onDrained?() } else { speakNext() }
     }
 }

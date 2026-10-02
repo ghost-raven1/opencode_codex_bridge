@@ -34,12 +34,24 @@ describe("private companion diagnostics", () => {
     expect(entries[1]).toMatchObject({ event: "speech-start", engine: "local", voice: "Vivian", elapsedMs: 12.346 });
     expect(entries[1].characterId).toMatch(/^[a-f0-9]{24}$/);
     expect(entries[1].characterId).toBe(entries[2].characterId);
-    expect(entries[1]).not.toHaveProperty("name"); expect(entries[1]).not.toHaveProperty("invocationId");
+    expect(entries[1]).not.toHaveProperty("name"); expect(entries[1].invocationId).toMatch(/^[a-f0-9]{24}$/);
     expect((await stat(t.log.path)).mode & 0o777).toBe(0o600);
     expect((await stat(dirname(t.log.path))).mode & 0o777).toBe(0o700);
     await chmod(t.log.path, 0o644);
     const again = await DiagnosticLog.open(t.project, { dataRoot: t.dataRoot }); await again.flush();
     expect((await stat(t.log.path)).mode & 0o777).toBe(0o600);
+  });
+  it("stores streaming timing and credits without spoken text, file paths or PCM", async () => {
+    const t = await setup();
+    t.log.record("stream-chunk", { audioId: "private-stream", invocationId: "private-invocation", index: 2,
+      bufferedSeconds: 5.12849, chunks: 3, buffering: true, text: "private words", pcm: "private bytes", path: "/tmp/private.wav" });
+    t.log.record("speech-fallback", { reason: "partial-stream-failure" });
+    await t.log.flush();
+    const raw = await contents(t.log.path), events = raw.trim().split("\n").map(line => JSON.parse(line));
+    expect(raw).not.toContain("private");
+    expect(events[1]).toMatchObject({ event: "stream-chunk", index: 2, bufferedSeconds: 5.128, chunks: 3, buffering: true });
+    expect(events[1].invocationId).toMatch(/^[a-f0-9]{24}$/);
+    expect(events[2].reason).toBe("partial-stream-failure");
   });
   it("retains at most three bounded files and serializes independent writers for the same project", async () => {
     const t = await setup(1024), second = await DiagnosticLog.open(t.project, { dataRoot: t.dataRoot, maxBytes: 1024 });

@@ -10,11 +10,14 @@ const [{ default: Companions }, { SpeechRouter }, { LocalTts }] = await Promise.
   moduleAt("plugin.js"), moduleAt("speech-router.js"), moduleAt("local-tts.js"),
 ]);
 const record = (channel, event) => {
-  const { type, id, audioId, characterId, phase, state, voice, code, pending, reason, canRecover } = event;
+  const { type, id, audioId, characterId, phase, state, voice, code, pending, reason, canRecover,
+    index, buffering, bufferedSeconds, chunks, invocationId } = event;
   appendFileSync(trace, JSON.stringify({ at: Date.now(), channel, type, id, audioId, characterId,
-    phase, state, voice, code, pending, reason, canRecover, characters: event.text?.length, ...event.metrics }) + "\n");
+    phase, state, voice, code, pending, reason, canRecover, index, buffering, bufferedSeconds, chunks, invocationId,
+    characters: event.text?.length, ...event.metrics }) + "\n");
 };
-let currentRouter, recovered = false;
+let currentRouter, recovered = false, partialInjected = false;
+const audible = new Set();
 const publishStatus = SpeechRouter.prototype.publishStatus;
 SpeechRouter.prototype.publishStatus = function () {
   currentRouter = this;
@@ -36,6 +39,8 @@ if (process.env.CODEXBRIDGE_QA_RECOVER === "1") {
 for (const method of ["event", "receive"]) {
   const original = SpeechRouter.prototype[method];
   SpeechRouter.prototype[method] = function (event) {
+    if (method === "receive" && event.type === "audio-started") audible.add(event.id);
+    if (method === "receive" && event.type === "audio-finished") audible.delete(event.id);
     if (!this.observed) {
       this.observed = true;
       const send = this.send;
@@ -48,7 +53,7 @@ for (const method of ["event", "receive"]) {
     }
     record(method === "event" ? "director" : "native-receive", { ...event,
       ...(event.type === "audio-finished" ? { metrics: { queued: this.queue.length,
-        nextReady: Boolean(this.queue[0]?.audio) } } : {}) });
+        nextReady: Boolean(this.queue[0]?.audio || this.queue[0]?.stream?.count) } } : {}) });
     return original.call(this, event);
   };
 }
@@ -59,12 +64,44 @@ SpeechRouter.prototype.notify = function () {
 };
 const synthesize = LocalTts.prototype.synthesize;
 let requests = 0;
+function failRequest() {
+  const requestNumber = ++requests, failureAt = Number(process.env.CODEXBRIDGE_QA_FAIL_REQUEST ?? 0);
+  return failureAt > 0 && (requestNumber === failureAt ||
+    (process.env.CODEXBRIDGE_QA_RECOVER === "1" && requestNumber >= failureAt && !recovered));
+}
+const stream = LocalTts.prototype.stream;
+LocalTts.prototype.stream = async function (request, observer, signal) {
+  const started = Date.now();
+  record("tts", { type: "start", ...request });
+  try {
+    if (failRequest()) {
+      record("tts", { type: "injected-failure", id: request.id });
+      throw new Error("QA injected generation failure");
+    }
+    await stream.call(this, request, {
+      start: () => observer.start?.(),
+      chunk: audio => {
+        if (process.env.CODEXBRIDGE_QA_FAIL_AFTER_AUDIO === "1" && !partialInjected && audible.has(request.id)) {
+          partialInjected = true;
+          record("tts", { type: "injected-partial-failure", id: request.id, index: audio.index });
+          throw new Error("QA injected failure after audible PCM");
+        }
+        record("tts", { type: "chunk", id: request.id, voice: request.voice, index: audio.index,
+          metrics: { generationMs: Date.now() - started, seconds: audio.duration, workerPID: this.child?.pid } });
+        observer.chunk(audio);
+      },
+    }, signal);
+    record("tts", { type: "stream-end", id: request.id, metrics: { generationMs: Date.now() - started } });
+  } catch (error) {
+    record("tts", { type: "error", id: request.id, metrics: { message: error.message, generationMs: Date.now() - started } });
+    throw error;
+  }
+};
 LocalTts.prototype.synthesize = async function (request) {
   const started = Date.now();
   record("tts", { type: "start", ...request });
   try {
-    const requestNumber = ++requests, failureAt = Number(process.env.CODEXBRIDGE_QA_FAIL_REQUEST ?? 0);
-    if (requestNumber === failureAt || (process.env.CODEXBRIDGE_QA_RECOVER === "1" && requestNumber >= failureAt && !recovered)) {
+    if (failRequest()) {
       record("tts", { type: "injected-failure", id: request.id });
       throw new Error("QA injected generation failure");
     }

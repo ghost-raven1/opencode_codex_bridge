@@ -7,6 +7,7 @@ import { withDraftLock } from "./draft-lock.js";
 const events = ["diagnostic-start", "log-overflow", "lifecycle-state", "lifecycle-visible", "lifecycle-remove",
   "speech-queue", "synthesis-start", "synthesis-end", "synthesis-discard", "synthesis-wait", "speech-start", "speech-end",
   "speech-fallback", "speech-cancel", "worker-start", "worker-ready", "worker-exit", "worker-error",
+  "stream-chunk", "stream-buffering", "stream-ended", "stream-accepted", "stream-consumed",
   "native-connect", "native-close", "native-error", "renderer-state", "music-state"] as const;
 export type DiagnosticEvent = typeof events[number];
 export type DiagnosticSink = (event: DiagnosticEvent, fields?: Readonly<Record<string, unknown>>) => void;
@@ -19,11 +20,13 @@ const strings: Record<string, readonly string[]> = {
     "system-timeout", "system-retry-exhausted", "muted", "suspended", "stopped", "disposed", "replaced", "retired",
     "visual-eviction", "stale-audio", "queue-full", "startup-timeout", "request-timeout", "spawn-failed", "input-failed",
     "exited", "frame-limit", "invalid-output", "duplicate-response", "unexpected-response", "invalid-audio", "over-duration",
-    "connected", "closed", "native-failed", "hidden", "empty", "active", "permission-denied", "capture-failed", "disabled"],
+    "connected", "closed", "native-failed", "hidden", "empty", "active", "permission-denied", "capture-failed", "disabled",
+    "partial-stream-failure", "stream-stall", "empty-stream", "invalid-chunk", "invocation-locked",
+    "local-unavailable", "local-slow", "playback-failed", "system-unavailable", "system-selected"],
 };
-const numbers = new Set(["pending", "count", "visible", "waitMs", "elapsedMs", "durationMs", "confidence", "tempo", "pid", "code", "chunkCount", "dropped"]);
-const booleans = new Set(["running", "muted", "suspended", "preparing", "hidden"]);
-const identifiers = new Set(["sessionId", "taskId", "characterId", "audioId"]);
+const numbers = new Set(["pending", "count", "visible", "waitMs", "elapsedMs", "durationMs", "confidence", "tempo", "pid", "code", "chunkCount", "dropped", "index", "bufferedSeconds", "chunks"]);
+const booleans = new Set(["running", "muted", "suspended", "preparing", "hidden", "buffering"]);
+const identifiers = new Set(["sessionId", "taskId", "characterId", "audioId", "invocationId"]);
 const hash = (value: string): string => createHash("sha256").update(value).digest("hex").slice(0, 24);
 
 /** Only fixed labels, bounded numeric measurements and pseudonymous identifiers can reach disk. */

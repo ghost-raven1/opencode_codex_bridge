@@ -39,14 +39,14 @@ describe("local speech latency", () => {
     await vi.advanceTimersByTimeAsync(6_000);
     expect(t.speaks()).toHaveLength(1);
     expect(t.send.mock.calls.some(([event]) => event.type === "stop")).toBe(false);
-    t.finish(); await vi.advanceTimersByTimeAsync(3_000); t.say("c");
+    t.finish(); await vi.advanceTimersByTimeAsync(19_000); t.say("c");
     await vi.advanceTimersByTimeAsync(1_000);
     expect(t.speaks().at(-1)).toMatchObject({ type: "speak", characterId: "b" });
     expect(t.changed).toHaveBeenLastCalledWith(new Set(["b", "c"]), "b");
   });
   it("discards a late WAV once, then still prefetches and plays the next local voice in order", async () => {
     const t = setup(); for (const id of ["a", "b", "c"]) t.say(id);
-    await t.ready(0); t.finish(); await vi.advanceTimersByTimeAsync(4_000);
+    await t.ready(0); t.finish(); await vi.advanceTimersByTimeAsync(20_000);
     const fallback = t.speaks().at(-1);
     expect(fallback).toMatchObject({ type: "speak", characterId: "b" });
     await t.ready(1);
@@ -61,13 +61,13 @@ describe("local speech latency", () => {
   });
   it("uses local audio when it becomes ready within the gap budget", async () => {
     const t = setup(); t.say("a"); t.say("b"); await t.ready(0); t.finish();
-    await vi.advanceTimersByTimeAsync(3_999); await t.ready(1);
+    await vi.advanceTimersByTimeAsync(19_999); await t.ready(1);
     await vi.advanceTimersByTimeAsync(5_000);
     expect(t.speaks().map(event => event.type)).toEqual(["play-audio", "play-audio"]);
   });
   it("does not let a late generation failure disable local prefetch after its phrase fell back", async () => {
     const t = setup(); for (const id of ["a", "b", "c"]) t.say(id);
-    await t.ready(0); t.finish(); await vi.advanceTimersByTimeAsync(4_000);
+    await t.ready(0); t.finish(); await vi.advanceTimersByTimeAsync(20_000);
     t.pending[1]!.reject(new Error("late model failure"));
     await vi.advanceTimersByTimeAsync(0);
     expect(t.synthesize).toHaveBeenCalledTimes(3);
@@ -75,10 +75,12 @@ describe("local speech latency", () => {
     expect(t.speaks().map(event => event.type)).toEqual(["play-audio", "speak", "play-audio"]);
     expect(t.log).toHaveBeenCalledTimes(1);
   });
-  it("keeps a short budget for a phrase arriving just after the queue drained", async () => {
+  it("grants a full 20-second budget even immediately after the queue drained", async () => {
     const t = setup(); t.say("a"); await t.ready(0); t.finish();
     await vi.advanceTimersByTimeAsync(500); t.say("b");
     await vi.advanceTimersByTimeAsync(4_000);
+    expect(t.speaks()).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(16_000);
     expect(t.speaks().at(-1)).toMatchObject({ type: "speak", characterId: "b" });
   });
   it("allows a fresh generation budget after a genuinely quiet interval", async () => {

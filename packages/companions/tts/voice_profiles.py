@@ -40,13 +40,19 @@ class VoiceModels:
             self.path = path
         return self.model, profile
 
-    def generate(self, voice, text, language, instructions, max_tokens):
+    def generate(self, voice, text, language, instructions, max_tokens, stream=False):
         model, profile = self.select(voice)
+        streaming = {"stream": True, "streaming_interval": 2.0} if stream else {}
         if profile:
             results = model.generate(text=text, ref_audio=str(self.references / profile["refAudio"]),
                 ref_text=profile["refText"], lang_code=language, temperature=0.6,
-                max_tokens=max_tokens, verbose=False)
+                max_tokens=max_tokens, verbose=False, **streaming)
         else:
             results = model.generate_custom_voice(text=text, speaker=voice, language=language,
-                instruct=instructions, temperature=0.7, max_tokens=max_tokens, verbose=False)
-        return list(results), model.sample_rate
+                instruct=instructions, temperature=0.7, max_tokens=max_tokens, verbose=False, **streaming)
+        return results if stream else list(results), model.sample_rate
+
+    def reset_stream(self):
+        """Generator.close does not execute cleanup after a yielded library chunk."""
+        if self.model is not None:
+            self.model.speech_tokenizer.decoder.reset_streaming_state()

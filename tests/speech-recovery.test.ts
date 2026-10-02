@@ -48,7 +48,7 @@ describe("speech recovery", () => {
     expect(t.speaks().map(event => event.type)).toEqual(["play-audio", "speak"]);
     expect(t.speaks()[1]).toMatchObject({ text: "Не терять эту реплику." });
   });
-  it("tries local synthesis again after a temporary failure instead of disabling it until restart", async () => {
+  it("retries local synthesis on a new invocation instead of waiting for a global cooldown", async () => {
     const t = setup("local"); t.synthesize.mockRejectedValueOnce(new Error("generation failed"));
     t.router.event({ type: "speak", characterId: "a", text: "Первая фраза." });
     await vi.advanceTimersByTimeAsync(0);
@@ -56,7 +56,7 @@ describe("speech recovery", () => {
     t.router.receive({ type: "audio-started", id: first.audioId });
     t.router.receive({ type: "audio-finished", id: first.audioId, phase: "end" });
     await vi.advanceTimersByTimeAsync(30_001);
-    t.router.event({ type: "speak", characterId: "a", text: "Новая фраза." });
+    t.router.event({ type: "speak", characterId: "a", invocationId: "new-invocation", text: "Новая фраза." });
     await vi.advanceTimersByTimeAsync(0);
     expect(t.synthesize).toHaveBeenCalledTimes(2);
     expect(t.speaks().at(-1)).toMatchObject({ type: "play-audio" });
