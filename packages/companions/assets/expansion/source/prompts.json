@@ -1,0 +1,47 @@
+{
+  "generator": "built-in image_gen",
+  "transparentBackgroundRequested": true,
+  "prompts": {
+    "designer-v2.png": {
+      "reference": "original designer concept; superseded and removed",
+      "prompt": "Preserve the adult face, pink eyes and coral hair colour. Redesign silhouette: high sculptural bun, long thick coral braid with teal ribbon, asymmetrical cream/coral artist apron, wide plum culottes and ankle boots. Separate raised stylus hand and colour-swatch fan hand, no tablet. One full-body base for an animation rig, true transparent background, no floor/shadows/text."
+    },
+    "devops-v2.png": {
+      "reference": "original devops concept; superseded and removed",
+      "prompt": "Preserve adult face, blue-grey eyes, navy/cyan hair. Distinct short asymmetrical undercut, industrial orange protective headphones, sturdy navy mechanic overalls, cyan piping and utility belt, chunky work boots. Compact athletic proportions. One hand on hip, other holds orange diagnostic meter with cable loops, no tablet. Transparent rig reference."
+    },
+    "designer-faces.png": {
+      "reference": "original designer concept; face preserved by redesign",
+      "prompt": "Exactly 18 heads, 3 columns × 6 rows. Fixed angle and facial geometry. Closed, slightly open, A, O, E, I, U, speaking smile; open eyes, quarter/half/three-quarter blink, closed, reopen; smile, concern, focus, surprise. Pink eyes and adult face unchanged. No body, labels, shadows; transparent background."
+    },
+    "devops-faces-v2.png": {
+      "reference": "devops-v2.png",
+      "prompt": "Exactly 18 heads, 3 columns × 6 rows, exact new undercut hairstyle. Mouth closed/slightly open/A/O/E/I/U/speaking smile; eyes open/quarter/half/three-quarter/closed/reopening; happy/worried/focused/surprised. No cyan strand across right cheek. Fixed face registration, no labels or shoulders, transparent background."
+    },
+    "tester-faces.png": {
+      "reference": "tester.png",
+      "prompt": "18 facial expression heads requested, 3 columns × 6 rows; orange short spiky hair, golden eyes, round glasses, same angle and scale. Eight mouths, six blink phases, four emotions, true transparent background. Output contained only 15 heads; supplemented by the two separate sheets below, not duplicated to fake missing drawings."
+    },
+    "tester-blink.png": {
+      "reference": "tester.png",
+      "prompt": "Exactly six heads, 2 columns × 3 rows. Both eyes fully open, quarter closed, half closed, three-quarter closed, fully closed, reopening. No wink; both eyelids close together. Mouth gently closed in all six, exact orange hair and glasses preserved, transparent background."
+    },
+    "tester-emotions.png": {
+      "reference": "tester.png",
+      "prompt": "Exactly four head portraits, 2 columns × 2 rows: happy closed-mouth smile/open eyes; concerned inner-raised eyebrows/pursed mouth/open eyes; focused lowered eyebrows/closed mouth; surprised raised brows/wide eyes/round open mouth. Same orange hair/glasses, no shoulders or labels, transparent background."
+    },
+    "body-underpaint.png": {
+      "reference": [
+        "designer-v2.png",
+        "devops-v2.png",
+        "tester.png"
+      ],
+      "prompt": "Three headless, armless body plates. Preserve each outfit, belt, legs, proportions and feet; remove heads/hair, forearms, hands and props. Draw complete torso clothing underneath previously occluding objects and braid. Rig underpainting only, no new poses or detached limbs, transparent background."
+    },
+    "core-underpaint.png": {
+      "reference": "core-working-reference.png",
+      "prompt": "Four headless body plates, same original LEAD/CODE/RESEARCH/REVIEW outfits and poses. Remove heads, hair, headphones, forearms, hands, tablets, laptop and book; retain upper sleeves, shoulders, torso, belts, lower garments and feet. Fill only occluded clothing, exact drawing style, genuine transparent alpha, no labels, detached limbs, scenery, glow or shadows."
+    }
+  },
+  "note": "Normalized production briefs; the retained PNGs are original ImageGen output. tester.png predates this run."
+}

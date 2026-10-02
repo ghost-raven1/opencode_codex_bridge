@@ -1,0 +1,32 @@
+[
+  {
+    "role": "designer",
+    "file": "designer-clone-preview.wav",
+    "durationSeconds": 5.52,
+    "generationSeconds": 8.344810917042196,
+    "peakMemoryBytes": 7298063725,
+    "description": "An adult female Russian voice with a light airy mezzo-soprano, warm intimate resonance and clear gentle consonants. Friendly and thoughtful, neutral steady conversational Russian with a narrow pitch range. Medium natural pace, no whisper, no theatrical or singing inflection, no imitation of a real person.",
+    "text": "Проверка завершена. Теперь можно спокойно продолжать работу.",
+    "tokens": 69
+  },
+  {
+    "role": "devops",
+    "file": "devops-clone-preview.wav",
+    "durationSeconds": 4.4,
+    "generationSeconds": 6.034631541930139,
+    "peakMemoryBytes": 6690078053,
+    "description": "An adult female Russian voice, low contralto, rich dark chest resonance with a very subtle husky texture. Calm, grounded and decisive, precise consonants, steady measured pace, dry confident delivery, no imitation of a real person.",
+    "text": "Проверка завершена. Теперь можно спокойно продолжать работу.",
+    "tokens": 55
+  },
+  {
+    "role": "tester",
+    "file": "tester-clone-preview.wav",
+    "durationSeconds": 3.92,
+    "generationSeconds": 11.565559665905312,
+    "peakMemoryBytes": 6568937589,
+    "description": "An adult female Russian voice, bright clear soprano with forward resonant placement and a slight nasal sparkle. Curious attentive delivery, neutral steady conversational Russian with a narrow pitch range and crisp articulation. No theatrical pitch jumps, no childish voice or imitation of a real person.",
+    "text": "Проверка завершена. Теперь можно спокойно продолжать работу.",
+    "tokens": 49
+  }
+]

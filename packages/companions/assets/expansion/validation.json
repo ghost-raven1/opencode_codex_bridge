@@ -1,0 +1,511 @@
+{
+  "designer": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          43,
+          113,
+          228,
+          369
+        ],
+        "sha256": "936151126bc938f682644512126cd71a1606d093e3ec803aa30411e96c036b79"
+      },
+      {
+        "id": "arm-left",
+        "bounds": [
+          59,
+          105,
+          98,
+          175
+        ],
+        "sha256": "9eb4b88162d81733e2120539d41b02cea62a48204e23273da0e238c1cd91a752"
+      },
+      {
+        "id": "arm-right",
+        "bounds": [
+          154,
+          120,
+          197,
+          177
+        ],
+        "sha256": "53fc90bc27ced772bcccb381ef240718d10979caa30116abcf6aa68a1292cbee"
+      },
+      {
+        "id": "braid",
+        "bounds": [
+          73,
+          112,
+          120,
+          218
+        ],
+        "sha256": "50982216da30a76ddfcdb5e479dbdb99870744aecdd46049fcab8d3443332684"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          78,
+          23,
+          158,
+          121
+        ],
+        "sha256": "90c52d0854ce1cf723ef9532c55444439dbe6dd8b5162e3b6ccd5891e60f630c"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "dabf7b64340e0141ba5f55dd201d9c223106d715ca9d9ec3401b703367e89c7e",
+      "2802ff8900c2aafb0e9589f3859ef335f84576991f13e1d2e29f443abe8ffb1c",
+      "05257ce2e426db14136468abde536bfcef658e27dac3c0a51f3f6edbca88b7df",
+      "c887fc7188fb37f4aedd34d020b594d4c868c945292172c32ae0d6e7c89df1c4",
+      "295c6c8e964330610708638798f2a14cbd2f9e99310166cc252fb0714601e373",
+      "dc0acb7fc5b469c6ac5e034b12798ed99fa5658c40617fca42311d5b8cb4660c",
+      "ab37a77123f601e24819e6147396d6e98d333c020f2d13ed5b6338bbbbb51b10",
+      "a3c5cbb4ffe62bab0e82e4881401e03d874ed050ac91e68f57f8377c29cf823b",
+      "1152fdf00ef952af422c2755f906f2dccc67f37150604574338379218535173f",
+      "ac0206d0ec1a7c2addf363d93abcb116ee8afbc1edccdea3c3ce773c0e5faac0",
+      "0ed9b843573beb9527e6a6094129bcc290ffe0b37379219df45c7f5b74d947c6",
+      "f61a816a315e4309cad3ec80daff99e1109466bd85449be07b67af6720722ecc",
+      "3011659ed45057bae2870960a2b7ee669edf46cf78da422b5acea66932fd2c43",
+      "825a9a353c479d199480cba564d9845951575da2fb1089ea1731a24a8af7b8b5",
+      "91bcd8fc682899782f0eefc0a45901264cc7cf0146e354f1ccf23b5217ad4db1",
+      "e5ac1dcf697efc2a74b9fab459b8c4e6482770d4a1c8c8f464b3d8e7881f581e",
+      "0ab26a3821df52291903e0750f42e8cde3ca5294dab25dbfcb1c6dd0cbc6815b",
+      "eba039dc89e5c7af1cc3ce0aae12dfbb706b47e78155be7f4acbdf8858555e5f"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  },
+  "devops": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          43,
+          94,
+          210,
+          369
+        ],
+        "sha256": "6e603a7d5f6fdcd388b357c4fcf6430cee28db2f2519342a5f7af25111f3d4cc"
+      },
+      {
+        "id": "hip-arm",
+        "bounds": [
+          46,
+          140,
+          121,
+          185
+        ],
+        "sha256": "5a7fc54ae0c046bf204c90ae6db877a6edfbc685bf4a40307c21926931cb4f7e"
+      },
+      {
+        "id": "tool-arm",
+        "bounds": [
+          163,
+          127,
+          232,
+          207
+        ],
+        "sha256": "99ccde0fec7df4594fbd7cdf4a3af6f4a30e7fc3b150cf65544011b2a6f1b66d"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          76,
+          23,
+          149,
+          102
+        ],
+        "sha256": "5ace1b157c162b2f806a5772262d6013022ba0c2403e649f5580549da04e1b44"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "c07fa2f9f7d80ea46a57249658151c7fed15d7ba444e93e2ebf93d4a66ff6437",
+      "a8693103a8b77743f6d3675ffdc9c83fd0e3de155ded40b62dbc7e7e7c023ed0",
+      "5198841f4968741ff31c2be0cb5055d77a6133e98f26d9fd76892dc5a12f5868",
+      "c6f19185e5b9c5f2326175492e89b5c041d013ec00342b818ba7c5c0cbd41011",
+      "7cf24dbb515af7f5e7cbfaebc60a9ed9d2923365b01f406d16325c5b837829d7",
+      "a0c60a6403e22bd8f8040944d50fe81d0994d102efac3cf5e346348f6f2b1014",
+      "92300fc315e3565a95a9e53a26a7abfaaa0262d121779e9e0bad2b173601d53d",
+      "b51f04cd44ac954a200b86fad808a86de4c677fbe3ef8a285329a487289f3d97",
+      "fdbaa15993d27eb49c639043d3ffbd95876799e8a07b43537efb2214db608a42",
+      "d505e2149a0bc197800f6d320ccac44732bedc24e29f7420b5ffa7521474e99d",
+      "51cbf631d8c155740ec017f8ecb4484e3b4b07b63bf8460100c26d11d482d854",
+      "7f5afb43b4b2842e5609c19352316f0a5d2eb97983418cb9018b55ad4e92e304",
+      "1ab940e78812a347f3350795e340acf6b63e607eb14f8d8bb82ff6b8bb5ab7d9",
+      "c9061aaebbff8c1849df80b3e64ba2ae4da978dc9ebaadec6563b10792e6b0c1",
+      "25cfac33a62e5d83d9f7198bb6d7c2dc4862bcc1c6b3ce744bbcf23ab9be0c51",
+      "1a8296d8050c35905ef900368a0cd03c854f3107638c4dbe076813fae1fc55c5",
+      "156cca5018c67e758e2b757d665c1d9828f6483bd4d1189ea011f5685a329ed6",
+      "15be852f6b8291c115dd4489105bc13058c88bd91672789ffde462f1c75d36f2"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  },
+  "tester": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          55,
+          106,
+          208,
+          368
+        ],
+        "sha256": "8467b7f7d5d6748a0633bfbeb71704ff6932810984bd8b17a1e77b745cd92172"
+      },
+      {
+        "id": "controller-arms",
+        "bounds": [
+          66,
+          161,
+          167,
+          180
+        ],
+        "sha256": "c10f4c8ca1fe2091e538b58e56e4e03e01081aac57980f9413367e8a270d3eec"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          73,
+          24,
+          164,
+          121
+        ],
+        "sha256": "b9ea5d58610e635313b8a3a1e513a1a91bc3cdaed0412578e96ed2517bc3b583"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "1502db727f8ce2f96853972ebaea6b3e860251abd66314df2b6621990e3e8e94",
+      "b3049997826a0f8dd504c88ea30b917aeec1d93898119fd885b2deabaac422fc",
+      "b95f83b8e6216505a6c5423b41758954bddc739ca7b4f4a08a373ff74984da61",
+      "418000fb73db7e59415ee0a495718431989ce7877ebd7093347623f2554c27bf",
+      "cc47195290780e179ed799db0efa4d8170f1044fe7c37108d554c10435b5d7d3",
+      "3c6941d304e87910ea6dd3a744bc480aaecfc4abff6805313531217278af8200",
+      "997abe60c693b50acdf26e850f32d84b13c63192fe3f839df33678e78b8c10c9",
+      "e413220db04be7d83b56578bc913624850f87f91e9dbd348da0fce094cb36de5",
+      "9ab95d813f2fe54469d708c10a30fe277d717d7bf33a8ac770219d52a554589a",
+      "90906d269bfcefddcb62a3b1a6d4ba5bd65fb7d54883b73785828ff71acf5ee6",
+      "6c104f9d10e74f87bf1b8b3c745f279be3e7770bc26f88a0e5fc6854bbb92c99",
+      "395baaee38004bd5d97ec9ef4d21021c6c81465bcf4c2c06a2a49274055abcdc",
+      "3326a1d668fe93d95852a26e456fda9434940c498022b750367f629788a5145b",
+      "5a2670d6da0e1dbc3d5b2f94f1f3fe51108f71503cd725a6f556e054901cc610",
+      "9fe3a99e55af72a5395ee7d8b5c3e995efc99d8833bcfd2c3a89f6496f9071b6",
+      "f7688508a3e686bf910759f9d74a74ee5b4a76c5c35e7021d0e34551022233fe",
+      "e21366eed2041be524f12c583561e13913c0f89e8e1dc2b9e080a5f53d926450",
+      "5c8a0643f68dda46ea72593bccb39d4ea51aa56a447a533bbdc2e0926085b307"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  },
+  "lead": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          63,
+          96,
+          205,
+          364
+        ],
+        "sha256": "ac98db89b5a126815835fa0cc09524e7203f5f185f14d550a4eda1aedac16120"
+      },
+      {
+        "id": "prop",
+        "bounds": [
+          87,
+          140,
+          140,
+          193
+        ],
+        "sha256": "1a637c601bad2ae7acd14bb88da70a73b2247e0fd6542c4c9f6feba788bd58cc"
+      },
+      {
+        "id": "arm-left",
+        "bounds": [
+          68,
+          114,
+          100,
+          180
+        ],
+        "sha256": "9250680569909925211c78eaf23c0668fbcae6b5b6d3f2981d05a530a6456fb5"
+      },
+      {
+        "id": "arm-right",
+        "bounds": [
+          121,
+          158,
+          170,
+          193
+        ],
+        "sha256": "59d198f186618a3ed99c2db089c475b3d70f31c57bbea3b61867027a8de4d0fd"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          58,
+          23,
+          183,
+          104
+        ],
+        "sha256": "0f1a4110326760a729a6173264568c260028de6ac27d2c03d7e414e490d6521c"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "eff35aa43bebc946698f47c2198cdc69785c1333ffd49d8201d7f6ed8953ba04",
+      "bdc354cb5a869441bfbd2b4dbb8b909746e5cba911a84ae1040805166540c9da",
+      "2da14cbe1db47320e7c975edcff8a9d4a254a54414d3245fed4fe2a29bed5837",
+      "f0059e7501151fecc30ed1a01ad37b70c55c5f03efb9f59e80e16b70ca10feca",
+      "d0f9a8ca1b048e4fc2fb8442a666f517980993cca85e36cbfd181edfd388d270",
+      "294bef75c6f75b11fae60dba610bca06af41c470065954ef26531c752c367f46",
+      "ec63aa4ee7af0c3d56051ff91d516dbb482ef468bdac573d1456aa646f122703",
+      "a5f0fdc721651aec3804f099513e3a0ff913ce3a8accb9700ebfc2e0f76d537b",
+      "69109fdc9c8b0da77a52a42fcc17f6d10851871adb402ae9ac4c858c96d2cf59",
+      "18c9811d5f81db3b06b93b4818dd977a1682c9d5b459a631ae1bc808026e4fe9",
+      "fd34767952af98c45092ac7278a3497efc9cbf40e035bcf62389a17de8d42e73",
+      "7b2e7393251f6c42800cfb45ac815385c6d3ae66f370a2a6a66f5fbd47210256",
+      "c6c77447a624d25e22d33b8044e4c8d78d589fafe2bca77ea863df626b775e64",
+      "257cf27f8ffc4b5edf1b2060400422c6e8ca546c80a5411a98e334e5dfc73866",
+      "e0ba36326071b67193e4897b54a45ccf60a3b32ae3be7a641839473bb4903a64",
+      "c5bc38ac5b481fe06d17fc215803f8f41da156f202f3efcbf5a3b6bd3355e51e",
+      "4182ab6b16b28a16629418342967d018fbf8b039ad1ef488e28d1ccc8bf9d83b",
+      "a6623292004b5b8dbbf3c96ef2f1da09d2594191e66fff1de5ff3644ca96f49b"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  },
+  "code": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          36,
+          95,
+          200,
+          366
+        ],
+        "sha256": "e6ee56cd192cc671bd75291ff12a174f9af738fb7871b57047d93c6b3cf80f0b"
+      },
+      {
+        "id": "prop",
+        "bounds": [
+          40,
+          111,
+          142,
+          175
+        ],
+        "sha256": "1569f0dddde0d38972fa1d318e89160aaedcbe7c1a7e182e8af97be853960c60"
+      },
+      {
+        "id": "arm-left",
+        "bounds": [
+          64,
+          166,
+          86,
+          184
+        ],
+        "sha256": "29ab45d1bafe7ee0ac500ecbdecbb8899cd1db5dd428c15a3b291c217c23c38a"
+      },
+      {
+        "id": "arm-right",
+        "bounds": [
+          107,
+          142,
+          146,
+          170
+        ],
+        "sha256": "cb594493ce90ae6169f8430a45f6af90ffd2441ad905bed7998ec38765313723"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          24,
+          22,
+          182,
+          186
+        ],
+        "sha256": "4721f7e3f9fff7ea90c61f0b1edf92f5a2f0fb3dfc59b1f391b7e797ab950480"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "232ed568eee079f8c25f8fef614c19d1f7ba83469ee31fb4cf51a78f56d1e4d5",
+      "f365b44a72ee6ec74b6ad899263ad67ced3f6a8dd741dd0b015236c6e07020cf",
+      "17184cb0e6cc2f4763d0f481ac19e28233f928a76cb85f7dda206848bd69ba13",
+      "18c7510e048316ba6e97151338c9b5774a7c33da248d27014d08bde42f7d37eb",
+      "f9649616577081ffc5770981beac2604ae07190c11b71dcd26a10e5390cceeeb",
+      "45b7448bbdc6f608f9ac30f9d61c9c59a4fa9eee3ab3b8d54b07b81908524a60",
+      "918b608ec58e157d825e1db3e8ebd497b780ee05c9593251eeaf48e29b7b1174",
+      "e6173c8f09ad5a8c59e45ac17da4fa1a9c641922d67f6a3ca09bb8f22c2543fc",
+      "a36fb369cf1e5dea34ad7fe2c75cc0ffd353d6dcb0afa8a61ed5537b95dbf957",
+      "6bf4b3a874bd41891dd6987175c2407d476c893f2c8413739cea956654055ce3",
+      "d3f59220ecfa3ac6240e7bbe386e52d1dcaeb9cda42cd9bc40f00da9b203e86a",
+      "55f51093856277aa3382952cf371352154bc56a175eb6117c0a5ab5ac7410faf",
+      "267589b3c05035a028b2a213d7ec1218fa72be504d72b0849a7872e293de8dcd",
+      "e531e28e091f9039dd700007a204af496a8a4774f7efb351ec9989d7f3b99753",
+      "f04c5fa44a90bd37f00c245632112ec93728b641ecec3267edcc5e47e5939834",
+      "92965b4b0e438b0049302bc14b355a272a9de64fcc9d62ee650f9755ea12b37b",
+      "fed5a0982430584c8d636f3da9335ba009fc59902aca9e283f1cc36c4c9546e0",
+      "5b3654256656c52ed378d660a6ef91433f6bd818cbc3dabd6a61d1d54325366e"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  },
+  "research": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          57,
+          96,
+          205,
+          369
+        ],
+        "sha256": "4d017c7f33f05f1664c380cb535d460cad5a2fff7248a68092fee8baedf4a829"
+      },
+      {
+        "id": "prop",
+        "bounds": [
+          113,
+          110,
+          204,
+          180
+        ],
+        "sha256": "7f14cf914a9fc1e1834eefae1e7a78c5be07ff11cd85587649bb5fcf608a8193"
+      },
+      {
+        "id": "arm-left",
+        "bounds": [
+          97,
+          139,
+          138,
+          182
+        ],
+        "sha256": "785487e08cb621d3e0b081cfb342e377737d8642d0ae36ab799a126b9de0dcfc"
+      },
+      {
+        "id": "arm-right",
+        "bounds": [
+          151,
+          139,
+          178,
+          185
+        ],
+        "sha256": "edfb0d462fdd366fb088d575e27b9287b1bc287b3725d8be56e6501555ba265c"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          64,
+          23,
+          180,
+          114
+        ],
+        "sha256": "cafd89d9090f8cc1e4ae67616ff641e2b87eae01a380cc9a980b78a68a40f32e"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "2e76a4135978f94f824d4913b21cc80cc5648427fa1e4a3ac9d33f9b39ce72c7",
+      "ba705034ca6a75ae6e080da250f3447ffa77eda71960491def3dbda23af58c43",
+      "4ed05e17918c946bcf63b3395f4047e858baa8c924425071fe81fe16c0957328",
+      "9515c2643fe51bd5ef9616edff6b6c0cc723b0a7f284e3cf18a375f38c3f2b3b",
+      "4696bd1e39f35932c1a8646ac1b91b9b1f2138a6194eff96bb50b4364aa8bf4f",
+      "8c845dc44f7fd7ad8fa699ca6d4cb9bb89cdeea02cad14df982bec4c03a8555a",
+      "c50be6660ea16473c39115feff889cf277e2f06d6a79d8e67c2d03aa12e4ca15",
+      "d76f5b35c1ce5e1a8b3665e052c3ed768d53ac67f106decd4d698188a15585dd",
+      "22876577f6304e1429c14c3e4ec4d8477113ae7a3781c43863e610b6dced712c",
+      "946a0b826749e72c4e21c1edf603509527998c62bf0df7f9bc45241139b3e447",
+      "27cd868ed6cedda16b8055bfecc67eb863594831c8edbe3bb50c5eb07ad16db9",
+      "eccdf9c0837c87fbb9f9da07a062d3901b0207fdc7af04ea0fce81063bc46a9c",
+      "304b0a4708c743529f2243079c1836a2a1d17cc0c9ee9bc7685ecd3acc353ede",
+      "cf57bff7f176e41ab6aa7e3d18576425788df422f056db35f31d381ea9e27f82",
+      "869c6c531602dfce0f6fdb1eca57e9e2895135cd10f20f1b89c3fc90c5855f6e",
+      "2656d29bf6cd1812e776fd2df4ed66786ab3d06aedb4d99798dbdff0cc253376",
+      "b12194eee0d79f0f1d6939fc820891265d76e32b38821936d64effc34cca2183",
+      "5ca7680fa7b9d794b80a8a22ffcd84ca25b8a78fbeec7ca59689fa62f7fb72fa"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  },
+  "review": {
+    "layers": [
+      {
+        "id": "body",
+        "bounds": [
+          51,
+          96,
+          196,
+          369
+        ],
+        "sha256": "a46beca02cb2eac2102cb23abc7d633e84c71734a757daa28d7e2eda0e7c05a7"
+      },
+      {
+        "id": "prop",
+        "bounds": [
+          53,
+          117,
+          119,
+          181
+        ],
+        "sha256": "f7eea79865f13990bef00f0dbd81e0f23838064eb2246e05aa455d32c4eb930e"
+      },
+      {
+        "id": "arm-left",
+        "bounds": [
+          65,
+          147,
+          91,
+          191
+        ],
+        "sha256": "14a92fd8df2169ab0d53b305358abbed2879287a6e1d93b71f05620d16d78f95"
+      },
+      {
+        "id": "arm-right",
+        "bounds": [
+          104,
+          135,
+          177,
+          192
+        ],
+        "sha256": "2436456426a2d62da38a6bd06203bdaab9bed2fd32bd17eb46ce16dc9297d8cc"
+      },
+      {
+        "id": "head",
+        "bounds": [
+          64,
+          23,
+          175,
+          117
+        ],
+        "sha256": "6c0a88cfdf5f65b2b5ee361cff0ff7462b97785eff1bdff2ae0630343e17b9d3"
+      }
+    ],
+    "facialDrawings": 18,
+    "facialHashes": [
+      "20fd9f1bd7ecf4d53bdb7a8c8106f6ae04693a5beafdf6696ead7bbf7f154bc3",
+      "f1fd3d68145fa327d0da85e379fd6ef533f89b26e6b624413d195c4ced72435a",
+      "9d21f3ad2bfd4355d2ee7fca128ab162119a0419ffb27bba254b94307a4898f5",
+      "e88ceb320163c073035767c78d6c41408a51f31cd348150583837d72dcf7f4c5",
+      "692d2c160c4ea53094716081d1aff99a41143e1552ac05ff061e2de90c378ef0",
+      "2441450c46cac94aece7a5af1f663dc845f6d23061f259def1cb93d3a3280d46",
+      "68ae47d6478bf70e3d71a29c45ff6ee1d4039b9cbae21886df72db07b27a8206",
+      "372bd2bcb84350bad190ba9ee80015051e55d0d9fd0de5330c114139c855927d",
+      "f03568cdf7a95767b0bb03f824647efdf8be8291ef005c4dadb13a0b2babbd5f",
+      "c07580ab3e8a58b4ca4e661c09e4364fa2a718f72a3f5e53426fea16c5813b39",
+      "d71b10d7451976b0b518284cd8040f4ffb8711c48a7977cfa3fd3baa15ccc6b2",
+      "6afae0d417101b5b57ab7228df0edae6e4b708526322323ac70a4b8ffd296e43",
+      "f576fe071d2b49d286e4a341235c3efed71eababde298a436c6a5df48256177d",
+      "c879563b354acd9c9fd9c864361f19b35bacab09323a8d4b322d2de1470c1849",
+      "5a4bea6d699e00e69b80b4dd162e13990873f06a0536608a24718131d1f3d80d",
+      "e375421d1674c1a35874432353ccc8a6875d0085de89064a4ad9d901621fc7cb",
+      "392f94953e222eebac77cb6bfd1de0a11179f2cbe3fb4ad7054d3e13b53a4da9",
+      "6fa24b55029ba9fa9a1fe460ca21ef7c746eee43f1f0710b9adaf4dec9f8107d"
+    ],
+    "basePoses": 1,
+    "motion": "continuous affine layers; no duplicated generated frames"
+  }
+}

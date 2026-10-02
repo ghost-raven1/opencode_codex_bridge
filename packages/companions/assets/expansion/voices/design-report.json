@@ -1,0 +1,32 @@
+[
+  {
+    "role": "designer",
+    "file": "designer-reference.wav",
+    "durationSeconds": 11.2,
+    "generationSeconds": 8.25637137517333,
+    "peakMemoryBytes": 6789794475,
+    "description": "An adult female Russian voice with a light airy mezzo-soprano, warm intimate resonance and clear gentle consonants. Friendly and thoughtful, neutral steady conversational Russian with a narrow pitch range. Medium natural pace, no whisper, no theatrical or singing inflection, no imitation of a real person.",
+    "text": "Привет, я рядом. Проверим задачу внимательно, найдём хорошее решение и доведём работу до конца.",
+    "tokens": 140
+  },
+  {
+    "role": "devops",
+    "file": "devops-reference.wav",
+    "durationSeconds": 10.24,
+    "generationSeconds": 9.476512332912534,
+    "peakMemoryBytes": 6321859467,
+    "description": "An adult female Russian voice, low contralto, rich dark chest resonance with a very subtle husky texture. Calm, grounded and decisive, precise consonants, steady measured pace, dry confident delivery, no imitation of a real person.",
+    "text": "Привет, я рядом. Проверим задачу внимательно, найдём хорошее решение и доведём работу до конца.",
+    "tokens": 128
+  },
+  {
+    "role": "tester",
+    "file": "tester-reference.wav",
+    "durationSeconds": 6.88,
+    "generationSeconds": 11.16309087513946,
+    "peakMemoryBytes": 6066960755,
+    "description": "An adult female Russian voice, bright clear soprano with forward resonant placement and a slight nasal sparkle. Curious attentive delivery, neutral steady conversational Russian with a narrow pitch range and crisp articulation. No theatrical pitch jumps, no childish voice or imitation of a real person.",
+    "text": "Привет, я рядом. Проверим задачу внимательно, найдём хорошее решение и доведём работу до конца.",
+    "tokens": 86
+  }
+]

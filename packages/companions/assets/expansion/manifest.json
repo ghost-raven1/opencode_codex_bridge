@@ -1,0 +1,674 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 256,
+    "height": 384
+  },
+  "coordinates": "top-left",
+  "neckAnchor": [
+    128,
+    120
+  ],
+  "feetBaseline": 368,
+  "characters": {
+    "designer": {
+      "name": "DESIGNER",
+      "roleHint": "lead",
+      "layers": [
+        {
+          "id": "body",
+          "file": "designer/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "designer/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            81.83,
+            160.922
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 3.0
+        },
+        {
+          "id": "arm-right",
+          "file": "designer/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            163.37,
+            165.035
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.6
+        },
+        {
+          "id": "braid",
+          "file": "designer/braid.png",
+          "parent": "head",
+          "pivot": [
+            114.23,
+            117.031
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 1.8
+        },
+        {
+          "id": "head",
+          "file": "designer/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.8,
+        "gestureSeconds": 3.6,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "devops": {
+      "name": "DEVOPS",
+      "roleHint": "code",
+      "layers": [
+        {
+          "id": "body",
+          "file": "devops/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "hip-arm",
+          "file": "devops/hip-arm.png",
+          "parent": "body",
+          "pivot": [
+            66.98,
+            145.92
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.5
+        },
+        {
+          "id": "tool-arm",
+          "file": "devops/tool-arm.png",
+          "parent": "body",
+          "pivot": [
+            173.63,
+            157.117
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.1
+        },
+        {
+          "id": "head",
+          "file": "devops/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "devops/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.4,
+        "gestureSeconds": 3.6,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "tester": {
+      "name": "TESTER",
+      "roleHint": "review",
+      "layers": [
+        {
+          "id": "body",
+          "file": "tester/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "controller-arms",
+          "file": "tester/controller-arms.png",
+          "parent": "body",
+          "pivot": [
+            125.52,
+            167.455
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.7
+        },
+        {
+          "id": "head",
+          "file": "tester/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "tester/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 3.8,
+        "gestureSeconds": 3.6,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "lead": {
+      "name": "LEAD",
+      "roleHint": "lead",
+      "layers": [
+        {
+          "id": "body",
+          "file": "lead/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "lead/prop.png",
+          "parent": "body",
+          "pivot": [
+            126,
+            177
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-left",
+          "file": "lead/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            81,
+            171
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "arm-right",
+          "file": "lead/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            163,
+            180
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "head",
+          "file": "lead/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "lead/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.6,
+        "gestureSeconds": 4.0,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "code": {
+      "name": "CODE",
+      "roleHint": "code",
+      "layers": [
+        {
+          "id": "body",
+          "file": "code/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "code/prop.png",
+          "parent": "body",
+          "pivot": [
+            100,
+            170
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-left",
+          "file": "code/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            74,
+            177
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "arm-right",
+          "file": "code/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            140,
+            162
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "head",
+          "file": "code/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "code/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.6,
+        "gestureSeconds": 4.0,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "research": {
+      "name": "RESEARCH",
+      "roleHint": "research",
+      "layers": [
+        {
+          "id": "body",
+          "file": "research/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "research/prop.png",
+          "parent": "body",
+          "pivot": [
+            151,
+            172
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-left",
+          "file": "research/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            101,
+            172
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "arm-right",
+          "file": "research/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            167,
+            176
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "head",
+          "file": "research/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.6,
+        "gestureSeconds": 4.0,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "review": {
+      "name": "REVIEW",
+      "roleHint": "review",
+      "layers": [
+        {
+          "id": "body",
+          "file": "review/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "review/prop.png",
+          "parent": "body",
+          "pivot": [
+            89,
+            173
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-left",
+          "file": "review/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            77,
+            183
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "arm-right",
+          "file": "review/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            164,
+            181
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.5
+        },
+        {
+          "id": "head",
+          "file": "review/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            120
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.5
+        }
+      ],
+      "face": {
+        "file": "review/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.6,
+        "gestureSeconds": 4.0,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    }
+  },
+  "runtimeFiles": [
+    "designer/body.png",
+    "designer/arm-left.png",
+    "designer/arm-right.png",
+    "designer/braid.png",
+    "designer/head.png",
+    "devops/body.png",
+    "devops/hip-arm.png",
+    "devops/tool-arm.png",
+    "devops/head.png",
+    "tester/body.png",
+    "tester/controller-arms.png",
+    "tester/head.png",
+    "lead/body.png",
+    "lead/prop.png",
+    "lead/arm-left.png",
+    "lead/arm-right.png",
+    "lead/head.png",
+    "code/body.png",
+    "code/prop.png",
+    "code/arm-left.png",
+    "code/arm-right.png",
+    "code/head.png",
+    "research/body.png",
+    "research/prop.png",
+    "research/arm-left.png",
+    "research/arm-right.png",
+    "research/head.png",
+    "review/body.png",
+    "review/prop.png",
+    "review/arm-left.png",
+    "review/arm-right.png",
+    "review/head.png",
+    "designer/facial.png",
+    "devops/facial.png",
+    "tester/facial.png",
+    "lead/facial.png",
+    "code/facial.png",
+    "research/facial.png",
+    "review/facial.png"
+  ]
+}
