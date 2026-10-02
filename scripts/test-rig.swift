@@ -16,12 +16,48 @@ import AppKit
          "pivot": pivot, "amplitudeDegrees": amplitude]
     }
     static func near(_ a: NSPoint, _ b: NSPoint) { precondition(hypot(a.x - b.x, a.y - b.y) < 0.0001, "Unexpected joint transform: \(a) vs \(b)") }
+    /// A transferred ponytail must remain behind the selected outfit at their overlap.
+    static func mixedHairOrder(_ directory: URL) throws {
+        func patch(_ file: String, _ rect: NSRect, _ color: NSColor) throws {
+            let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 256, pixelsHigh: 384,
+                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                bytesPerRow: 0, bitsPerPixel: 0)!
+            bitmap.bitmapData!.initialize(repeating: 0, count: bitmap.bytesPerRow * 384)
+            for y in Int(rect.minY)..<Int(rect.maxY) { for x in Int(rect.minX)..<Int(rect.maxX) { bitmap.setColor(color, atX: x, y: y) } }
+            try bitmap.representation(using: .png, properties: [:])!.write(to: directory.appendingPathComponent(file))
+        }
+        try patch("outfit.png", NSRect(x: 90, y: 170, width: 80, height: 44), NSColor(deviceRed: 0, green: 0, blue: 1, alpha: 1))
+        try patch("ponytail.png", NSRect(x: 100, y: 175, width: 60, height: 30), NSColor(deviceRed: 1, green: 0, blue: 0, alpha: 1))
+        try patch("portrait.png", NSRect(x: 180, y: 40, width: 20, height: 40), NSColor(deviceRed: 0, green: 1, blue: 0, alpha: 1))
+        func definition(hair: Bool) throws -> RigManifest.Character {
+            var body = layer("body", nil, "body", [128, 368], 0); body["file"] = "outfit.png"
+            var head = layer("head", "body", "head", [128, 120], 0); head["file"] = "portrait.png"
+            var tail = layer("hair-back", "head", "hair", [128, 120], 2); tail["file"] = "ponytail.png"
+            let value: [String: Any] = ["layers": (hair ? [tail] : []) + [body, head],
+                "face": ["file": "face.png", "frameHeight": 384, "frames": frames],
+                "motion": ["breathSeconds": 4.8, "gestureSeconds": 3.6, "gestureIntervalSeconds": [8, 15]]]
+            return try JSONDecoder().decode(RigManifest.Character.self, from: JSONSerialization.data(withJSONObject: value))
+        }
+        let outfit = LayeredRig(definition: try definition(hair: false), directory: directory)!
+        let portrait = LayeredRig(definition: try definition(hair: true), directory: directory)!
+        let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 256, pixelsHigh: 384,
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+            bytesPerRow: 0, bitsPerPixel: 0)!
+        NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
+        outfit.draw(in: NSRect(x: 0, y: 0, width: 256, height: 384), pose: LayerPose(), time: 0,
+            gestureElapsed: nil, reduced: true, opacity: 1, radius: 0, faceRows: [], sprites: SpriteCache(), headRig: portrait)
+        NSGraphicsContext.restoreGraphicsState()
+        let pixel = bitmap.colorAt(x: 128, y: 192)!.usingColorSpace(.deviceRGB)!
+        precondition(pixel.blueComponent > 0.95 && pixel.redComponent < 0.05, "Mixed back hair covered the outfit or prop: \(pixel)")
+    }
     static func main() throws {
+        _ = NSApplication.shared
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("codexbridge-rig-\(UUID())")
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
         try image(directory.appendingPathComponent("layer.png"))
         try image(directory.appendingPathComponent("face.png"), height: 384 * 18)
+        try mixedHairOrder(directory)
         let layers = [layer("body", nil, "body", [128, 368], 0), layer("arm", "body", "arm", [80, 160], 3),
                       layer("hair", "head", "hair", [105, 90], 2), layer("head", "body", "head", [128, 120], 1.5)]
         var character: [String: Any] = ["layers": layers,
@@ -40,6 +76,18 @@ import AppKit
         let definitions = rig.definition.layers
         let body = definitions.first(where: { $0.id == "body" })!, head = definitions.first(where: { $0.id == "head" })!
         let arm = definitions.first(where: { $0.id == "arm" })!, hair = definitions.first(where: { $0.id == "hair" })!
+        var movedHead = character
+        movedHead["layers"] = [layers[0], layer("head", "body", "head", [110, 83], 1.5)]
+        try write(movedHead)
+        let other = LayeredRig.load(directory: directory)["test"]!
+        for scale in [0.5, 1.0, 2.0] {
+            let box = NSRect(x: 10, y: 20, width: 256 * scale, height: 384 * scale)
+            let aligned = rig.alignedHeadTarget(from: other, target: box)
+            near(NSPoint(x: aligned.minX + 110 * scale, y: aligned.minY + (384 - 83) * scale),
+                 NSPoint(x: box.minX + 128 * scale, y: box.minY + (384 - 120) * scale))
+            precondition(aligned.size == box.size, "Mixing faces distorted the new head proportions")
+        }
+        try write(character)
         func transform(_ layer: RigManifest.Layer, _ time: Double = 0, _ reduced: Bool = false, _ pose: LayerPose = pose) -> NSAffineTransform {
             rig.transform(for: layer, target: target, pose: pose, time: time, gestureElapsed: nil, reduced: reduced)
         }

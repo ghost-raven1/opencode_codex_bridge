@@ -5,12 +5,14 @@ import AppKit
         for rig in ["lead", "code", "research", "review", "designer", "devops", "tester"] {
             var animation = WorkAnimation(seed: "agent-\(rig)")
             animation.update(active: true, at: 0)
-            var positions = Set<String>(), clips = Set<String>(), rests = 0
+            var positions = Set<String>(), clips = Set<String>()
             for frame in 0..<1800 {
                 let time = Double(frame) / 30
                 let pose = animation.pose(rig: rig, at: time, reduced: false)
                 clips.insert(pose.clip)
-                if pose.joints.isEmpty { rests += 1 }
+                if time >= 0.3 {
+                    precondition(!pose.joints.isEmpty, "Active \(rig) stood still at \(time)s between work gestures")
+                }
                 for (_, joint) in pose.joints {
                     precondition(joint.angle.isFinite && abs(joint.angle) <= 3)
                     precondition(joint.x.isFinite && abs(joint.x) <= 1.5)
@@ -18,8 +20,8 @@ import AppKit
                 }
                 positions.insert(pose.joints.sorted(by: { $0.key < $1.key }).map { "\($0.key):\($0.value.angle):\($0.value.x):\($0.value.y)" }.joined())
             }
-            precondition(positions.count > 60 && rests > 200, "Work motion must move independent joints and pause: \(rig)")
-            precondition(clips.count == 3, "Expected two distinct gestures and a rest: \(rig)")
+            precondition(positions.count > 1000, "Work motion must continue between gestures: \(rig)")
+            precondition(clips.count == 4, "Expected a continuous focus loop, two gestures and initial fade: \(rig)")
             precondition(animation.pose(rig: rig, at: 4, reduced: true).joints.isEmpty)
             let before = animation.pose(rig: rig, at: 20, reduced: false)
             animation.update(active: false, at: 20)
@@ -33,6 +35,6 @@ import AppKit
             first.pose(rig: "code", at: Double(frame) / 30, reduced: false).headY != second.pose(rig: "code", at: Double(frame) / 30, reduced: false).headY
         }
         precondition(different, "Different characters must not gesture in unison")
-        print("PASS seven work styles, fourteen clips, independent joint motion, pauses, soft stop and reduced motion")
+        print("PASS seven continuous work styles, fourteen accent gestures, independent joint motion, soft stop and reduced motion")
     }
 }

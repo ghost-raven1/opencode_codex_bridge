@@ -21,10 +21,12 @@ final class CharacterView: NSView {
     var musicBeat: MusicBeatState?
     let speechBubble = SpeechBubbleView()
     var onBubbleChange: (() -> Void)?
+    var onResize: ((Double) -> Void)?
     var bubble = "" { didSet { onBubbleChange?(); needsDisplay = true } }
     var snapshotBackground: String?
     var snapshotTime: TimeInterval?
     private var dragStart: NSPoint?
+    private var resizeStart: (point: NSPoint, size: NSSize, scale: Double)?
     var reduced: Bool { CommandLine.arguments.contains("--reduce-motion") || NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
     private var now: TimeInterval { snapshotTime ?? Date.timeIntervalSinceReferenceDate }
     let accents: [NSColor] = [
@@ -45,14 +47,34 @@ final class CharacterView: NSView {
         return max(330, 273 + height)
     }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-    override func resetCursorRects() { addCursorRect(bounds, cursor: .openHand) }
-    override func mouseDown(with event: NSEvent) { dragStart = event.locationInWindow; NSCursor.closedHand.set() }
+    var resizeHandle: NSRect { NSRect(x: bounds.maxX - 24, y: 0, width: 24, height: 12) }
+    override func resetCursorRects() {
+        addCursorRect(bounds, cursor: .openHand)
+        if onResize != nil { addCursorRect(resizeHandle, cursor: .resizeLeftRight) }
+    }
+    override func mouseDown(with event: NSEvent) {
+        if onResize != nil, resizeHandle.contains(convert(event.locationInWindow, from: nil)), let window {
+            resizeStart = (window.convertPoint(toScreen: event.locationInWindow), frame.size, frame.width / bounds.width)
+            dragStart = nil
+        } else { dragStart = event.locationInWindow; NSCursor.closedHand.set() }
+    }
     override func mouseDragged(with event: NSEvent) {
+        if let start = resizeStart, let window {
+            let point = window.convertPoint(toScreen: event.locationInWindow)
+            let horizontal = (point.x - start.point.x) / start.size.width
+            let vertical = (start.point.y - point.y) / start.size.height
+            let top = window.frame.maxY
+            onResize?(start.scale * (1 + (abs(horizontal) >= abs(vertical) ? horizontal : vertical)))
+            // Dragging the lower corner keeps the opposite top edge under the pointer.
+            let minimumY = window.screen?.visibleFrame.minY ?? -CGFloat.greatestFiniteMagnitude
+            window.setFrameOrigin(NSPoint(x: window.frame.minX, y: max(minimumY, top - window.frame.height)))
+            return
+        }
         guard let dragStart, let window else { return }
         let point = window.convertPoint(toScreen: event.locationInWindow)
         window.setFrameOrigin(NSPoint(x: point.x - dragStart.x, y: point.y - dragStart.y))
     }
-    override func mouseUp(with event: NSEvent) { dragStart = nil; NSCursor.openHand.set() }
+    override func mouseUp(with event: NSEvent) { dragStart = nil; resizeStart = nil; NSCursor.openHand.set() }
 
     func update(_ character: Character) {
         let time = now
@@ -139,14 +161,17 @@ final class CharacterView: NSView {
                                              blinkElapsed: !reduced && blink ? time - (ambient[character.id]?.blinkAt ?? time) : nil)
             let factor = min(width / 256, 220.0 / 384)
             let gesture = ambient[character.id]?.gestureStart
-            let rig = displayed.rig.flatMap { rigs[$0] }
+            let core = ["lead", "code", "research", "review"]
+            let rigName = displayed.rig ?? core[displayed.bodyColumn]
+            let rig = rigs[rigName]
+            let mixedHead = displayed.rig == nil && displayed.headColumn != displayed.bodyColumn ? rigs[core[displayed.headColumn]] : nil
             let motionTime = rig.map { time * 2 * .pi / (1.35 * $0.definition.motion.breathSeconds) } ?? time
             var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
                 gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
                 speaking: speaking, reduced: reduced, seed: index)
             let dance = MusicMotion.pose(beat: musicBeat, time: time, column: displayed.column, rig: displayed.rig, reduced: reduced)
             pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
-            let work = rig != nil ? workAnimations[character.id]?.pose(rig: displayed.rig ?? "", at: time, reduced: reduced).scaled(1 - dance.strength) ?? WorkPose() : WorkPose()
+            let work = rig != nil ? workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced).scaled(1 - dance.strength) ?? WorkPose() : WorkPose()
             pose.headX += work.headX; pose.headY += work.headY
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
                                 width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
@@ -167,7 +192,7 @@ final class CharacterView: NSView {
                 rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,
                     gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
                     opacity: opacity, radius: radius, faceRows: faceRows, sprites: sprites,
-                    beatArm: dance.arm, beatHair: dance.hair, work: work)
+                    beatArm: dance.arm, beatHair: dance.hair, work: work, headRig: mixedHead)
             } else if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
                 sprites.frame(sourceBody, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
@@ -190,6 +215,15 @@ final class CharacterView: NSView {
             }
             NSGraphicsContext.restoreGraphicsState()
             if !reduced, let motion { drawParticles(target, kind: motion.kind, progress: progress, accent: accent, seed: index) }
+        }
+        if onResize != nil && !characters.isEmpty {
+            NSColor.secondaryLabelColor.withAlphaComponent(0.7).setStroke()
+            let grip = NSBezierPath(); grip.lineWidth = 1
+            for inset in [0.0, 4.0, 8.0] {
+                grip.move(to: NSPoint(x: bounds.maxX - 14 + inset, y: 2))
+                grip.line(to: NSPoint(x: bounds.maxX - 3, y: 13 - inset))
+            }
+            grip.stroke()
         }
     }
 

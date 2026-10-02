@@ -16,9 +16,21 @@ struct WorkPose {
     func scaled(_ weight: CGFloat) -> WorkPose {
         WorkPose(clip: clip, joints: joints.mapValues { $0.scaled(weight) }, headX: headX * weight, headY: headY * weight)
     }
+
+    /// Crossfade gestures over the ongoing work loop without adding joint amplitudes.
+    func blending(_ other: WorkPose, weight: CGFloat) -> WorkPose {
+        var result = scaled(1 - weight)
+        for (id, joint) in other.joints {
+            let old = result.joints[id] ?? WorkJoint(), next = joint.scaled(weight)
+            result.joints[id] = WorkJoint(angle: old.angle + next.angle, x: old.x + next.x, y: old.y + next.y)
+        }
+        result.clip = other.clip
+        result.headX += other.headX * weight; result.headY += other.headY * weight
+        return result
+    }
 }
 
-/// A stable per-character clock alternates two tool gestures, with rests and soft state changes.
+/// A continuous role-specific work loop carries occasional gestures and soft state changes.
 struct WorkAnimation {
     private let seed: UInt64
     private var active = false
@@ -45,12 +57,13 @@ struct WorkAnimation {
         let period = 8.2 + Double(seed % 31) / 10
         let phase = max(0, time + Double(seed % 997) / 97)
         let cycle = Int(phase / period), elapsed = phase.truncatingRemainder(dividingBy: period)
+        let focus = focusPose(rig: rig, phase: phase)
         let duration = 4.2
-        guard elapsed < duration else { return WorkPose() }
+        guard elapsed < duration else { return focus.scaled(weight(at: time)) }
         let p = elapsed / duration, envelope = pow(sin(p * .pi), 2)
         let sweep = sin(p * 2 * .pi), taps = sin(p * 12 * .pi)
         let alternate = (cycle + Int(seed % 2)) % 2 == 1
-        var pose = WorkPose(headY: -0.7 * envelope)
+        var pose = WorkPose(headY: -0.7)
         switch rig {
         case "lead":
             pose.clip = alternate ? "tablet-swipe" : "tablet-tap"
@@ -85,6 +98,36 @@ struct WorkAnimation {
                                                         y: sin(p * (alternate ? 16 : 10) * .pi) * 0.7)]
         default: return WorkPose()
         }
-        return pose.scaled(envelope * weight(at: time))
+        return focus.blending(pose, weight: envelope).scaled(weight(at: time))
+    }
+
+    private func focusPose(rig: String, phase: Double) -> WorkPose {
+        let p = phase * 2 * .pi / (3.4 + Double(seed % 13) / 10)
+        let sweep = sin(p), tap = sin(p * 4), other = sin(p * 4 + .pi / 2)
+        var pose = WorkPose(clip: "\(rig)-focus", headY: -0.4 + 0.25 * cos(p))
+        switch rig {
+        case "lead":
+            pose.joints = ["arm-right": WorkJoint(angle: tap * 0.9, y: tap * 0.7),
+                           "arm-left": WorkJoint(angle: sweep * 0.4), "prop": WorkJoint(angle: sweep * 0.3)]
+            pose.headX = sweep * 0.6
+        case "code":
+            pose.joints = ["arm-left": WorkJoint(angle: tap * 1.1, y: tap * 1.0),
+                           "arm-right": WorkJoint(angle: -other * 1.1, y: other * 1.0)]
+        case "research", "review":
+            pose.joints = ["arm-right": WorkJoint(angle: sweep * 0.9, y: cos(p) * 0.5),
+                           "arm-left": WorkJoint(angle: -sweep * 0.5), "prop": WorkJoint(angle: sweep * 0.45)]
+            pose.headX = sweep * 1.1
+        case "designer":
+            pose.joints = ["arm-left": WorkJoint(angle: tap * 1.0, x: sweep * 0.8),
+                           "arm-right": WorkJoint(angle: sweep * 0.6)]
+        case "devops":
+            pose.joints = ["tool-arm": WorkJoint(angle: sweep * 1.2, y: tap * 0.6),
+                           "hip-arm": WorkJoint(angle: -sweep * 0.4)]
+            pose.headX = sweep * 0.6
+        case "tester":
+            pose.joints = ["controller-arms": WorkJoint(angle: sweep * 0.7, y: tap * 0.8)]
+        default: return WorkPose()
+        }
+        return pose
     }
 }

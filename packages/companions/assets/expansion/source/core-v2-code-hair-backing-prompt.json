@@ -1,0 +1,16 @@
+{
+  "tool": "image_gen",
+  "references": [
+    "core-v2-code-head-cutout.png",
+    "core-v2.png"
+  ],
+  "purpose": "Hidden ponytail restoration behind source laptop; only missing hair pixels used, approved head/face remains unchanged",
+  "prompt": "Use case: precise-object-edit. Edit image 1, the transparent head cutout of the adult purple-haired CODE woman. Image 2 provides her original complete character as identity and hair-color reference, specifically the SECOND character, not other women. Produce one transparent RGBA head-and-hair-only restoration, same aspect ratio and pixel-art style as image 1, keeping her face, head, headphones, ponytail position and size identical. IMPORTANT: reconstruct the purple ponytail strands that were hidden by her original laptop: image 1 has an unnatural FLAT HORIZONTAL CUT across the lower-left mass of hair at approximately x70–105 y118 on a 256x384 canvas, and a gap before the thin curled tail below at x65–90 y145–173. Restore only plausible flowing hair in that missing small region, joining the upper ponytail to its existing lower curl naturally, following gravity. The hair should be complete and organically tapered, with no rectangular cuts, no straight horizontal missing edges. Preserve the shape and separate dark/purple strands and exactly match existing hair shading. Remove any tiny residual purple clothing beside the lower outside edge of the right headphone; keep the black headphones and purple circular ear-cup accent. No clothing, shoulders, torso, hands, tools, laptop or other objects at all. All space under chin/right of ponytail stays transparent. The full existing head + hair must remain on the same top-half position within the tall 2:3 canvas with generous empty transparent lower half, not zoomed or re-centered. NO background, checkerboard, label, text, ground shadow, halo or decorative effects. This is a production cutout backing patch, not new character design.",
+  "registration": {
+    "kind": "uniform",
+    "scale": 0.25,
+    "offsetX": -2,
+    "offsetY": -18,
+    "mask": "only registered arm and prop occlusion"
+  }
+}

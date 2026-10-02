@@ -9,7 +9,7 @@
     128,
     120
   ],
-  "neckAnchorUsage": "Legacy/core default; each rig layer pivot is authoritative",
+  "neckAnchorUsage": "Legacy fallback only; each rig layer pivot is authoritative",
   "feetBaseline": 368,
   "characters": {
     "designer": {
@@ -297,6 +297,25 @@
     "lead": {
       "name": "LEAD",
       "roleHint": "lead",
+      "registration": {
+        "kind": "uniform",
+        "source": "core-v2.png",
+        "sourceRect": [
+          0,
+          0,
+          512,
+          768
+        ],
+        "scaleX": 0.46675712347354137,
+        "scaleY": 0.46675712347354137,
+        "offsetX": -17.39484396200814,
+        "offsetY": 16.53188602442333,
+        "sourceTop": 16,
+        "sourceFeet": 753,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "coordinateSpace": "sourceRect"
+      },
       "layers": [
         {
           "id": "body",
@@ -314,8 +333,8 @@
           "file": "lead/prop.png",
           "parent": "body",
           "pivot": [
-            126,
-            177
+            109.096,
+            144.89
           ],
           "motion": "prop",
           "amplitudeDegrees": 1.2
@@ -325,8 +344,8 @@
           "file": "lead/arm-left.png",
           "parent": "body",
           "pivot": [
-            81,
-            171
+            141.769,
+            141.156
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -336,8 +355,8 @@
           "file": "lead/arm-right.png",
           "parent": "body",
           "pivot": [
-            163,
-            180
+            75.49,
+            137.889
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -347,8 +366,8 @@
           "file": "lead/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            114.231,
+            86.079
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5
@@ -390,7 +409,37 @@
     "code": {
       "name": "CODE",
       "roleHint": "code",
+      "registration": {
+        "kind": "uniform",
+        "source": "core-v2.png",
+        "sourceRect": [
+          512,
+          0,
+          512,
+          768
+        ],
+        "scaleX": 0.4636118598382749,
+        "scaleY": 0.4636118598382749,
+        "offsetX": 9.315363881401623,
+        "offsetY": 20.29110512129381,
+        "sourceTop": 8,
+        "sourceFeet": 750,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "coordinateSpace": "sourceRect"
+      },
       "layers": [
+        {
+          "id": "hair-back",
+          "file": "code/hair-back.png",
+          "parent": "head",
+          "pivot": [
+            137.272,
+            93.078
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0
+        },
         {
           "id": "body",
           "file": "code/body.png",
@@ -407,8 +456,8 @@
           "file": "code/prop.png",
           "parent": "body",
           "pivot": [
-            100,
-            170
+            123.364,
+            152.884
           ],
           "motion": "prop",
           "amplitudeDegrees": 1.2
@@ -418,8 +467,8 @@
           "file": "code/arm-left.png",
           "parent": "body",
           "pivot": [
-            74,
-            177
+            101.111,
+            163.084
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -429,8 +478,8 @@
           "file": "code/arm-right.png",
           "parent": "body",
           "pivot": [
-            140,
-            162
+            155.817,
+            148.712
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -440,8 +489,8 @@
           "file": "code/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            137.272,
+            93.078
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5
@@ -483,6 +532,25 @@
     "research": {
       "name": "RESEARCH",
       "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "core-v2.png",
+        "sourceRect": [
+          1024,
+          0,
+          512,
+          768
+        ],
+        "scaleX": 0.4673913043478261,
+        "scaleY": 0.4673913043478261,
+        "offsetX": 11.619565217391298,
+        "offsetY": 16.521739130434753,
+        "sourceTop": 16,
+        "sourceFeet": 752,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "coordinateSpace": "sourceRect"
+      },
       "layers": [
         {
           "id": "body",
@@ -500,8 +568,8 @@
           "file": "research/prop.png",
           "parent": "body",
           "pivot": [
-            151,
-            172
+            152.772,
+            142.25
           ],
           "motion": "prop",
           "amplitudeDegrees": 1.2
@@ -511,8 +579,8 @@
           "file": "research/arm-left.png",
           "parent": "body",
           "pivot": [
-            101,
-            172
+            100.424,
+            140.848
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -522,8 +590,8 @@
           "file": "research/arm-right.png",
           "parent": "body",
           "pivot": [
-            167,
-            176
+            158.38,
+            148.793
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -533,8 +601,8 @@
           "file": "research/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            118.652,
+            85.696
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5
@@ -576,6 +644,25 @@
     "review": {
       "name": "REVIEW",
       "roleHint": "review",
+      "registration": {
+        "kind": "uniform",
+        "source": "core-v2.png",
+        "sourceRect": [
+          1536,
+          0,
+          512,
+          768
+        ],
+        "scaleX": 0.46675712347354137,
+        "scaleY": 0.46675712347354137,
+        "offsetX": 25.780189959294447,
+        "offsetY": 16.53188602442333,
+        "sourceTop": 16,
+        "sourceFeet": 753,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "coordinateSpace": "sourceRect"
+      },
       "layers": [
         {
           "id": "body",
@@ -593,8 +680,8 @@
           "file": "review/prop.png",
           "parent": "body",
           "pivot": [
-            89,
-            173
+            104.662,
+            146.757
           ],
           "motion": "prop",
           "amplitudeDegrees": 1.2
@@ -604,8 +691,8 @@
           "file": "review/arm-left.png",
           "parent": "body",
           "pivot": [
-            77,
-            183
+            84.592,
+            150.491
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -615,8 +702,8 @@
           "file": "review/arm-right.png",
           "parent": "body",
           "pivot": [
-            164,
-            181
+            158.806,
+            148.157
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.5
@@ -626,8 +713,8 @@
           "file": "review/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            125.199,
+            83.745
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5
@@ -685,6 +772,7 @@
     "lead/arm-left.png",
     "lead/arm-right.png",
     "lead/head.png",
+    "code/hair-back.png",
     "code/body.png",
     "code/prop.png",
     "code/arm-left.png",

@@ -68,16 +68,29 @@ final class LayeredRig {
 
     func draw(in target: NSRect, pose: LayerPose, time: Double, gestureElapsed: Double?, reduced: Bool,
               opacity: Double, radius: CGFloat, faceRows: [Int], sprites: SpriteCache,
-              beatArm: Double = 0, beatHair: Double = 0, work: WorkPose = WorkPose()) {
-        for (layer, image) in layers {
+              beatArm: Double = 0, beatHair: Double = 0, work: WorkPose = WorkPose(), headRig: LayeredRig? = nil) {
+        let bodyLayers = headRig == nil ? layers : layers.filter { $0.0.motion != "head" && $0.0.parent != "head" }
+        let mixedLayers = headRig?.layers.filter { $0.0.motion == "head" || $0.0.parent == "head" } ?? []
+        // A transferred ponytail stays behind the chosen outfit and held objects.
+        let back = mixedLayers.filter { $0.0.id == "hair-back" }.map { (headRig!, $0.0, $0.1) }
+        let front = mixedLayers.filter { $0.0.id != "hair-back" }.map { (headRig!, $0.0, $0.1) }
+        let entries = back + bodyLayers.map { (self, $0.0, $0.1) } + front
+        for (source, layer, image) in entries {
+            let destination = source === self ? target : alignedHeadTarget(from: source, target: target)
             let rendered = sprites.frame(image, column: 0, row: 0, rows: 1, radius: radius, columns: 1,
-                face: layer.id == "head" ? face : nil, faceRows: layer.id == "head" ? faceRows : [])
+                face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" ? faceRows : [])
             NSGraphicsContext.saveGraphicsState()
-            transform(for: layer, target: target, pose: pose, time: time, gestureElapsed: gestureElapsed,
+            source.transform(for: layer, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
                 reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[layer.id]).concat()
-            rendered?.draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
+            rendered?.draw(in: destination, from: .zero, operation: .sourceOver, fraction: opacity)
             NSGraphicsContext.restoreGraphicsState()
         }
+    }
+
+    /// Mixed identities share the outfit's neck, while keeping the other face and hair proportions.
+    func alignedHeadTarget(from source: LayeredRig, target: NSRect) -> NSRect {
+        target.offsetBy(dx: (head.pivot[0] - source.head.pivot[0]) * target.width / 256,
+                        dy: (source.head.pivot[1] - head.pivot[1]) * target.height / 384)
     }
 
     /// A child first rotates around its own joint, then follows its parent's head transform.

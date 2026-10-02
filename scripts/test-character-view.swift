@@ -8,6 +8,37 @@ import AppKit
         precondition(panel.canBecomeKey && !panel.canBecomeMain, "Speech text cannot receive Cmd+C")
         let view = CharacterView(frame: panel.contentView!.bounds)
         panel.contentView = view
+        let visible = panel.screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+        panel.setFrameOrigin(NSPoint(x: visible.minX + 40, y: visible.minY + 40))
+        var requested: Double?
+        view.onResize = { requested = $0 }
+        func mouse(_ type: NSEvent.EventType, _ point: NSPoint) -> NSEvent {
+            NSEvent.mouseEvent(with: type, location: point, modifierFlags: [], timestamp: 0,
+                              windowNumber: panel.windowNumber, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+        }
+        let handle = NSPoint(x: 160, y: 6), origin = panel.frame.origin
+        view.mouseDown(with: mouse(.leftMouseDown, handle))
+        view.mouseDragged(with: mouse(.leftMouseDragged, NSPoint(x: handle.x + 84, y: handle.y)))
+        precondition(requested == 1.5, "Corner drag did not resize proportionally")
+        precondition(panel.frame.origin == origin, "Corner resize was mistaken for moving the group")
+        view.mouseUp(with: mouse(.leftMouseUp, handle)); requested = nil
+        view.mouseDown(with: mouse(.leftMouseDown, handle))
+        view.mouseDragged(with: mouse(.leftMouseDragged, NSPoint(x: handle.x, y: handle.y - 165)))
+        precondition(requested == 1.5, "Vertical corner drag ignored window height")
+        view.mouseUp(with: mouse(.leftMouseUp, handle)); requested = nil
+        view.mouseDragged(with: mouse(.leftMouseDragged, NSPoint(x: 300, y: 6)))
+        precondition(requested == nil, "Released resize kept handling stale drag events")
+        for scale in [0.5, 2.0] {
+            panel.setContentSize(NSSize(width: 168 * scale, height: 330 * scale))
+            view.setFrameSize(panel.contentView!.frame.size); view.setBoundsSize(NSSize(width: 168, height: 330))
+            let physical = view.convert(handle, to: nil)
+            view.mouseDown(with: mouse(.leftMouseDown, physical))
+            view.mouseDragged(with: mouse(.leftMouseDragged, NSPoint(x: physical.x + 42 * scale, y: physical.y)))
+            precondition(abs(requested! - scale * 1.25) < 0.001, "Scaled window handle missed its hit area")
+            view.mouseUp(with: mouse(.leftMouseUp, physical))
+        }
+        panel.setContentSize(NSSize(width: 168, height: 330)); view.setFrameSize(panel.contentView!.frame.size)
+        view.setBoundsSize(NSSize(width: 168, height: 330))
         view.musicBeat = MusicBeatState(anchor: 1000, period: 0.5, sequence: 10, confidence: 1,
                                        audibleAt: 1000, allowance: 1, measuredAt: 1000)
         view.snapshotTime = 1000; view.tick()

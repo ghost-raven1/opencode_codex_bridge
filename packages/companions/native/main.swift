@@ -157,25 +157,6 @@ var exitStatus: Int32 = 0
         dictation.onError = { message in emit(["type": "error", "code": "dictation", "message": message]) }
     }
 
-    func configurePanel() {
-        panel.backgroundColor = .clear; panel.isOpaque = false; panel.hasShadow = false
-        panel.becomesKeyOnlyIfNeeded = true
-        panel.level = .floating
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        panel.isMovableByWindowBackground = false; panel.contentView = view
-        view.toolTip = "Перетащи персонажа или подпись, чтобы переместить группу. Правый клик — скрыть."
-        windowState = WindowState(panel: panel)
-        windowState.onChange = { [weak self] in self?.updateMenu() }
-        windowState.onScreenChange = { [weak self] in self?.resize() }
-        scaleControl.onChange = { [weak self] in self?.resize(); self?.emitWindowStatus() }
-        let context = NSMenu()
-        context.addItem(withTitle: "Скрыть компаньонов", action: #selector(hideCompanions), keyEquivalent: "")
-        context.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
-        for entry in context.items { entry.target = self }
-        view.menu = context
-
-    }
-
     func configureMenu() {
         let menu = NSMenu()
         speechStatus.attach(to: menu, localVoice: localSpeech) { emit(["type": "speech-control", "action": "recover"]) }
@@ -248,13 +229,6 @@ var exitStatus: Int32 = 0
             }
             DispatchQueue.main.async { NSApp.terminate(nil) }
         }
-    }
-
-    func resize() {
-        let count = CGFloat(max(view.characters.count, 1))
-        let width = count * 168, height = view.contentHeight(width: width)
-        scaleControl.apply(panel: panel, view: view, base: NSSize(width: width, height: height), visible: windowState.visibleFrame)
-        windowState.fitToScreen()
     }
 
     func receive(_ value: [String: Any]) {
