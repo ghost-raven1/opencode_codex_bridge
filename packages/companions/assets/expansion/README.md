@@ -2,13 +2,18 @@
 
 `manifest.json` is the runtime contract: seven rigs, 32 independent transparent
 body/head/arm/hair/prop layers and seven 18-frame facial sheets, all on a 256×384
-canvas. Neck coordinates are `(128,120)`, feet baseline `368`. Layer order is z
-order; joint pivots use top-left source pixels. There is one bind pose per rig.
+canvas. Feet baseline is `368`; `(128,120)` is only the legacy/core neck default.
+Each layer's measured pivot is authoritative. The three specialists use one
+uniform affine for the whole figure, with its source/scale/offset recorded in
+`registration`; head and body never receive different axis scales. Layer order
+is z order; joint pivots use top-left source pixels. There is one bind pose per rig.
 Continuous transforms do not count as extra drawn frames.
 
 The three new silhouettes are deliberately different: DESIGNER has a high bun,
 long braid and asymmetrical artist's apron; DEVOPS has an undercut, work overalls
 and diagnostic meter; TESTER has short spiky hair, glasses and a controller.
+TESTER v2 has an adult face, fitted cropped jacket, cream top and tapered cargo
+trousers; her approved source proportions and neutral face are preserved.
 DESIGNER includes independent braid and two arm layers. DEVOPS has a hip arm
 and meter arm. TESTER's two controller forearms are one coupled layer.
 
@@ -18,16 +23,19 @@ the original row-0 head registration. Torso regions behind the extracted hands,
 book, laptop and tablets were painted with ImageGen. Only those hidden areas
 are filled with the new underpainting. There are no whole-character flipbooks.
 
-ImageGen authored the new characters, underpainting and 54 facial expressions.
+ImageGen authored the new characters, underpainting and facial expression art.
+The three specialists export 54 facial patches. TESTER's neutral mouth comes
+from the approved reference itself, with 17 other patches registered from her
+new facial sheet using individually measured cell landmarks. Focus leaves the
+original pupils intact. No generated neutral patch is baked into her head.
 The retained source PNGs are in `source/`; rejected designer/devops v1 references
-and the incompatible old DevOps face sheet were removed. The old TESTER reference
-was RGB with a baked checkerboard: the preparation uses measured silhouette seeds
-and GrabCut to remove it. New ImageGen sources have real alpha, which is retained;
+and the incompatible old DevOps face sheet were removed. TESTER v1 and its three
+obsolete face sheets were replaced and removed; they remain in Git history.
+All current character references have real alpha, which is retained;
 only near-invisible detached matte noise is cleared. No mouths, eyes or clothing
 were drawn procedurally. `face-registration.json` records each facial source.
 
-Reproduce with Python 3, Pillow, NumPy and OpenCV (the latter is installed only
-inside the ignored project Python environment):
+Reproduce with Python 3, Pillow and NumPy:
 
 ```sh
 python3 packages/companions/assets/expansion/prepare.py
@@ -52,10 +60,11 @@ node packages/companions/assets/expansion/qa-native.mjs
 node packages/companions/assets/expansion/qa-native.mjs code tester
 ```
 
-Native QA exposed a checkerboard island beside TESTER's jaw and a white fringe
-on CODE's inherited sleeve. Preparation clears only the corresponding matte
-areas, protects facial lights/purple cloth, and leaves all six root atlases intact.
-`tests/specialist-artwork.test.ts` preserves the reproduced pixel regressions.
+Native QA exposed a white fringe on CODE's inherited sleeve; preparation clears
+that local matte while preserving adjacent purple cloth. The old TESTER RGB matte
+workaround was retired with v1. `tests/specialist-artwork.test.ts` checks uniform
+source-to-export geometry, real transparency, protected details, neutral identity
+and the reproduced CODE fringe. All six root atlases remain intact.
 
 ## Local fictional voices
 

@@ -14,25 +14,26 @@ def affine(source, src, dst):
     return source.transform(SIZE,Image.Transform.AFFINE,tuple(x)+tuple(y),Image.Resampling.BICUBIC)
 
 
-def region(target, kind, role):
+def region(target, kind, role, index=0):
     left,right,mouth=[tuple(p) for p in target]
     result=Image.new('L',SIZE);draw=ImageDraw.Draw(result)
+    if role=='tester':
+        if kind in ('mouth','emotion'):
+            draw.ellipse((mouth[0]-3.8,mouth[1]-3,mouth[0]+4,mouth[1]+3.2),fill=255)
+        if kind=='eyes' or (kind=='emotion' and index!=16):
+            for x,y in (left,right):draw.ellipse((x-4,y-3,x+4,y+3),fill=255)
+        if kind=='emotion':
+            for x,y in (left,right):draw.rectangle((x-4,y-6,x+4,y-3.5),fill=255)
+        return result.filter(ImageFilter.GaussianBlur(.35))
     if kind=='mouth':
         draw.ellipse((mouth[0]-6,mouth[1]-5,mouth[0]+7,mouth[1]+5),fill=255)
     elif kind=='eyes':
-        # Preserve original glasses by registering both frames identically; patch includes rims.
-        for x,y in (left,right):
-            rx,ry=(6,5) if role=='tester' else (8,7)
-            draw.ellipse((x-rx,y-ry,x+rx,y+ry),fill=255)
-    elif role=='tester':
-        for x,y in (left,right):
-            draw.ellipse((x-6,y-5,x+6,y+5),fill=255)
-            draw.rectangle((x-7,y-12,x+7,y-6),fill=255)
-        draw.ellipse((mouth[0]-6,mouth[1]-5,mouth[0]+7,mouth[1]+5),fill=255)
+        for x,y in (left,right):draw.ellipse((x-8,y-7,x+8,y+7),fill=255)
     else:
         draw.polygon([(left[0]-8,left[1]-9),(right[0]+8,right[1]-9),(right[0]+10,right[1]+8),
                       (mouth[0]+9,mouth[1]+5),(mouth[0]-9,mouth[1]+5),(left[0]-9,left[1]+5)],fill=255)
     return result.filter(ImageFilter.GaussianBlur(.65))
+
 
 
 def match_skin(image, head, mask):
@@ -48,53 +49,59 @@ def match_skin(image, head, mask):
     return canonical(Image.fromarray(pixels))
 
 
+# Measured per-cell anchors of the approved v2 identity. The last row has four
+# smaller cells; ImageGen's extra neutral at row 5 column 3 is deliberately unused.
+TESTER_CELLS=[
+ [[118,159],[182,142],[155,198]],[[465,159],[528,143],[501,199]],[[813,159],[876,143],[852,200]],
+ [[118,413],[183,397],[155,452]],[[465,413],[528,397],[501,453]],[[813,413],[877,397],[852,454]],
+ [[118,667],[183,651],[155,707]],[[465,667],[529,651],[501,708]],[[813,667],[877,651],[852,708]],
+ [[118,921],[183,905],[155,962]],[[465,921],[529,905],[501,962]],[[813,921],[877,905],[852,962]],
+ [[118,1174],[183,1158],[155,1216]],[[465,1174],[529,1158],[501,1216]],
+ [[83,1422],[145,1402],[118,1457]],[[340,1422],[400,1402],[375,1457]],
+ [[596,1420],[655,1401],[629,1457]],[[850,1420],[911,1400],[882,1457]],
+]
+
+
 def main():
     report={}
     for role,spec in SPECS.items():
-        filename=f'{role}-faces-v2.png' if role=='devops' else f'{role}-faces.png'
+        filename='tester-v2-faces.png' if role=='tester' else f'{role}-faces-v2.png' if role=='devops' else f'{role}-faces.png'
         sheet=Image.open(SOURCE/filename).convert('RGBA')
         head=Image.open(HERE/role/'head.png').convert('RGBA')
         target=[point(spec,p) for p in spec['faceTarget']]
         atlas=Image.new('RGBA',(256,384*18));metrics=[]
         for index,label in enumerate(LABELS):
             kind='mouth' if index<8 else 'eyes' if index<14 else 'emotion'
-            source=sheet
-            source_name=filename
-            source_index=index
+            source_name=filename;source_index=index
             if role=='tester':
-                # The first generated sheet had 15 heads; use a separate six-head blink sheet.
-                if 8<=index<14:
-                    source=Image.open(SOURCE/'tester-blink.png').convert('RGBA')
-                    source_name='tester-blink.png';source_index=index-8
-                    row,col=divmod(index-8,2)
-                    offsets=([0,486],[0,486,972])
-                    anchors=[[201,315],[312,282],[268,376]]
-                elif index>=14:
-                    source=Image.open(SOURCE/'tester-emotions.png').convert('RGBA')
-                    source_name='tester-emotions.png';source_index=index-14
-                    row,col=divmod(index-14,2)
-                    offsets=([0,603],[0,630])
-                    anchors=[[238,375],[383,337],[315,455]]
-                else:
-                    source_index={7:11}.get(index,index)
-                    row,col=divmod(source_index,3);offsets=spec['faceOffsets'];anchors=spec['faceSource']
+                anchors=TESTER_CELLS[index]
+                source_index=index if index<14 else index+1
             else:
-                row,col=divmod(index,3);offsets=spec['faceOffsets'];anchors=spec['faceSource']
-            sx,sy=offsets[0][col],offsets[1][row]
-            registered=affine(source,[(p[0]+sx,p[1]+sy) for p in anchors],target)
-            face=match_skin(registered,head,region(target,kind,role))
+                row,col=divmod(index,3);offsets=spec['faceOffsets']
+                sx,sy=offsets[0][col],offsets[1][row]
+                anchors=[(p[0]+sx,p[1]+sy)for p in spec['faceSource']]
+            mask=region(target,kind,role,index)
+            if role=='tester' and index==0:
+                # Preserve the approved native face exactly; do not repaint its neutral mouth.
+                source_name=spec['source'];source_index=0
+                face=head.copy();face.putalpha(Image.fromarray(np.minimum(np.array(mask),np.array(head)[:,:,3])))
+                face=canonical(face)
+            else:
+                face=match_skin(affine(sheet,anchors,target),head,mask)
             atlas.alpha_composite(face,(0,index*384))
-            metrics.append({'row':index,'label':label,'source':source_name,
-                            'sourceIndex':source_index,'sha256':hashlib.sha256(face.tobytes()).hexdigest()})
+            metrics.append({'row':index,'label':label,'source':source_name,'sourceIndex':source_index,
+                            'sourceAnchors':anchors,'targetAnchors':target,
+                            'sha256':hashlib.sha256(face.tobytes()).hexdigest()})
         assert len({r['sha256'] for r in metrics})==18,role
         atlas.save(HERE/role/'facial.png',optimize=True)
-        # Neutral mouth belongs to the head, so blinking does not expose an old open mouth.
-        head.alpha_composite(atlas.crop((0,0,256,384)))
-        head.save(HERE/role/'head.png')
+        if role!='tester':
+            head.alpha_composite(atlas.crop((0,0,256,384)))
+            head.save(HERE/role/'head.png')
         preview=Image.new('RGBA',(6*256,3*160),'#f4efe8')
         for i in range(18):
             composed=head.copy();composed.alpha_composite(atlas.crop((0,384*i,256,384*(i+1))))
             preview.alpha_composite(composed.crop((0,0,256,160)),((i%6)*256,(i//6)*160))
+            ImageDraw.Draw(preview).text(((i%6)*256+12,(i//6)*160+138),f'{i} {LABELS[i]}',fill='#555555')
         preview.convert('RGB').save(HERE/role/'qa-face.png')
         report[role]=metrics
     (HERE/'face-registration.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')

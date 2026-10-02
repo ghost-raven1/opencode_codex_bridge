@@ -5,126 +5,630 @@
       "label": "close",
       "source": "designer-faces.png",
       "sourceIndex": 0,
-      "sha256": "dabf7b64340e0141ba5f55dd201d9c223106d715ca9d9ec3401b703367e89c7e"
+      "sourceAnchors": [
+        [
+          151,
+          178
+        ],
+        [
+          220,
+          157
+        ],
+        [
+          192,
+          207
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "206006e5b63673164a9232c3d4ddf730b5b79e49510cce113d7275b4664d118d"
     },
     {
       "row": 1,
       "label": "slightly-open",
       "source": "designer-faces.png",
       "sourceIndex": 1,
-      "sha256": "2802ff8900c2aafb0e9589f3859ef335f84576991f13e1d2e29f443abe8ffb1c"
+      "sourceAnchors": [
+        [
+          470,
+          178
+        ],
+        [
+          539,
+          157
+        ],
+        [
+          511,
+          207
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "3f6db1b8c6141b274860710c501fb6947c527be17138bc129afdb8aab8555397"
     },
     {
       "row": 2,
       "label": "A",
       "source": "designer-faces.png",
       "sourceIndex": 2,
-      "sha256": "05257ce2e426db14136468abde536bfcef658e27dac3c0a51f3f6edbca88b7df"
+      "sourceAnchors": [
+        [
+          789,
+          178
+        ],
+        [
+          858,
+          157
+        ],
+        [
+          830,
+          207
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "9d3e96e2dc61e1a27cc9c917ab8df94b6070b41dd1526e5da7b1e636687a77d0"
     },
     {
       "row": 3,
       "label": "O",
       "source": "designer-faces.png",
       "sourceIndex": 3,
-      "sha256": "c887fc7188fb37f4aedd34d020b594d4c868c945292172c32ae0d6e7c89df1c4"
+      "sourceAnchors": [
+        [
+          151,
+          421
+        ],
+        [
+          220,
+          400
+        ],
+        [
+          192,
+          450
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "2a64d2ecb72d1bddfe3c4365bebad4961926c3fed7e544191e0f4463c83e0cae"
     },
     {
       "row": 4,
       "label": "E",
       "source": "designer-faces.png",
       "sourceIndex": 4,
-      "sha256": "295c6c8e964330610708638798f2a14cbd2f9e99310166cc252fb0714601e373"
+      "sourceAnchors": [
+        [
+          470,
+          421
+        ],
+        [
+          539,
+          400
+        ],
+        [
+          511,
+          450
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "946ec173291b4b905d6c399a452ba0c01564f7de576313208ec713d56c2af6d8"
     },
     {
       "row": 5,
       "label": "I",
       "source": "designer-faces.png",
       "sourceIndex": 5,
-      "sha256": "dc0acb7fc5b469c6ac5e034b12798ed99fa5658c40617fca42311d5b8cb4660c"
+      "sourceAnchors": [
+        [
+          789,
+          421
+        ],
+        [
+          858,
+          400
+        ],
+        [
+          830,
+          450
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "023f3b4361817e666cf701f6d58536fcb1fb72ed30de9a93dd2ff398d5fc4a08"
     },
     {
       "row": 6,
       "label": "U",
       "source": "designer-faces.png",
       "sourceIndex": 6,
-      "sha256": "ab37a77123f601e24819e6147396d6e98d333c020f2d13ed5b6338bbbbb51b10"
+      "sourceAnchors": [
+        [
+          151,
+          663
+        ],
+        [
+          220,
+          642
+        ],
+        [
+          192,
+          692
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "ce70d124499e979af98faf0abd74044f007dd4d86271b22eb18cc3cd7e5aaedb"
     },
     {
       "row": 7,
       "label": "smile-speaking",
       "source": "designer-faces.png",
       "sourceIndex": 7,
-      "sha256": "a3c5cbb4ffe62bab0e82e4881401e03d874ed050ac91e68f57f8377c29cf823b"
+      "sourceAnchors": [
+        [
+          470,
+          663
+        ],
+        [
+          539,
+          642
+        ],
+        [
+          511,
+          692
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "e1c057e9e0bdb84cc80a2fb6a7ae71a632cc104916f7da7f9a0b4f76e5b96f2d"
     },
     {
       "row": 8,
       "label": "open",
       "source": "designer-faces.png",
       "sourceIndex": 8,
-      "sha256": "1152fdf00ef952af422c2755f906f2dccc67f37150604574338379218535173f"
+      "sourceAnchors": [
+        [
+          789,
+          663
+        ],
+        [
+          858,
+          642
+        ],
+        [
+          830,
+          692
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "6464e4ef63ea2c09cf512d663d60d880f414706ec40d1012bfc88288b776d260"
     },
     {
       "row": 9,
       "label": "quarter",
       "source": "designer-faces.png",
       "sourceIndex": 9,
-      "sha256": "ac0206d0ec1a7c2addf363d93abcb116ee8afbc1edccdea3c3ce773c0e5faac0"
+      "sourceAnchors": [
+        [
+          151,
+          907
+        ],
+        [
+          220,
+          886
+        ],
+        [
+          192,
+          936
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "0e05dd59ee0c85e3b3d1f3d9253c52bba364c8128a6ff7c4b8bdc4f901f9c733"
     },
     {
       "row": 10,
       "label": "half",
       "source": "designer-faces.png",
       "sourceIndex": 10,
-      "sha256": "0ed9b843573beb9527e6a6094129bcc290ffe0b37379219df45c7f5b74d947c6"
+      "sourceAnchors": [
+        [
+          470,
+          907
+        ],
+        [
+          539,
+          886
+        ],
+        [
+          511,
+          936
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "a6a556d615f3537936e670d5e6468949d068fa9a60d74f2c704da549926deed9"
     },
     {
       "row": 11,
       "label": "three-quarter",
       "source": "designer-faces.png",
       "sourceIndex": 11,
-      "sha256": "f61a816a315e4309cad3ec80daff99e1109466bd85449be07b67af6720722ecc"
+      "sourceAnchors": [
+        [
+          789,
+          907
+        ],
+        [
+          858,
+          886
+        ],
+        [
+          830,
+          936
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "ef729dfbb6833cc6cba6f5e50b68b0fcd9e2ff9723a7cb4c000b4e056052bd83"
     },
     {
       "row": 12,
       "label": "closed",
       "source": "designer-faces.png",
       "sourceIndex": 12,
-      "sha256": "3011659ed45057bae2870960a2b7ee669edf46cf78da422b5acea66932fd2c43"
+      "sourceAnchors": [
+        [
+          151,
+          1150
+        ],
+        [
+          220,
+          1129
+        ],
+        [
+          192,
+          1179
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "9496cc8aef95bf0c1b99f62e4de332b58f8d4fea5bcc55a12623e2add0a6d81f"
     },
     {
       "row": 13,
       "label": "reopen",
       "source": "designer-faces.png",
       "sourceIndex": 13,
-      "sha256": "825a9a353c479d199480cba564d9845951575da2fb1089ea1731a24a8af7b8b5"
+      "sourceAnchors": [
+        [
+          470,
+          1150
+        ],
+        [
+          539,
+          1129
+        ],
+        [
+          511,
+          1179
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "c6eb45ea674868853b66937014b37c30f2f590f526658bb9d24c21b54f26553c"
     },
     {
       "row": 14,
       "label": "smile",
       "source": "designer-faces.png",
       "sourceIndex": 14,
-      "sha256": "91bcd8fc682899782f0eefc0a45901264cc7cf0146e354f1ccf23b5217ad4db1"
+      "sourceAnchors": [
+        [
+          789,
+          1150
+        ],
+        [
+          858,
+          1129
+        ],
+        [
+          830,
+          1179
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "7256c5e691a2f894cf4dff21d037bf656cd41a281e946014914c6c69cc55643a"
     },
     {
       "row": 15,
       "label": "concern",
       "source": "designer-faces.png",
       "sourceIndex": 15,
-      "sha256": "e5ac1dcf697efc2a74b9fab459b8c4e6482770d4a1c8c8f464b3d8e7881f581e"
+      "sourceAnchors": [
+        [
+          151,
+          1395
+        ],
+        [
+          220,
+          1374
+        ],
+        [
+          192,
+          1424
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "5f267acbde750440c3e312d023dc19e384eed8b985dd1a71f400c6bf4b999b43"
     },
     {
       "row": 16,
       "label": "focus",
       "source": "designer-faces.png",
       "sourceIndex": 16,
-      "sha256": "0ab26a3821df52291903e0750f42e8cde3ca5294dab25dbfcb1c6dd0cbc6815b"
+      "sourceAnchors": [
+        [
+          470,
+          1395
+        ],
+        [
+          539,
+          1374
+        ],
+        [
+          511,
+          1424
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "854283655578a90e3f1e5ec71d6546d2a3ceeaceead9e6c0b718c034fe331891"
     },
     {
       "row": 17,
       "label": "surprise",
       "source": "designer-faces.png",
       "sourceIndex": 17,
-      "sha256": "eba039dc89e5c7af1cc3ce0aae12dfbb706b47e78155be7f4acbdf8858555e5f"
+      "sourceAnchors": [
+        [
+          789,
+          1395
+        ],
+        [
+          858,
+          1374
+        ],
+        [
+          830,
+          1424
+        ]
+      ],
+      "targetAnchors": [
+        [
+          108.927,
+          72.486
+        ],
+        [
+          127.081,
+          68.81
+        ],
+        [
+          119.498,
+          80.299
+        ]
+      ],
+      "sha256": "b10c5aa9f306af7caf46cfadb83de949dc7ca6d72a93ed0f3bbba467f306773b"
     }
   ],
   "devops": [
@@ -133,254 +637,1262 @@
       "label": "close",
       "source": "devops-faces-v2.png",
       "sourceIndex": 0,
-      "sha256": "c07fa2f9f7d80ea46a57249658151c7fed15d7ba444e93e2ebf93d4a66ff6437"
+      "sourceAnchors": [
+        [
+          174,
+          164
+        ],
+        [
+          239,
+          142
+        ],
+        [
+          213,
+          196
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "1fab40bdc9b204871874356f395bd8374e3826a75d8ddfecce288397de9f0965"
     },
     {
       "row": 1,
       "label": "slightly-open",
       "source": "devops-faces-v2.png",
       "sourceIndex": 1,
-      "sha256": "a8693103a8b77743f6d3675ffdc9c83fd0e3de155ded40b62dbc7e7e7c023ed0"
+      "sourceAnchors": [
+        [
+          481,
+          164
+        ],
+        [
+          546,
+          142
+        ],
+        [
+          520,
+          196
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "be01c5263ec8fbb45c5b3aecb8845cfab47b2397ff71a2b2ad0e71cb0fbef955"
     },
     {
       "row": 2,
       "label": "A",
       "source": "devops-faces-v2.png",
       "sourceIndex": 2,
-      "sha256": "5198841f4968741ff31c2be0cb5055d77a6133e98f26d9fd76892dc5a12f5868"
+      "sourceAnchors": [
+        [
+          789,
+          164
+        ],
+        [
+          854,
+          142
+        ],
+        [
+          828,
+          196
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "9f4dae8952923a451db42b8cee1afbed8e21a5415f682c61b50683a411b4fed6"
     },
     {
       "row": 3,
       "label": "O",
       "source": "devops-faces-v2.png",
       "sourceIndex": 3,
-      "sha256": "c6f19185e5b9c5f2326175492e89b5c041d013ec00342b818ba7c5c0cbd41011"
+      "sourceAnchors": [
+        [
+          174,
+          420
+        ],
+        [
+          239,
+          398
+        ],
+        [
+          213,
+          452
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "56b7ee864b4b7dd9f77a6145f3d614646121fa087f4aeae2d7a3c2d4c486df05"
     },
     {
       "row": 4,
       "label": "E",
       "source": "devops-faces-v2.png",
       "sourceIndex": 4,
-      "sha256": "7cf24dbb515af7f5e7cbfaebc60a9ed9d2923365b01f406d16325c5b837829d7"
+      "sourceAnchors": [
+        [
+          481,
+          420
+        ],
+        [
+          546,
+          398
+        ],
+        [
+          520,
+          452
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "69a1fad6d3b3e6c4c20dbfeff6820987c2b6d08f61cbc3eaf737d4d1f3045d20"
     },
     {
       "row": 5,
       "label": "I",
       "source": "devops-faces-v2.png",
       "sourceIndex": 5,
-      "sha256": "a0c60a6403e22bd8f8040944d50fe81d0994d102efac3cf5e346348f6f2b1014"
+      "sourceAnchors": [
+        [
+          789,
+          420
+        ],
+        [
+          854,
+          398
+        ],
+        [
+          828,
+          452
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "45f520fdaff75aa8f5c6921094543c05e8120cd0530106fea357f58a92b6275d"
     },
     {
       "row": 6,
       "label": "U",
       "source": "devops-faces-v2.png",
       "sourceIndex": 6,
-      "sha256": "92300fc315e3565a95a9e53a26a7abfaaa0262d121779e9e0bad2b173601d53d"
+      "sourceAnchors": [
+        [
+          174,
+          676
+        ],
+        [
+          239,
+          654
+        ],
+        [
+          213,
+          708
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "cfbc25a364e3960567ff5550ccc8a9367053419fab6abe1f051b3ec2dbf37cf2"
     },
     {
       "row": 7,
       "label": "smile-speaking",
       "source": "devops-faces-v2.png",
       "sourceIndex": 7,
-      "sha256": "b51f04cd44ac954a200b86fad808a86de4c677fbe3ef8a285329a487289f3d97"
+      "sourceAnchors": [
+        [
+          481,
+          676
+        ],
+        [
+          546,
+          654
+        ],
+        [
+          520,
+          708
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "3a80a4c193d50d3fa03689c56188f8c2ab6f17cbf363960fb620bf548e9c21c0"
     },
     {
       "row": 8,
       "label": "open",
       "source": "devops-faces-v2.png",
       "sourceIndex": 8,
-      "sha256": "fdbaa15993d27eb49c639043d3ffbd95876799e8a07b43537efb2214db608a42"
+      "sourceAnchors": [
+        [
+          789,
+          676
+        ],
+        [
+          854,
+          654
+        ],
+        [
+          828,
+          708
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "0921b448d4dd3856f5523389fadd26b265c6329e64828d2a6063d262b3242031"
     },
     {
       "row": 9,
       "label": "quarter",
       "source": "devops-faces-v2.png",
       "sourceIndex": 9,
-      "sha256": "d505e2149a0bc197800f6d320ccac44732bedc24e29f7420b5ffa7521474e99d"
+      "sourceAnchors": [
+        [
+          174,
+          932
+        ],
+        [
+          239,
+          910
+        ],
+        [
+          213,
+          964
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "9b238f1c6c6079f32454e64a49c2ebf460efdef53cbb53133931a1a212d951d6"
     },
     {
       "row": 10,
       "label": "half",
       "source": "devops-faces-v2.png",
       "sourceIndex": 10,
-      "sha256": "51cbf631d8c155740ec017f8ecb4484e3b4b07b63bf8460100c26d11d482d854"
+      "sourceAnchors": [
+        [
+          481,
+          932
+        ],
+        [
+          546,
+          910
+        ],
+        [
+          520,
+          964
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "4b5a20c56e4ba5b9854e780abfeda38f1250cf36524c51851f33a8fde9a6d357"
     },
     {
       "row": 11,
       "label": "three-quarter",
       "source": "devops-faces-v2.png",
       "sourceIndex": 11,
-      "sha256": "7f5afb43b4b2842e5609c19352316f0a5d2eb97983418cb9018b55ad4e92e304"
+      "sourceAnchors": [
+        [
+          789,
+          932
+        ],
+        [
+          854,
+          910
+        ],
+        [
+          828,
+          964
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "90f83a64f7b46d164ae7d3ed2a3714c445665cfeaff635a6989c761b83c1d26b"
     },
     {
       "row": 12,
       "label": "closed",
       "source": "devops-faces-v2.png",
       "sourceIndex": 12,
-      "sha256": "1ab940e78812a347f3350795e340acf6b63e607eb14f8d8bb82ff6b8bb5ab7d9"
+      "sourceAnchors": [
+        [
+          174,
+          1188
+        ],
+        [
+          239,
+          1166
+        ],
+        [
+          213,
+          1220
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "c5554590d68cac950c5b6ffa31340df9ae8c3b5f6f77cac9d12831126c62baee"
     },
     {
       "row": 13,
       "label": "reopen",
       "source": "devops-faces-v2.png",
       "sourceIndex": 13,
-      "sha256": "c9061aaebbff8c1849df80b3e64ba2ae4da978dc9ebaadec6563b10792e6b0c1"
+      "sourceAnchors": [
+        [
+          481,
+          1188
+        ],
+        [
+          546,
+          1166
+        ],
+        [
+          520,
+          1220
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "65d0f8e6c30b2271ccce257a5a232ec54128796f9c214a7b7500a991579ac59f"
     },
     {
       "row": 14,
       "label": "smile",
       "source": "devops-faces-v2.png",
       "sourceIndex": 14,
-      "sha256": "25cfac33a62e5d83d9f7198bb6d7c2dc4862bcc1c6b3ce744bbcf23ab9be0c51"
+      "sourceAnchors": [
+        [
+          789,
+          1188
+        ],
+        [
+          854,
+          1166
+        ],
+        [
+          828,
+          1220
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "b3948b6e878a0ccf752ab2e19d74918b8db9ef8231e41b5a0b4b50e219e0dfe8"
     },
     {
       "row": 15,
       "label": "concern",
       "source": "devops-faces-v2.png",
       "sourceIndex": 15,
-      "sha256": "1a8296d8050c35905ef900368a0cd03c854f3107638c4dbe076813fae1fc55c5"
+      "sourceAnchors": [
+        [
+          174,
+          1444
+        ],
+        [
+          239,
+          1422
+        ],
+        [
+          213,
+          1476
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "1f38cbdb72e662d1ab3f3987c349dc88780f2af6e630241b406ac77b8d99a998"
     },
     {
       "row": 16,
       "label": "focus",
       "source": "devops-faces-v2.png",
       "sourceIndex": 16,
-      "sha256": "156cca5018c67e758e2b757d665c1d9828f6483bd4d1189ea011f5685a329ed6"
+      "sourceAnchors": [
+        [
+          481,
+          1444
+        ],
+        [
+          546,
+          1422
+        ],
+        [
+          520,
+          1476
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "7793f74300cddbed86a001a043417afb21873557fa4d67e5476959b2dae8a1ff"
     },
     {
       "row": 17,
       "label": "surprise",
       "source": "devops-faces-v2.png",
       "sourceIndex": 17,
-      "sha256": "15be852f6b8291c115dd4489105bc13058c88bd91672789ffde462f1c75d36f2"
+      "sourceAnchors": [
+        [
+          789,
+          1444
+        ],
+        [
+          854,
+          1422
+        ],
+        [
+          828,
+          1476
+        ]
+      ],
+      "targetAnchors": [
+        [
+          109.393,
+          61.68
+        ],
+        [
+          124.511,
+          55.865
+        ],
+        [
+          120.557,
+          68.192
+        ]
+      ],
+      "sha256": "a166817f38822c18c3099670c2abf4063f2f3f8feb51426dc1c102b2299d3014"
     }
   ],
   "tester": [
     {
       "row": 0,
       "label": "close",
-      "source": "tester-faces.png",
+      "source": "tester-v2.png",
       "sourceIndex": 0,
-      "sha256": "1502db727f8ce2f96853972ebaea6b3e860251abd66314df2b6621990e3e8e94"
+      "sourceAnchors": [
+        [
+          118,
+          159
+        ],
+        [
+          182,
+          142
+        ],
+        [
+          155,
+          198
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "90b49a19655ef81a89372c65799d8fc6076ef60154f2e3d5028f351f6274977e"
     },
     {
       "row": 1,
       "label": "slightly-open",
-      "source": "tester-faces.png",
+      "source": "tester-v2-faces.png",
       "sourceIndex": 1,
-      "sha256": "b3049997826a0f8dd504c88ea30b917aeec1d93898119fd885b2deabaac422fc"
+      "sourceAnchors": [
+        [
+          465,
+          159
+        ],
+        [
+          528,
+          143
+        ],
+        [
+          501,
+          199
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "7539c2834f1d34266b8792c5e778cc24d0abb85620ed3680c4f6014ba49c5df6"
     },
     {
       "row": 2,
       "label": "A",
-      "source": "tester-faces.png",
+      "source": "tester-v2-faces.png",
       "sourceIndex": 2,
-      "sha256": "b95f83b8e6216505a6c5423b41758954bddc739ca7b4f4a08a373ff74984da61"
+      "sourceAnchors": [
+        [
+          813,
+          159
+        ],
+        [
+          876,
+          143
+        ],
+        [
+          852,
+          200
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "ac111594fd0b7818aad149cea0619bcab237e02cff963331f54069b2af2ef703"
     },
     {
       "row": 3,
       "label": "O",
-      "source": "tester-faces.png",
+      "source": "tester-v2-faces.png",
       "sourceIndex": 3,
-      "sha256": "418000fb73db7e59415ee0a495718431989ce7877ebd7093347623f2554c27bf"
+      "sourceAnchors": [
+        [
+          118,
+          413
+        ],
+        [
+          183,
+          397
+        ],
+        [
+          155,
+          452
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "dcb6f9dbf54bc32c637825a948f9abb602338cedce2802ac886b1e02761515da"
     },
     {
       "row": 4,
       "label": "E",
-      "source": "tester-faces.png",
+      "source": "tester-v2-faces.png",
       "sourceIndex": 4,
-      "sha256": "cc47195290780e179ed799db0efa4d8170f1044fe7c37108d554c10435b5d7d3"
+      "sourceAnchors": [
+        [
+          465,
+          413
+        ],
+        [
+          528,
+          397
+        ],
+        [
+          501,
+          453
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "315fb98d56b84b15a7b3d0e185f40241c7977a59b14b93259e292b7d774b89e7"
     },
     {
       "row": 5,
       "label": "I",
-      "source": "tester-faces.png",
+      "source": "tester-v2-faces.png",
       "sourceIndex": 5,
-      "sha256": "3c6941d304e87910ea6dd3a744bc480aaecfc4abff6805313531217278af8200"
+      "sourceAnchors": [
+        [
+          813,
+          413
+        ],
+        [
+          877,
+          397
+        ],
+        [
+          852,
+          454
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "76f96447c162cc53287d16e26b9aa9c2d9e8c346c2d9804c4e6cb6af972382d1"
     },
     {
       "row": 6,
       "label": "U",
-      "source": "tester-faces.png",
+      "source": "tester-v2-faces.png",
       "sourceIndex": 6,
-      "sha256": "997abe60c693b50acdf26e850f32d84b13c63192fe3f839df33678e78b8c10c9"
+      "sourceAnchors": [
+        [
+          118,
+          667
+        ],
+        [
+          183,
+          651
+        ],
+        [
+          155,
+          707
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "d9e000add75d1aa56f0b3b143f5c063460d6db8272519a69a3be1748dbae8e34"
     },
     {
       "row": 7,
       "label": "smile-speaking",
-      "source": "tester-faces.png",
-      "sourceIndex": 11,
-      "sha256": "e413220db04be7d83b56578bc913624850f87f91e9dbd348da0fce094cb36de5"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 7,
+      "sourceAnchors": [
+        [
+          465,
+          667
+        ],
+        [
+          529,
+          651
+        ],
+        [
+          501,
+          708
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "589c4f35ede7383b7fe0f22c05197733e9fa99b6982e25f84e2af51d2dfcab9a"
     },
     {
       "row": 8,
       "label": "open",
-      "source": "tester-blink.png",
-      "sourceIndex": 0,
-      "sha256": "9ab95d813f2fe54469d708c10a30fe277d717d7bf33a8ac770219d52a554589a"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 8,
+      "sourceAnchors": [
+        [
+          813,
+          667
+        ],
+        [
+          877,
+          651
+        ],
+        [
+          852,
+          708
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "80a41743aac22f3305383809e3774023d0a0e1c9ae159cf16cd001aed46f0c02"
     },
     {
       "row": 9,
       "label": "quarter",
-      "source": "tester-blink.png",
-      "sourceIndex": 1,
-      "sha256": "90906d269bfcefddcb62a3b1a6d4ba5bd65fb7d54883b73785828ff71acf5ee6"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 9,
+      "sourceAnchors": [
+        [
+          118,
+          921
+        ],
+        [
+          183,
+          905
+        ],
+        [
+          155,
+          962
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "43aa040a09a3db3ca460b764d0183a01f8863774486c187fb67e993448b23589"
     },
     {
       "row": 10,
       "label": "half",
-      "source": "tester-blink.png",
-      "sourceIndex": 2,
-      "sha256": "6c104f9d10e74f87bf1b8b3c745f279be3e7770bc26f88a0e5fc6854bbb92c99"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 10,
+      "sourceAnchors": [
+        [
+          465,
+          921
+        ],
+        [
+          529,
+          905
+        ],
+        [
+          501,
+          962
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "d25913e2a1b35b363e5f136ab62e8e1f390229e90b4563b765f43f4de2f83f1e"
     },
     {
       "row": 11,
       "label": "three-quarter",
-      "source": "tester-blink.png",
-      "sourceIndex": 3,
-      "sha256": "395baaee38004bd5d97ec9ef4d21021c6c81465bcf4c2c06a2a49274055abcdc"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 11,
+      "sourceAnchors": [
+        [
+          813,
+          921
+        ],
+        [
+          877,
+          905
+        ],
+        [
+          852,
+          962
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "2592d18ce587ab72b14c09820731424f171fb9eead19a6a3f87b9bdd165132cd"
     },
     {
       "row": 12,
       "label": "closed",
-      "source": "tester-blink.png",
-      "sourceIndex": 4,
-      "sha256": "3326a1d668fe93d95852a26e456fda9434940c498022b750367f629788a5145b"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 12,
+      "sourceAnchors": [
+        [
+          118,
+          1174
+        ],
+        [
+          183,
+          1158
+        ],
+        [
+          155,
+          1216
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "9f58e7d211a49bb0a382aa5855ea8beeb3d69ab193691686dc6befe557e04600"
     },
     {
       "row": 13,
       "label": "reopen",
-      "source": "tester-blink.png",
-      "sourceIndex": 5,
-      "sha256": "5a2670d6da0e1dbc3d5b2f94f1f3fe51108f71503cd725a6f556e054901cc610"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 13,
+      "sourceAnchors": [
+        [
+          465,
+          1174
+        ],
+        [
+          529,
+          1158
+        ],
+        [
+          501,
+          1216
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "c11defa4f4c45fa5b8671473754bed4d4eef99e653a99766cf3bef1b4e853e03"
     },
     {
       "row": 14,
       "label": "smile",
-      "source": "tester-emotions.png",
-      "sourceIndex": 0,
-      "sha256": "9fe3a99e55af72a5395ee7d8b5c3e995efc99d8833bcfd2c3a89f6496f9071b6"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 15,
+      "sourceAnchors": [
+        [
+          83,
+          1422
+        ],
+        [
+          145,
+          1402
+        ],
+        [
+          118,
+          1457
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "6bb32c3c4dc0f20948c5d1ac00f619afe539e03d05506e3918f095591b76f00d"
     },
     {
       "row": 15,
       "label": "concern",
-      "source": "tester-emotions.png",
-      "sourceIndex": 1,
-      "sha256": "f7688508a3e686bf910759f9d74a74ee5b4a76c5c35e7021d0e34551022233fe"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 16,
+      "sourceAnchors": [
+        [
+          340,
+          1422
+        ],
+        [
+          400,
+          1402
+        ],
+        [
+          375,
+          1457
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "c56c1d893d17aa6c9d50407bcf5e6807ab6240696b0154a3beeff35795dfce00"
     },
     {
       "row": 16,
       "label": "focus",
-      "source": "tester-emotions.png",
-      "sourceIndex": 2,
-      "sha256": "e21366eed2041be524f12c583561e13913c0f89e8e1dc2b9e080a5f53d926450"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 17,
+      "sourceAnchors": [
+        [
+          596,
+          1420
+        ],
+        [
+          655,
+          1401
+        ],
+        [
+          629,
+          1457
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "2790220d28413c520be166a3811fa2d58c5abf110cafd75647c7da982fd0fb19"
     },
     {
       "row": 17,
       "label": "surprise",
-      "source": "tester-emotions.png",
-      "sourceIndex": 3,
-      "sha256": "5c8a0643f68dda46ea72593bccb39d4ea51aa56a447a533bbdc2e0926085b307"
+      "source": "tester-v2-faces.png",
+      "sourceIndex": 18,
+      "sourceAnchors": [
+        [
+          850,
+          1420
+        ],
+        [
+          911,
+          1400
+        ],
+        [
+          882,
+          1457
+        ]
+      ],
+      "targetAnchors": [
+        [
+          100.108,
+          61.422
+        ],
+        [
+          115.216,
+          56.541
+        ],
+        [
+          109.87,
+          70.022
+        ]
+      ],
+      "sha256": "ac504707187083cf83bdf2086c3b0f3a6f32e79bb9ac34dfa7d9b1cd0f26d6ea"
     }
   ]
 }

@@ -9,10 +9,23 @@
     128,
     120
   ],
+  "neckAnchorUsage": "Legacy/core default; each rig layer pivot is authoritative",
   "feetBaseline": 368,
   "characters": {
     "designer": {
       "name": "DESIGNER",
+      "registration": {
+        "kind": "uniform",
+        "scaleX": 0.22979291917167669,
+        "scaleY": 0.22979291917167669,
+        "offsetX": 4.37140948563794,
+        "offsetY": 21.01269205076818,
+        "sourceTop": 13,
+        "sourceFeet": 1510,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "source": "designer-v2.png"
+      },
       "roleHint": "lead",
       "layers": [
         {
@@ -31,8 +44,8 @@
           "file": "designer/arm-left.png",
           "parent": "body",
           "pivot": [
-            81.83,
-            160.922
+            88.705,
+            136.599
           ],
           "motion": "arm",
           "amplitudeDegrees": 3.0
@@ -42,8 +55,8 @@
           "file": "designer/arm-right.png",
           "parent": "body",
           "pivot": [
-            163.37,
-            165.035
+            158.103,
+            141.194
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.6
@@ -53,8 +66,8 @@
           "file": "designer/braid.png",
           "parent": "head",
           "pivot": [
-            114.23,
-            117.031
+            116.281,
+            88.802
           ],
           "motion": "hair",
           "amplitudeDegrees": 1.8
@@ -64,8 +77,8 @@
           "file": "designer/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            128.0,
+            90.87
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5
@@ -106,6 +119,18 @@
     },
     "devops": {
       "name": "DEVOPS",
+      "registration": {
+        "kind": "uniform",
+        "scaleX": 0.2325895875591616,
+        "scaleY": 0.2325895875591616,
+        "offsetX": 4.494929006085201,
+        "offsetY": 17.487491548343485,
+        "sourceTop": 28,
+        "sourceFeet": 1507,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "source": "devops-v2.png"
+      },
       "roleHint": "code",
       "layers": [
         {
@@ -124,8 +149,8 @@
           "file": "devops/hip-arm.png",
           "parent": "body",
           "pivot": [
-            66.98,
-            145.92
+            75.435,
+            118.897
           ],
           "motion": "arm",
           "amplitudeDegrees": 1.5
@@ -135,8 +160,8 @@
           "file": "devops/tool-arm.png",
           "parent": "body",
           "pivot": [
-            173.63,
-            157.117
+            167.308,
+            131.456
           ],
           "motion": "arm",
           "amplitudeDegrees": 2.1
@@ -146,8 +171,8 @@
           "file": "devops/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            128.0,
+            89.823
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5
@@ -188,6 +213,18 @@
     },
     "tester": {
       "name": "TESTER",
+      "registration": {
+        "kind": "uniform",
+        "scaleX": 0.23243243243243245,
+        "scaleY": 0.23243243243243245,
+        "offsetX": -5.648648648648646,
+        "offsetY": 17.491891891891896,
+        "sourceTop": 28,
+        "sourceFeet": 1508,
+        "targetTop": 24,
+        "targetFeet": 368,
+        "source": "tester-v2.png"
+      },
       "roleHint": "review",
       "layers": [
         {
@@ -206,8 +243,8 @@
           "file": "tester/controller-arms.png",
           "parent": "body",
           "pivot": [
-            125.52,
-            167.455
+            112.892,
+            146.027
           ],
           "motion": "arm",
           "amplitudeDegrees": 1.7
@@ -217,8 +254,8 @@
           "file": "tester/head.png",
           "parent": "body",
           "pivot": [
-            128,
-            120
+            116.843,
+            82.341
           ],
           "motion": "head",
           "amplitudeDegrees": 1.5

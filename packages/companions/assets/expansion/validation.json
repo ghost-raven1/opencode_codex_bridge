@@ -4,74 +4,74 @@
       {
         "id": "body",
         "bounds": [
-          43,
-          113,
-          228,
+          56,
+          86,
+          213,
           369
         ],
-        "sha256": "936151126bc938f682644512126cd71a1606d093e3ec803aa30411e96c036b79"
+        "sha256": "8b9b1b0fd13de6bd3c05ef17539c8840c5d202ee8d7640c01e2d75b3f42c7eae"
       },
       {
         "id": "arm-left",
         "bounds": [
-          59,
-          105,
-          98,
-          175
+          70,
+          79,
+          103,
+          152
         ],
-        "sha256": "9eb4b88162d81733e2120539d41b02cea62a48204e23273da0e238c1cd91a752"
+        "sha256": "24e50e745a6e7ebe0efeec694a03c4cc71820426fa2ea01160991410492675ed"
       },
       {
         "id": "arm-right",
         "bounds": [
-          154,
-          120,
-          197,
-          177
+          150,
+          91,
+          186,
+          154
         ],
-        "sha256": "53fc90bc27ced772bcccb381ef240718d10979caa30116abcf6aa68a1292cbee"
+        "sha256": "fd74ce256eea5a9222c5549b9f4f5c9e72f111a2cc34328d43551b0aab1ee948"
       },
       {
         "id": "braid",
         "bounds": [
-          73,
-          112,
-          120,
-          218
+          81,
+          85,
+          121,
+          201
         ],
-        "sha256": "50982216da30a76ddfcdb5e479dbdb99870744aecdd46049fcab8d3443332684"
+        "sha256": "23adade792fb2fbce46b7f1d595553b8c97979bb8245b0dc3f796be916897759"
       },
       {
         "id": "head",
         "bounds": [
-          78,
+          85,
           23,
-          158,
-          121
+          153,
+          92
         ],
-        "sha256": "90c52d0854ce1cf723ef9532c55444439dbe6dd8b5162e3b6ccd5891e60f630c"
+        "sha256": "346dcb62e2cda9ff8c599cd45d7b5a6267893a1859385a16341d8a1613d455b4"
       }
     ],
     "facialDrawings": 18,
     "facialHashes": [
-      "dabf7b64340e0141ba5f55dd201d9c223106d715ca9d9ec3401b703367e89c7e",
-      "2802ff8900c2aafb0e9589f3859ef335f84576991f13e1d2e29f443abe8ffb1c",
-      "05257ce2e426db14136468abde536bfcef658e27dac3c0a51f3f6edbca88b7df",
-      "c887fc7188fb37f4aedd34d020b594d4c868c945292172c32ae0d6e7c89df1c4",
-      "295c6c8e964330610708638798f2a14cbd2f9e99310166cc252fb0714601e373",
-      "dc0acb7fc5b469c6ac5e034b12798ed99fa5658c40617fca42311d5b8cb4660c",
-      "ab37a77123f601e24819e6147396d6e98d333c020f2d13ed5b6338bbbbb51b10",
-      "a3c5cbb4ffe62bab0e82e4881401e03d874ed050ac91e68f57f8377c29cf823b",
-      "1152fdf00ef952af422c2755f906f2dccc67f37150604574338379218535173f",
-      "ac0206d0ec1a7c2addf363d93abcb116ee8afbc1edccdea3c3ce773c0e5faac0",
-      "0ed9b843573beb9527e6a6094129bcc290ffe0b37379219df45c7f5b74d947c6",
-      "f61a816a315e4309cad3ec80daff99e1109466bd85449be07b67af6720722ecc",
-      "3011659ed45057bae2870960a2b7ee669edf46cf78da422b5acea66932fd2c43",
-      "825a9a353c479d199480cba564d9845951575da2fb1089ea1731a24a8af7b8b5",
-      "91bcd8fc682899782f0eefc0a45901264cc7cf0146e354f1ccf23b5217ad4db1",
-      "e5ac1dcf697efc2a74b9fab459b8c4e6482770d4a1c8c8f464b3d8e7881f581e",
-      "0ab26a3821df52291903e0750f42e8cde3ca5294dab25dbfcb1c6dd0cbc6815b",
-      "eba039dc89e5c7af1cc3ce0aae12dfbb706b47e78155be7f4acbdf8858555e5f"
+      "206006e5b63673164a9232c3d4ddf730b5b79e49510cce113d7275b4664d118d",
+      "3f6db1b8c6141b274860710c501fb6947c527be17138bc129afdb8aab8555397",
+      "9d3e96e2dc61e1a27cc9c917ab8df94b6070b41dd1526e5da7b1e636687a77d0",
+      "2a64d2ecb72d1bddfe3c4365bebad4961926c3fed7e544191e0f4463c83e0cae",
+      "946ec173291b4b905d6c399a452ba0c01564f7de576313208ec713d56c2af6d8",
+      "023f3b4361817e666cf701f6d58536fcb1fb72ed30de9a93dd2ff398d5fc4a08",
+      "ce70d124499e979af98faf0abd74044f007dd4d86271b22eb18cc3cd7e5aaedb",
+      "e1c057e9e0bdb84cc80a2fb6a7ae71a632cc104916f7da7f9a0b4f76e5b96f2d",
+      "6464e4ef63ea2c09cf512d663d60d880f414706ec40d1012bfc88288b776d260",
+      "0e05dd59ee0c85e3b3d1f3d9253c52bba364c8128a6ff7c4b8bdc4f901f9c733",
+      "a6a556d615f3537936e670d5e6468949d068fa9a60d74f2c704da549926deed9",
+      "ef729dfbb6833cc6cba6f5e50b68b0fcd9e2ff9723a7cb4c000b4e056052bd83",
+      "9496cc8aef95bf0c1b99f62e4de332b58f8d4fea5bcc55a12623e2add0a6d81f",
+      "c6eb45ea674868853b66937014b37c30f2f590f526658bb9d24c21b54f26553c",
+      "7256c5e691a2f894cf4dff21d037bf656cd41a281e946014914c6c69cc55643a",
+      "5f267acbde750440c3e312d023dc19e384eed8b985dd1a71f400c6bf4b999b43",
+      "854283655578a90e3f1e5ec71d6546d2a3ceeaceead9e6c0b718c034fe331891",
+      "b10c5aa9f306af7caf46cfadb83de949dc7ca6d72a93ed0f3bbba467f306773b"
     ],
     "basePoses": 1,
     "motion": "continuous affine layers; no duplicated generated frames"
@@ -81,64 +81,64 @@
       {
         "id": "body",
         "bounds": [
-          43,
-          94,
-          210,
+          55,
+          72,
+          199,
           369
         ],
-        "sha256": "6e603a7d5f6fdcd388b357c4fcf6430cee28db2f2519342a5f7af25111f3d4cc"
+        "sha256": "aaab0d7e55357a3ab24e952161298801f31d90de3fafcc26fa1941f3783a0ed9"
       },
       {
         "id": "hip-arm",
         "bounds": [
-          46,
-          140,
-          121,
-          185
+          57,
+          112,
+          122,
+          163
         ],
-        "sha256": "5a7fc54ae0c046bf204c90ae6db877a6edfbc685bf4a40307c21926931cb4f7e"
+        "sha256": "43bc3213ed54b96331884b2eed4503a23052bb8125f6500f947c2fbb6090e1af"
       },
       {
         "id": "tool-arm",
         "bounds": [
-          163,
-          127,
-          232,
-          207
+          158,
+          98,
+          217,
+          187
         ],
-        "sha256": "99ccde0fec7df4594fbd7cdf4a3af6f4a30e7fc3b150cf65544011b2a6f1b66d"
+        "sha256": "15ae0f30fc3780a04be1fee483e7ca2595406ce501bbcc05c27f18ee410ff950"
       },
       {
         "id": "head",
         "bounds": [
-          76,
+          84,
           23,
-          149,
-          102
+          146,
+          78
         ],
-        "sha256": "5ace1b157c162b2f806a5772262d6013022ba0c2403e649f5580549da04e1b44"
+        "sha256": "546b575446538a7765cce2f1391a75bdcaef33a2d77240d39b745af447d608e0"
       }
     ],
     "facialDrawings": 18,
     "facialHashes": [
-      "c07fa2f9f7d80ea46a57249658151c7fed15d7ba444e93e2ebf93d4a66ff6437",
-      "a8693103a8b77743f6d3675ffdc9c83fd0e3de155ded40b62dbc7e7e7c023ed0",
-      "5198841f4968741ff31c2be0cb5055d77a6133e98f26d9fd76892dc5a12f5868",
-      "c6f19185e5b9c5f2326175492e89b5c041d013ec00342b818ba7c5c0cbd41011",
-      "7cf24dbb515af7f5e7cbfaebc60a9ed9d2923365b01f406d16325c5b837829d7",
-      "a0c60a6403e22bd8f8040944d50fe81d0994d102efac3cf5e346348f6f2b1014",
-      "92300fc315e3565a95a9e53a26a7abfaaa0262d121779e9e0bad2b173601d53d",
-      "b51f04cd44ac954a200b86fad808a86de4c677fbe3ef8a285329a487289f3d97",
-      "fdbaa15993d27eb49c639043d3ffbd95876799e8a07b43537efb2214db608a42",
-      "d505e2149a0bc197800f6d320ccac44732bedc24e29f7420b5ffa7521474e99d",
-      "51cbf631d8c155740ec017f8ecb4484e3b4b07b63bf8460100c26d11d482d854",
-      "7f5afb43b4b2842e5609c19352316f0a5d2eb97983418cb9018b55ad4e92e304",
-      "1ab940e78812a347f3350795e340acf6b63e607eb14f8d8bb82ff6b8bb5ab7d9",
-      "c9061aaebbff8c1849df80b3e64ba2ae4da978dc9ebaadec6563b10792e6b0c1",
-      "25cfac33a62e5d83d9f7198bb6d7c2dc4862bcc1c6b3ce744bbcf23ab9be0c51",
-      "1a8296d8050c35905ef900368a0cd03c854f3107638c4dbe076813fae1fc55c5",
-      "156cca5018c67e758e2b757d665c1d9828f6483bd4d1189ea011f5685a329ed6",
-      "15be852f6b8291c115dd4489105bc13058c88bd91672789ffde462f1c75d36f2"
+      "1fab40bdc9b204871874356f395bd8374e3826a75d8ddfecce288397de9f0965",
+      "be01c5263ec8fbb45c5b3aecb8845cfab47b2397ff71a2b2ad0e71cb0fbef955",
+      "9f4dae8952923a451db42b8cee1afbed8e21a5415f682c61b50683a411b4fed6",
+      "56b7ee864b4b7dd9f77a6145f3d614646121fa087f4aeae2d7a3c2d4c486df05",
+      "69a1fad6d3b3e6c4c20dbfeff6820987c2b6d08f61cbc3eaf737d4d1f3045d20",
+      "45f520fdaff75aa8f5c6921094543c05e8120cd0530106fea357f58a92b6275d",
+      "cfbc25a364e3960567ff5550ccc8a9367053419fab6abe1f051b3ec2dbf37cf2",
+      "3a80a4c193d50d3fa03689c56188f8c2ab6f17cbf363960fb620bf548e9c21c0",
+      "0921b448d4dd3856f5523389fadd26b265c6329e64828d2a6063d262b3242031",
+      "9b238f1c6c6079f32454e64a49c2ebf460efdef53cbb53133931a1a212d951d6",
+      "4b5a20c56e4ba5b9854e780abfeda38f1250cf36524c51851f33a8fde9a6d357",
+      "90f83a64f7b46d164ae7d3ed2a3714c445665cfeaff635a6989c761b83c1d26b",
+      "c5554590d68cac950c5b6ffa31340df9ae8c3b5f6f77cac9d12831126c62baee",
+      "65d0f8e6c30b2271ccce257a5a232ec54128796f9c214a7b7500a991579ac59f",
+      "b3948b6e878a0ccf752ab2e19d74918b8db9ef8231e41b5a0b4b50e219e0dfe8",
+      "1f38cbdb72e662d1ab3f3987c349dc88780f2af6e630241b406ac77b8d99a998",
+      "7793f74300cddbed86a001a043417afb21873557fa4d67e5476959b2dae8a1ff",
+      "a166817f38822c18c3099670c2abf4063f2f3f8feb51426dc1c102b2299d3014"
     ],
     "basePoses": 1,
     "motion": "continuous affine layers; no duplicated generated frames"
@@ -148,54 +148,54 @@
       {
         "id": "body",
         "bounds": [
-          55,
-          106,
-          208,
+          65,
+          75,
+          191,
           368
         ],
-        "sha256": "1cf0904bc3c607c5379df84fb472f4e8bb847205002c7207937240bfe3558a7f"
+        "sha256": "d7a1997f46c7113874d21fc0717618b9c99e5dcfd6dbaadbc44342ead97f1c2f"
       },
       {
         "id": "controller-arms",
         "bounds": [
-          66,
-          161,
-          167,
-          180
+          72,
+          136,
+          151,
+          155
         ],
-        "sha256": "c10f4c8ca1fe2091e538b58e56e4e03e01081aac57980f9413367e8a270d3eec"
+        "sha256": "b9702644ee22db503caa1787c9f796072f4fa82c74e64bb7e33a8ebab016f76a"
       },
       {
         "id": "head",
         "bounds": [
-          73,
-          24,
-          164,
-          121
+          75,
+          23,
+          141,
+          81
         ],
-        "sha256": "b9ea5d58610e635313b8a3a1e513a1a91bc3cdaed0412578e96ed2517bc3b583"
+        "sha256": "e896c5c1a9713ba13312b813e34fdea93c50f25d2940a69be96cb547aee114c4"
       }
     ],
     "facialDrawings": 18,
     "facialHashes": [
-      "1502db727f8ce2f96853972ebaea6b3e860251abd66314df2b6621990e3e8e94",
-      "b3049997826a0f8dd504c88ea30b917aeec1d93898119fd885b2deabaac422fc",
-      "b95f83b8e6216505a6c5423b41758954bddc739ca7b4f4a08a373ff74984da61",
-      "418000fb73db7e59415ee0a495718431989ce7877ebd7093347623f2554c27bf",
-      "cc47195290780e179ed799db0efa4d8170f1044fe7c37108d554c10435b5d7d3",
-      "3c6941d304e87910ea6dd3a744bc480aaecfc4abff6805313531217278af8200",
-      "997abe60c693b50acdf26e850f32d84b13c63192fe3f839df33678e78b8c10c9",
-      "e413220db04be7d83b56578bc913624850f87f91e9dbd348da0fce094cb36de5",
-      "9ab95d813f2fe54469d708c10a30fe277d717d7bf33a8ac770219d52a554589a",
-      "90906d269bfcefddcb62a3b1a6d4ba5bd65fb7d54883b73785828ff71acf5ee6",
-      "6c104f9d10e74f87bf1b8b3c745f279be3e7770bc26f88a0e5fc6854bbb92c99",
-      "395baaee38004bd5d97ec9ef4d21021c6c81465bcf4c2c06a2a49274055abcdc",
-      "3326a1d668fe93d95852a26e456fda9434940c498022b750367f629788a5145b",
-      "5a2670d6da0e1dbc3d5b2f94f1f3fe51108f71503cd725a6f556e054901cc610",
-      "9fe3a99e55af72a5395ee7d8b5c3e995efc99d8833bcfd2c3a89f6496f9071b6",
-      "f7688508a3e686bf910759f9d74a74ee5b4a76c5c35e7021d0e34551022233fe",
-      "e21366eed2041be524f12c583561e13913c0f89e8e1dc2b9e080a5f53d926450",
-      "5c8a0643f68dda46ea72593bccb39d4ea51aa56a447a533bbdc2e0926085b307"
+      "90b49a19655ef81a89372c65799d8fc6076ef60154f2e3d5028f351f6274977e",
+      "7539c2834f1d34266b8792c5e778cc24d0abb85620ed3680c4f6014ba49c5df6",
+      "ac111594fd0b7818aad149cea0619bcab237e02cff963331f54069b2af2ef703",
+      "dcb6f9dbf54bc32c637825a948f9abb602338cedce2802ac886b1e02761515da",
+      "315fb98d56b84b15a7b3d0e185f40241c7977a59b14b93259e292b7d774b89e7",
+      "76f96447c162cc53287d16e26b9aa9c2d9e8c346c2d9804c4e6cb6af972382d1",
+      "d9e000add75d1aa56f0b3b143f5c063460d6db8272519a69a3be1748dbae8e34",
+      "589c4f35ede7383b7fe0f22c05197733e9fa99b6982e25f84e2af51d2dfcab9a",
+      "80a41743aac22f3305383809e3774023d0a0e1c9ae159cf16cd001aed46f0c02",
+      "43aa040a09a3db3ca460b764d0183a01f8863774486c187fb67e993448b23589",
+      "d25913e2a1b35b363e5f136ab62e8e1f390229e90b4563b765f43f4de2f83f1e",
+      "2592d18ce587ab72b14c09820731424f171fb9eead19a6a3f87b9bdd165132cd",
+      "9f58e7d211a49bb0a382aa5855ea8beeb3d69ab193691686dc6befe557e04600",
+      "c11defa4f4c45fa5b8671473754bed4d4eef99e653a99766cf3bef1b4e853e03",
+      "6bb32c3c4dc0f20948c5d1ac00f619afe539e03d05506e3918f095591b76f00d",
+      "c56c1d893d17aa6c9d50407bcf5e6807ab6240696b0154a3beeff35795dfce00",
+      "2790220d28413c520be166a3811fa2d58c5abf110cafd75647c7da982fd0fb19",
+      "ac504707187083cf83bdf2086c3b0f3a6f32e79bb9ac34dfa7d9b1cd0f26d6ea"
     ],
     "basePoses": 1,
     "motion": "continuous affine layers; no duplicated generated frames"
