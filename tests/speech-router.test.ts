@@ -15,6 +15,64 @@ function setup() {
 }
 
 describe("local role voices", () => {
+  it("retries a failed local playback once through macOS and ignores callbacks from the failed attempt", async () => {
+    const t = setup();
+    t.router.event({ type: "speak", characterId: "a", role: "researcher", text: "Проверяю источники." });
+    t.router.event({ type: "speak", characterId: "b", text: "Следующая реплика." });
+    await t.finish(); await t.finish(1);
+    const failed = t.send.mock.calls[0]![0];
+    t.router.receive({ type: "audio-finished", id: failed.audioId, phase: "error" });
+    const fallback = t.send.mock.calls[1]![0];
+    expect(fallback).toMatchObject({ type: "speak", characterId: "a", role: "researcher", text: "Проверяю источники." });
+    expect(fallback.audioId).not.toBe(failed.audioId);
+    expect(t.remove).toHaveBeenCalledWith("/audio/0.wav");
+    for (const phase of ["end", "error"]) t.router.receive({ type: "audio-finished", id: failed.audioId, phase });
+    expect(t.send).toHaveBeenCalledTimes(2);
+    // Even a failed system voice advances the queue instead of starting an infinite retry.
+    t.router.receive({ type: "audio-finished", id: fallback.audioId, phase: "error" });
+    expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "b" }));
+    t.router.dispose();
+  });
+  it("keeps the fallback and prefetched next phrase pending past the failed audio watchdog", async () => {
+    vi.useFakeTimers();
+    const send = vi.fn(), changed = vi.fn(), remove = vi.fn(async () => {});
+    const config = configSchema.parse({ tts: { engine: "local" } });
+    const router = new SpeechRouter(config, {
+      synthesize: async ({ id }) => ({ path: `/audio/${id}.wav`, duration: 2, sampleRate: 24000 }), dispose() {},
+    }, send, () => {}, remove, { changed, voiceFor: (_, role) => config.tts.voices[role] });
+    try {
+      for (const characterId of ["a", "b"]) router.event({ type: "speak", characterId, text: "Проверка." });
+      await vi.advanceTimersByTimeAsync(0);
+      const failed = send.mock.calls.find(([event]) => event.type === "play-audio")![0];
+      router.receive({ type: "audio-finished", id: failed.audioId, phase: "error" });
+      const retry = send.mock.calls.at(-1)![0];
+      await vi.advanceTimersByTimeAsync(13_000);
+      expect(send.mock.calls.filter(([event]) => ["play-audio", "speak", "stop"].includes(event.type)))
+        .toHaveLength(2);
+      expect(changed).toHaveBeenLastCalledWith(new Set(["a", "b"]), "a");
+      router.receive({ type: "audio-finished", id: retry.audioId, phase: "end" });
+      expect(send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "b" }));
+      expect(changed).toHaveBeenLastCalledWith(new Set(["b"]), "b");
+      expect(remove).toHaveBeenCalledOnce();
+    } finally { router.dispose(); vi.useRealTimers(); }
+  });
+  it.each(["mute", "suspend", "stop"])("cancels the playback retry on %s without replaying queued audio", async action => {
+    const t = setup();
+    for (const characterId of ["a", "b"]) t.router.event({ type: "speak", characterId, text: "Проверка." });
+    await t.finish(); await t.finish(1);
+    const failed = t.send.mock.calls[0]![0];
+    t.router.receive({ type: "audio-finished", id: failed.audioId, phase: "error" });
+    const retry = t.send.mock.calls[1]![0];
+    t.router.receive({ type: "speech-control", action, muted: true, suspended: true });
+    const sent = t.send.mock.calls.length;
+    for (const id of [failed.audioId, retry.audioId]) {
+      t.router.receive({ type: "audio-finished", id, phase: "error" });
+      t.router.receive({ type: "audio-finished", id, phase: "end" });
+    }
+    expect(t.send).toHaveBeenCalledTimes(sent);
+    expect(t.remove.mock.calls.map(([path]) => path).sort()).toEqual(["/audio/0.wav", "/audio/1.wav"]);
+    t.router.dispose();
+  });
   it("publishes the full public caption before synthesis and keeps it after speech ends", async () => {
     const t = setup(), text = "Проверяю публичный ответ до готовности синтезатора. ".repeat(12).trim();
     t.router.event({ type: "speak", characterId: "a", text });

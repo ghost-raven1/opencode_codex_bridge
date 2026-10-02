@@ -1,6 +1,6 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { realpath, rm, stat, unlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
@@ -35,7 +35,15 @@ export class LocalTts {
   private buffer: Buffer = Buffer.alloc(0);
   private ready = false;
   private disposed = false;
-  private readonly onExit = (): void => this.dispose();
+  private listeningForExit = false;
+  private readonly ownedDirectories = new Map<string, ChildProcessWithoutNullStreams | undefined>();
+  private readonly onExit = (): void => {
+    this.dispose();
+    // Node does not run asynchronous filesystem cleanup after an exit listener returns.
+    for (const directory of this.ownedDirectories.keys()) {
+      try { rmSync(directory, { recursive: true, force: true }); } catch { /* Best effort at process exit. */ }
+    }
+  };
 
   constructor(private readonly options: Options = {}) {
     this.python = options.python ?? join(root, ".local/tts/.venv/bin/python");
@@ -76,6 +84,7 @@ export class LocalTts {
     const started = this.starting;
     const child = spawn(this.python, ["-u", this.worker], { cwd: root, stdio: "pipe",
       env: { ...process.env, CODEXBRIDGE_TTS_AUDIO_DIR: audioDirectory } });
+    if (!this.options.audioDirectory) this.ownedDirectories.set(audioDirectory, child);
     this.child = child; this.buffer = Buffer.alloc(0);
     this.startupTimer = setTimeout(() => this.fail("Local speech model startup timed out"), this.options.startupTimeoutMs ?? 90_000);
     child.stderr.resume();
@@ -86,10 +95,15 @@ export class LocalTts {
     child.stdin.on("error", () => { if (this.child === child) this.fail("Local speech input channel failed"); });
     child.once("close", () => {
       if (this.child === child) this.fail("Local speech worker exited");
-      // Capture this run's directory so a restarted worker cannot lose its new audio.
-      if (!this.options.audioDirectory) void rm(audioDirectory, { recursive: true, force: true }).catch(() => undefined);
+      if (!this.options.audioDirectory) {
+        // Delivered WAVs belong to the playback queue, which can outlive this worker.
+        this.ownedDirectories.set(audioDirectory, undefined);
+        if (this.disposed) this.cleanDirectory(audioDirectory);
+      }
     });
-    process.once("exit", this.onExit);
+    if (!this.listeningForExit) {
+      process.once("exit", this.onExit); this.listeningForExit = true;
+    }
     return started;
   }
 
@@ -165,7 +179,7 @@ export class LocalTts {
   }
 
   private stop(): void {
-    clearTimeout(this.startupTimer); process.removeListener("exit", this.onExit);
+    clearTimeout(this.startupTimer);
     const child = this.child;
     this.child = undefined; this.starting = undefined; this.ready = false; this.buffer = Buffer.alloc(0);
     if (!child) return;
@@ -174,8 +188,18 @@ export class LocalTts {
     child.once("close", () => clearTimeout(killTimer));
   }
 
+  private cleanDirectory(directory: string): void {
+    void rm(directory, { recursive: true, force: true }).then(() => {
+      this.ownedDirectories.delete(directory);
+    }).catch(() => undefined);
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true; this.fail("Local speech worker is closed", false);
+    process.removeListener("exit", this.onExit); this.listeningForExit = false;
+    for (const [directory, child] of this.ownedDirectories) {
+      if (!child) this.cleanDirectory(directory);
+    }
   }
 }

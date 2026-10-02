@@ -84,8 +84,11 @@ export class SpeechRouter {
       if (event.action === "stop") this.clearCaptions();
       // The native Stop may cross an already generated play command in the two IPC directions.
       if (event.action === "stop" && characterId) this.send({ type: "stop", characterId });
-    } else if (event.type === "audio-finished" && this.active?.id === event.id) {
-      if (event.phase === "error") this.log("Не удалось воспроизвести локальный голос; текст доступен в терминале.");
+    } else if (event.type === "audio-finished" && this.active && this.active.id === event.id) {
+      if (event.phase === "error" && this.active.audio) {
+        this.retryWithSystemVoice(this.active); return;
+      }
+      if (event.phase === "error") this.log("Не удалось воспроизвести системный голос; текст доступен в терминале.");
       this.complete();
     } else if (event.type === "test-voices") {
       const samples: [Role, string][] = [["coordinator", "Я веду задачу и собираю результаты команды."],
@@ -148,6 +151,16 @@ export class SpeechRouter {
       this.send({ type: "stop", characterId: entry.characterId }); this.complete();
     }, 120_000);
     this.watchdog.unref();
+  }
+
+  /** Keep the utterance pending, but isolate callbacks from the failed local attempt. */
+  private retryWithSystemVoice(entry: Utterance): void {
+    clearTimeout(this.watchdog);
+    void this.removeAudio(entry.audio!.path);
+    const retry = { ...entry, id: randomUUID(), audio: undefined };
+    this.active = retry;
+    this.log("Не удалось воспроизвести локальный голос. Повторяю реплику голосом macOS.");
+    this.speakFallback(retry);
   }
 
   private complete(): void {

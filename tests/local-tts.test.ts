@@ -4,6 +4,10 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 const home = vi.hoisted(() => ({ directory: "" }));
 vi.mock("node:os", async original => ({ ...await original<object>(), homedir: () => home.directory }));
+vi.mock("node:fs/promises", async original => {
+  const fs = await original<typeof import("node:fs/promises")>();
+  return { ...fs, rm: vi.fn(fs.rm), stat: vi.fn(fs.stat) };
+});
 import { LocalTts } from "../packages/companions/src/local-tts.js";
 import { configSchema } from "../packages/companions/src/config.js";
 import { SpeechRouter } from "../packages/companions/src/speech-router.js";
@@ -11,6 +15,7 @@ import { SpeechRouter } from "../packages/companions/src/speech-router.js";
 const instances: LocalTts[] = [];
 const directories: string[] = [];
 beforeEach(async () => {
+  vi.mocked(rm).mockClear();
   home.directory = await mkdtemp(join(tmpdir(), "codexbridge-tts-home-")); directories.push(home.directory);
 });
 afterEach(async () => {
@@ -59,6 +64,8 @@ for line in sys.stdin:
 }
 
 const request = (id: string, voice = "ok") => ({ id, text: "SECRET request text", voice });
+// Worker close rejects requests before its asynchronous cleanup finishes.
+const finishRemovals = () => Promise.all(vi.mocked(rm).mock.results.map(result => result.value));
 describe("local speech worker channel", () => {
   it("rejects and deletes 45 seconds for 32 characters, while allowing normal short and long speech", async () => {
     const text = "Публичная короткая фраза".padEnd(32, ".");
@@ -95,18 +102,93 @@ describe("local speech worker channel", () => {
     await vi.waitFor(async () => { await expect(access(dirname(first.path))).rejects.toThrow(); });
     await expect(access(second.path)).resolves.toBeUndefined();
   });
-  it("does not let cleanup of a failed worker delete audio produced after its restart", async () => {
+  it("preserves delivered audio across worker failure and restart, then cleans both runs on disposal", async () => {
     const f = await fixture({ defaultAudio: true }), previous = await f.tts.synthesize(request("one"));
     await expect(f.tts.synthesize(request("bad", "large"))).rejects.toThrow("frame limit");
     const next = await f.tts.synthesize(request("two"));
     expect(dirname(next.path)).not.toBe(dirname(previous.path));
-    await vi.waitFor(async () => { await expect(access(dirname(previous.path))).rejects.toThrow(); });
+    await expect(access(previous.path)).resolves.toBeUndefined();
     await expect(access(next.path)).resolves.toBeUndefined();
+    f.tts.dispose();
+    await vi.waitFor(async () => {
+      await expect(access(dirname(previous.path))).rejects.toThrow();
+      await expect(access(dirname(next.path))).rejects.toThrow();
+    });
+  });
+  it("plays prefetched audio after its real worker exits and removes it only after playback", async () => {
+    const f = await fixture({ defaultAudio: true }), send = vi.fn();
+    const ready: Awaited<ReturnType<LocalTts["synthesize"]>>[] = [];
+    const router = new SpeechRouter(configSchema.parse({ tts: { engine: "local" } }), {
+      synthesize: async request => { const audio = await f.tts.synthesize(request); ready.push(audio); return audio; },
+      dispose: () => f.tts.dispose(),
+    }, send, () => {});
+    try {
+      for (const characterId of ["a", "b"]) router.event({ type: "speak", characterId, text: "Публичная реплика." });
+      await vi.waitFor(() => expect(ready).toHaveLength(2));
+      await expect(f.tts.synthesize(request("crash-worker", "crash"))).rejects.toThrow("exited");
+      await finishRemovals();
+      const plays = () => send.mock.calls.map(([event]) => event).filter(event => event.type === "play-audio");
+      for (const audio of ready) await expect(access(audio.path)).resolves.toBeUndefined();
+      router.receive({ type: "audio-finished", id: plays()[0].audioId, phase: "end" });
+      expect(plays()).toHaveLength(2);
+      await expect(access(plays()[1].path)).resolves.toBeUndefined();
+      await vi.waitFor(async () => { await expect(access(ready[0]!.path)).rejects.toThrow(); });
+      router.receive({ type: "audio-finished", id: plays()[1].audioId, phase: "end" });
+      await vi.waitFor(async () => { await expect(access(ready[1]!.path)).rejects.toThrow(); });
+    } finally { router.dispose(); }
+    await vi.waitFor(async () => { await expect(access(dirname(ready[0]!.path))).rejects.toThrow(); });
   });
   it("preserves caller-owned custom audio directories on disposal", async () => {
     const f = await fixture(), audio = await f.tts.synthesize(request("one"));
+    await expect(f.tts.synthesize(request("crash-worker", "crash"))).rejects.toThrow("exited");
+    await finishRemovals();
     f.tts.dispose();
     await expect(access(audio.path)).resolves.toBeUndefined();
+  });
+  it("keeps exactly one exit cleanup across failed runs and unregisters it on disposal", async () => {
+    const baseline = process.listenerCount("exit");
+    const f = await fixture({ defaultAudio: true });
+    await f.tts.synthesize(request("one"));
+    for (const id of ["first", "second"]) {
+      await expect(f.tts.synthesize(request(id, "crash"))).rejects.toThrow("exited");
+      expect(process.listenerCount("exit")).toBe(baseline + 1);
+      await f.tts.synthesize(request(id + "-restart"));
+      expect(process.listenerCount("exit")).toBe(baseline + 1);
+    }
+    f.tts.dispose();
+    expect(process.listenerCount("exit")).toBe(baseline);
+  });
+  it("cleans retained audio synchronously on process exit", async () => {
+    const baseline = new Set(process.listeners("exit")), f = await fixture({ defaultAudio: true });
+    const first = await f.tts.synthesize(request("one"));
+    await expect(f.tts.synthesize(request("crash-worker", "crash"))).rejects.toThrow("exited");
+    const second = await f.tts.synthesize(request("two"));
+    const cleanup = process.listeners("exit").find(listener => !baseline.has(listener));
+    expect(cleanup).toBeDefined();
+    cleanup!.call(process, 0);
+    await expect(access(first.path)).rejects.toThrow();
+    await expect(access(second.path)).rejects.toThrow();
+    await expect(f.tts.synthesize(request("three"))).rejects.toThrow("closed");
+  });
+  it("discards late validation from a failed run without deleting the restarted run's audio", async () => {
+    const f = await fixture({ defaultAudio: true });
+    const validation = Promise.withResolvers<string>(), release = Promise.withResolvers<void>();
+    const actualStat = vi.mocked(stat).getMockImplementation()!;
+    vi.mocked(stat).mockImplementationOnce(async path => {
+      const result = await actualStat(path);
+      validation.resolve(String(path)); await release.promise;
+      return result;
+    });
+    const pending = f.tts.synthesize(request("reused")).catch(error => error as Error);
+    const oldPath = await validation.promise;
+    try {
+      await expect(f.tts.synthesize(request("crash-worker", "crash"))).rejects.toThrow("exited");
+      const current = await f.tts.synthesize(request("reused"));
+      release.resolve();
+      expect(await pending).toMatchObject({ message: "Local speech worker exited" });
+      await vi.waitFor(async () => { await expect(access(oldPath)).rejects.toThrow(); });
+      await expect(access(current.path)).resolves.toBeUndefined();
+    } finally { release.resolve(); }
   });
   it("loads lazily, reuses one process, and decodes UTF-8 split across stdout chunks", async () => {
     const f = await fixture(); await expect(access(f.launches)).rejects.toThrow();
