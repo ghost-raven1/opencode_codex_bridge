@@ -50,7 +50,20 @@ try {
   if (native) assert(ids.includes("companion"), `Native voice plugin was not loaded: ${logs}`);
   assert.equal(configured.permission.codex_system, "ask");
   assert(configured.lsp.typescript.command.includes("--stdio"));
+  const agentResponse = await fetch(`${url}/agent`, { signal: AbortSignal.timeout(15_000) });
+  assert.equal(agentResponse.status, 200, "Cannot list OpenCode agents");
+  const agents = await agentResponse.json();
+  for (const name of ["designer", "devops", "tester"]) {
+    const agent = agents.find(item => item.name === name);
+    assert.equal(agent?.mode, "subagent", `Missing subagent: ${name}; regenerate the profile`);
+    assert.equal(agent.model, undefined, `${name} must inherit its caller's model`);
+    for (const permission of ["codex", "codex_system"]) {
+      assert.equal(agent.permission.filter(rule => rule.permission === permission && rule.pattern === "*").at(-1)?.action,
+        "ask", `${name} changed the bridge approval policy: ${permission}`);
+    }
+  }
   console.log("PASS: real OpenCode loaded CLI plugins; codex tool, OS approval rule and TypeScript LSP configured");
+  console.log("PASS: designer, devops and tester inherit the caller's model and bridge approval rules");
   console.log(JSON.stringify({ customTools: ids.filter(id => ["codex", "submit_plan", "companion"].includes(id)), version: "1.3.2", native }));
   if (inference) {
     assert(config.model?.startsWith("codexbridge/"), "Configure the bridge provider first: npm run connect:codex && npm run bundle:all");

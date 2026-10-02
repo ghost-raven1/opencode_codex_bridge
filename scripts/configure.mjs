@@ -2,6 +2,7 @@ import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { mcpConfiguration } from "./lib/mcp-config.mjs";
+import { agentConfiguration } from "./lib/agent-config.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const profile = process.argv[2] ?? "companions";
@@ -42,6 +43,7 @@ const config = {
   model: `codexbridge/${catalog.defaultModel}`,
   small_model: `codexbridge/${catalog.models.find(model => model.id === "gpt-5.6-luna")?.id ?? catalog.defaultModel}`,
   default_agent: "build",
+  agent: agentConfiguration(),
   provider: { codexbridge: { name: "Codex via bridge", npm: "@ai-sdk/openai",
     options: { baseURL: "https://chatgpt.com/backend-api/codex" }, models } },
   plugin: pluginEntries.map(([name]) => pathToFileURL(join(target, "entries", name + ".mjs")).href),
