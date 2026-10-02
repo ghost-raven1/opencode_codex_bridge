@@ -7,13 +7,15 @@ struct Character {
     var state: String
     var headColumn: Int
     var bodyColumn: Int
-    init(id: String, column: Int, label: String, state: String, headColumn: Int? = nil, bodyColumn: Int? = nil) {
+    var rig: String?
+    init(id: String, column: Int, label: String, state: String, headColumn: Int? = nil, bodyColumn: Int? = nil, rig: String? = nil) {
         self.id = id; self.column = min(max(column, 0), 3); self.label = label; self.state = state
         self.headColumn = min(max(headColumn ?? column, 0), 3)
         self.bodyColumn = min(max(bodyColumn ?? column, 0), 3)
+        self.rig = rig
     }
     func looksLike(_ other: Character) -> Bool {
-        column == other.column && headColumn == other.headColumn && bodyColumn == other.bodyColumn
+        column == other.column && headColumn == other.headColumn && bodyColumn == other.bodyColumn && rig == other.rig
     }
 }
 
@@ -30,13 +32,13 @@ struct AmbientMotion {
     var blinkAt: TimeInterval
     var gestureAt: TimeInterval
     var gestureStart: TimeInterval = -.infinity
-    init(now: TimeInterval) {
+    init(now: TimeInterval, gestureInterval: ClosedRange<Double> = 8...15) {
         blinkAt = now + Double.random(in: 2.3...5.8)
-        gestureAt = now + Double.random(in: 8...15)
+        gestureAt = now + Double.random(in: gestureInterval)
     }
-    mutating func advance(_ now: TimeInterval) {
+    mutating func advance(_ now: TimeInterval, gestureInterval: ClosedRange<Double> = 8...15) {
         if now > blinkAt + 0.30 { blinkAt = now + Double.random(in: 2.3...5.8) }
-        if now >= gestureAt { gestureStart = now; gestureAt = now + Double.random(in: 8...15) }
+        if now >= gestureAt { gestureStart = now; gestureAt = now + Double.random(in: gestureInterval) }
     }
 }
 

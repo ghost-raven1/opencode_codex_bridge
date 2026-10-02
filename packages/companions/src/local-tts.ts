@@ -6,12 +6,13 @@ import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { speechBudget } from "./speech-budget.js";
+import type { DiagnosticSink } from "./diagnostic-log.js";
 
 export interface LocalSpeechRequest { id: string; text: string; voice: string; instructions?: string }
 export interface LocalSpeechAudio { path: string; duration: number; sampleRate: number }
 interface Options {
   python?: string; worker?: string; audioDirectory?: string; log?: (message: string) => void;
-  startupTimeoutMs?: number; requestTimeoutMs?: number;
+  startupTimeoutMs?: number; requestTimeoutMs?: number; diagnostic?: DiagnosticSink;
 }
 interface Pending {
   resolve: (audio: LocalSpeechAudio) => void; reject: (error: Error) => void; timer: NodeJS.Timeout;
@@ -34,6 +35,7 @@ export class LocalTts {
   private readonly pending = new Map<string, Pending>();
   private buffer: Buffer = Buffer.alloc(0);
   private ready = false;
+  private workerStartedAt = 0;
   private disposed = false;
   private listeningForExit = false;
   private readonly ownedDirectories = new Map<string, ChildProcessWithoutNullStreams | undefined>();
@@ -64,9 +66,9 @@ export class LocalTts {
     if (this.pending.size >= 16) throw new Error("Local speech queue is full");
     const child = this.child;
     return new Promise((resolveRequest, reject) => {
-      const timer = setTimeout(() => this.fail("Local speech generation timed out"), this.options.requestTimeoutMs ?? 120_000);
+      const timer = setTimeout(() => this.fail("Local speech generation timed out", true, "request-timeout"), this.options.requestTimeoutMs ?? 120_000);
       this.pending.set(request.id, { resolve: resolveRequest, reject, timer, maxDuration });
-      child.stdin.write(encoded, error => { if (error && this.child === child) this.fail("Local speech input channel failed"); });
+      child.stdin.write(encoded, error => { if (error && this.child === child) this.fail("Local speech input channel failed", true, "input-failed"); });
     });
   }
 
@@ -85,16 +87,19 @@ export class LocalTts {
     const child = spawn(this.python, ["-u", this.worker], { cwd: root, stdio: "pipe",
       env: { ...process.env, CODEXBRIDGE_TTS_AUDIO_DIR: audioDirectory } });
     if (!this.options.audioDirectory) this.ownedDirectories.set(audioDirectory, child);
-    this.child = child; this.buffer = Buffer.alloc(0);
-    this.startupTimer = setTimeout(() => this.fail("Local speech model startup timed out"), this.options.startupTimeoutMs ?? 90_000);
+    const startedAt = Date.now();
+    this.child = child; this.buffer = Buffer.alloc(0); this.workerStartedAt = startedAt;
+    this.options.diagnostic?.("worker-start", { pid: child.pid });
+    this.startupTimer = setTimeout(() => this.fail("Local speech model startup timed out", true, "startup-timeout"), this.options.startupTimeoutMs ?? 90_000);
     child.stderr.resume();
     child.stdout.on("data", (data: Buffer) => {
       if (this.child === child) this.receive(data);
     });
-    child.once("error", () => { if (this.child === child) this.fail("Local speech worker could not start"); });
-    child.stdin.on("error", () => { if (this.child === child) this.fail("Local speech input channel failed"); });
-    child.once("close", () => {
-      if (this.child === child) this.fail("Local speech worker exited");
+    child.once("error", () => { if (this.child === child) this.fail("Local speech worker could not start", true, "spawn-failed"); });
+    child.stdin.on("error", () => { if (this.child === child) this.fail("Local speech input channel failed", true, "input-failed"); });
+    child.once("close", code => {
+      this.options.diagnostic?.("worker-exit", { code, reason: this.disposed ? "disposed" : "exited", elapsedMs: Date.now() - startedAt });
+      if (this.child === child) this.fail("Local speech worker exited", true, "exited");
       if (!this.options.audioDirectory) {
         // Delivered WAVs belong to the playback queue, which can outlive this worker.
         this.ownedDirectories.set(audioDirectory, undefined);
@@ -111,31 +116,33 @@ export class LocalTts {
     this.buffer = Buffer.concat([this.buffer, data]);
     let end: number;
     while ((end = this.buffer.indexOf(10)) !== -1) {
-      if (end > frameLimit) { this.fail("Local speech output exceeded its frame limit"); return; }
+      if (end > frameLimit) { this.fail("Local speech output exceeded its frame limit", true, "frame-limit"); return; }
       const line = this.buffer.subarray(0, end); this.buffer = this.buffer.subarray(end + 1);
       if (!line.length) continue;
       let value: Record<string, unknown>;
       try {
         value = JSON.parse(line.toString("utf8"));
         if (!value || typeof value !== "object") throw new Error();
-      } catch { this.fail("Local speech worker returned invalid output"); return; }
+      } catch { this.fail("Local speech worker returned invalid output", true, "invalid-output"); return; }
       if (value.type === "ready" && !this.ready) {
         this.ready = true; clearTimeout(this.startupTimer); this.resolveReady?.();
+        this.options.diagnostic?.("worker-ready", { elapsedMs: Date.now() - this.workerStartedAt });
         this.resolveReady = undefined; this.rejectReady = undefined;
       } else if (value.type === "audio" && typeof value.id === "string" && this.pending.has(value.id)) {
         const pending = this.pending.get(value.id)!;
-        if (pending.receiving) { this.fail("Local speech worker returned a duplicate response"); return; }
+        if (pending.receiving) { this.fail("Local speech worker returned a duplicate response", true, "duplicate-response"); return; }
         pending.receiving = true;
         void this.completeAudio(value.id, value);
       } else if (value.type === "error" && typeof value.id === "string" && this.pending.has(value.id)) {
         const pending = this.pending.get(value.id)!;
         clearTimeout(pending.timer); this.pending.delete(value.id);
+        this.options.diagnostic?.("worker-error", { audioId: value.id, reason: "synthesis-failed" });
         pending.reject(new Error("Local speech generation failed"));
       } else {
-        this.fail("Local speech worker returned an unexpected response"); return;
+        this.fail("Local speech worker returned an unexpected response", true, "unexpected-response"); return;
       }
     }
-    if (this.buffer.length > frameLimit) this.fail("Local speech output exceeded its frame limit");
+    if (this.buffer.length > frameLimit) this.fail("Local speech output exceeded its frame limit", true, "frame-limit");
   }
 
   private async completeAudio(id: string, value: Record<string, unknown>): Promise<void> {
@@ -155,20 +162,22 @@ export class LocalTts {
       if (!file.isFile() || file.size <= 44 || file.size > 32 * 1024 * 1024) throw new Error();
       audio = { path, duration: value.duration, sampleRate: value.sampleRate };
     } catch {
-      if (this.pending.get(id) === pending) this.fail("Local speech worker returned an invalid audio file");
+      if (this.pending.get(id) === pending) this.fail("Local speech worker returned an invalid audio file", true, "invalid-audio");
       return;
     }
     if (this.pending.get(id) !== pending) { await unlink(audio.path).catch(() => undefined); return; }
     if (audio.duration > pending.maxDuration) {
       clearTimeout(pending.timer); this.pending.delete(id);
       await unlink(audio.path).catch(() => undefined);
+      this.options.diagnostic?.("worker-error", { audioId: id, reason: "over-duration", durationMs: audio.duration * 1000 });
       pending.reject(new Error("Local speech exceeded its duration budget"));
       return;
     }
     clearTimeout(pending.timer); this.pending.delete(id); pending.resolve(audio);
   }
 
-  private fail(message: string, report = true): void {
+  private fail(message: string, report = true, reason = "invalid-output"): void {
+    if (report) this.options.diagnostic?.("worker-error", { reason, pending: this.pending.size });
     const error = new Error(message);
     this.rejectReady?.(error); this.resolveReady = undefined; this.rejectReady = undefined;
     for (const pending of this.pending.values()) { clearTimeout(pending.timer); pending.reject(error); }

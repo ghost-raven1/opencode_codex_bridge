@@ -45,6 +45,7 @@ interface Session {
   continuation: boolean;
   runs: Map<string, { id: string; partId: string; messageId: string; snapshot: NonNullable<ReturnType<typeof readCodexSpeech>> }>;
   users: Set<string>;
+  openingDone?: boolean;
 }
 type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): ObjectValue => value && typeof value === "object" ? value as ObjectValue : {};
@@ -105,6 +106,7 @@ export class CompanionDirector {
       if (session.assigned.size > 16) session.assigned.delete(session.assigned.keys().next().value!);
       return;
     }
+    const previousAgent = session.agent;
     if (task.agent) session.agent = task.agent;
     if (task.parentID) session.parentID = task.parentID;
     if (task.parentID && !task.messageID) {
@@ -115,7 +117,7 @@ export class CompanionDirector {
     session.task = task.task.slice(0, 16000);
     session.taskMessageID = task.messageID ?? session.lastUser;
     const role = this.taskRole(session);
-    const changed = role !== session.role; session.role = role;
+    const changed = role !== session.role || previousAgent !== session.agent; session.role = role;
     if (task.parentID && !session.visible) this.state(id, "working");
     else if (changed && session.visible) this.state(id, session.state);
   }
@@ -144,7 +146,7 @@ export class CompanionDirector {
   private state(id: string, state: State): void {
     const session = this.sessions.get(id)!;
     session.state = state; session.visible = true;
-    const appearance = appearanceFor(id, session.role, this.config.appearance);
+    const appearance = appearanceFor(id, session.role, this.config.appearance, session.agent);
     this.output(id, { type: "state", role: session.role, state,
       appearance: { ...appearance, ...(session.runId ? { label: `CODEX · ${appearance.label}` } : {}) } });
   }
@@ -154,7 +156,25 @@ export class CompanionDirector {
     // The legacy setting names the primary speaker; its appearance can now change with the task.
     if (this.config.speech === "off" || (this.config.speech === "coordinator-only" && session.parentID)) return;
     const clean = spokenText(text, this.config.maxSpeechLength);
-    if (clean) this.output(id, { type: "speak", role, text: clean });
+    if (clean) { session.openingDone = true; this.output(id, { type: "speak", role, text: clean }); }
+  }
+
+  /** Only a live, not-yet-speaking user task may request a generated introduction. */
+  openingContext(id: string): { taskId: string; role: Role; agent?: string } | undefined {
+    const session = this.sessions.get(id);
+    if (!this.config.modelOpenings || this.config.workingPhrase || this.config.speech === "off" || !session ||
+        session.openingDone || session.aborted || session.compaction || session.continuation || ["error", "success", "idle"].includes(session.state) ||
+        (session.parentID && this.config.speech === "coordinator-only") || !session.taskId) return;
+    return { taskId: session.taskId, role: session.role, ...(session.agent ? { agent: session.agent } : {}) };
+  }
+
+  /** Recheck task identity after the asynchronous history write so stale intros cannot return. */
+  introduce(id: string, taskId: string, text: string): boolean {
+    if (this.openingContext(id)?.taskId !== taskId) return false;
+    const clean = spokenText(text, this.config.maxSpeechLength);
+    if (!/[\p{L}\p{N}]/u.test(clean)) return false;
+    this.speak(id, clean);
+    return true;
   }
 
   private stopRuns(id: string): void {
@@ -177,6 +197,7 @@ export class CompanionDirector {
     session.parts.clear(); session.assistant = undefined; session.assistantComplete = false;
     session.assistantFinish = undefined; session.activeTools.clear(); session.idleRequested = false;
     session.pending.clear(); session.aborted = false; session.spoken.clear();
+    session.openingDone = false;
     session.role = this.taskRole(session); this.state(id, "thinking");
     if (!session.parentID) this.speak(id, this.config.workingPhrase);
   }

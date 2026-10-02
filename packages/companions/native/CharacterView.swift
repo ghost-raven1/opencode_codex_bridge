@@ -9,13 +9,16 @@ final class CharacterView: NSView {
     var mixedBodyAtlas: NSImage?
     var faceAtlas: NSImage?
     private let sprites = SpriteCache()
+    private var rigs: [String: LayeredRig] = [:]
     var characters: [Character] = []
     private var motions: [String: Motion] = [:]
     private var ambient: [String: AmbientMotion] = [:]
+    private var workAnimations: [String: WorkAnimation] = [:]
     private var badges: [String: CharacterBadgeView] = [:]
     var speaker: String?
     var mouthUntil: TimeInterval = 0
     var mouthLevel: Double = 0
+    var musicBeat: MusicBeatState?
     let speechBubble = SpeechBubbleView()
     var onBubbleChange: (() -> Void)?
     var bubble = "" { didSet { onBubbleChange?(); needsDisplay = true } }
@@ -33,6 +36,8 @@ final class CharacterView: NSView {
     override var isOpaque: Bool { false }
     override init(frame: NSRect) { super.init(frame: frame); addSubview(speechBubble) }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    func loadRigs(directory: URL) { rigs = LayeredRig.load(directory: directory) }
 
     func contentHeight(width: CGFloat) -> CGFloat {
         let height = speechBubble.update(bubble, width: width - 20)
@@ -62,9 +67,12 @@ final class CharacterView: NSView {
             characters[index] = character
         } else {
             characters.append(character); motions[character.id] = Motion(kind: "enter", start: time)
-            ambient[character.id] = AmbientMotion(now: time)
+            ambient[character.id] = AmbientMotion(now: time, gestureInterval: gestureInterval(for: character))
         }
         let badge = badges[character.id] ?? CharacterBadgeView(frame: .zero)
+        var work = workAnimations[character.id] ?? WorkAnimation(seed: character.id)
+        work.update(active: ["working", "thinking"].contains(character.state), at: time)
+        workAnimations[character.id] = work
         if badge.superview == nil { addSubview(badge); badges[character.id] = badge }
         badge.update(character, color: accents[character.column])
         layoutBadges()
@@ -72,13 +80,13 @@ final class CharacterView: NSView {
 
     func remove(_ id: String, immediately: Bool = false) {
         guard characters.contains(where: { $0.id == id }) else { return }
-        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
+        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; workAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
         else { motions[id] = Motion(kind: "leave", start: now) }
     }
 
     func replace(_ entries: [Character], animated: Bool = true) {
         badges.values.forEach { $0.removeFromSuperview() }; badges = [:]
-        characters = []; motions = [:]; ambient = [:]
+        characters = []; motions = [:]; ambient = [:]; workAnimations = [:]
         for entry in entries { update(entry) }
         if !animated { motions = [:]; layoutBadges() }
     }
@@ -86,16 +94,20 @@ final class CharacterView: NSView {
     @discardableResult func tick() -> Bool {
         let before = characters.count, time = now
         for (id, motion) in motions where motion.progress(time, reduced: reduced) >= 1 {
-            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
+            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; workAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
             motions[id] = nil
         }
-        for id in ambient.keys { ambient[id]?.advance(time) }
+        for character in characters { ambient[character.id]?.advance(time, gestureInterval: gestureInterval(for: character)) }
         layoutBadges()
         needsDisplay = true
         return before != characters.count
     }
 
     override func layout() { super.layout(); layoutBadges() }
+
+    private func gestureInterval(for character: Character) -> ClosedRange<Double> {
+        character.rig.flatMap { rigs[$0]?.gestureInterval } ?? 8...15
+    }
 
     private func layoutBadges() {
         let width = bounds.width / CGFloat(max(characters.count, 1))
@@ -108,6 +120,8 @@ final class CharacterView: NSView {
     }
 
     override func draw(_ dirtyRect: NSRect) {
+        // Transparent backing stores retain old pixels unless this frame replaces them.
+        NSColor.clear.setFill(); dirtyRect.fill(using: .copy)
         guard let atlas else { return }
         if let background = snapshotBackground {
             (background == "light" ? NSColor.white : NSColor(calibratedWhite: 0.06, alpha: 1)).setFill(); bounds.fill()
@@ -125,8 +139,15 @@ final class CharacterView: NSView {
                                              blinkElapsed: !reduced && blink ? time - (ambient[character.id]?.blinkAt ?? time) : nil)
             let factor = min(width / 256, 220.0 / 384)
             let gesture = ambient[character.id]?.gestureStart
-            let pose = LayeredMotion.pose(state: displayed.state, time: time,
-                gestureElapsed: gesture.map { time - $0 }, speaking: speaking, reduced: reduced, seed: index)
+            let rig = displayed.rig.flatMap { rigs[$0] }
+            let motionTime = rig.map { time * 2 * .pi / (1.35 * $0.definition.motion.breathSeconds) } ?? time
+            var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
+                gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
+                speaking: speaking, reduced: reduced, seed: index)
+            let dance = MusicMotion.pose(beat: musicBeat, time: time, column: displayed.column, rig: displayed.rig, reduced: reduced)
+            pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
+            let work = rig != nil ? workAnimations[character.id]?.pose(rig: displayed.rig ?? "", at: time, reduced: reduced).scaled(1 - dance.strength) ?? WorkPose() : WorkPose()
+            pose.headX += work.headX; pose.headY += work.headY
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
                                 width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
             var opacity = 1.0
@@ -138,9 +159,16 @@ final class CharacterView: NSView {
                     else { target = target.insetBy(dx: target.width * 0.25 * sin(progress * .pi), dy: 0) }
                 }
             }
-            let scale = (window?.frame.width ?? bounds.width) / max(1, bounds.width)
+            SpriteDepth.drawContact(in: target, opacity: opacity)
+            let scale = frame.width / max(1, bounds.width)
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
-            if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
+            NSGraphicsContext.saveGraphicsState(); MusicMotion.apply(dance, target: target)
+            if let rig {
+                rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,
+                    gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
+                    opacity: opacity, radius: radius, faceRows: faceRows, sprites: sprites,
+                    beatArm: dance.arm, beatHair: dance.hair, work: work)
+            } else if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
                 sprites.frame(sourceBody, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
                 let head = sprites.frame(sourceHead, column: displayed.headColumn, row: 0, rows: 4, radius: radius,
@@ -160,6 +188,7 @@ final class CharacterView: NSView {
                     face: faceAtlas, faceColumn: displayed.headColumn, faceRows: faceRows)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
             }
+            NSGraphicsContext.restoreGraphicsState()
             if !reduced, let motion { drawParticles(target, kind: motion.kind, progress: progress, accent: accent, seed: index) }
         }
     }

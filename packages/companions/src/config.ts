@@ -4,7 +4,8 @@ import { z } from "zod";
 
 export const roleSchema = z.enum(["coordinator", "developer", "researcher", "reviewer"]);
 export type Role = z.infer<typeof roleSchema>;
-export const localVoiceSchema = z.enum(["Serena", "Vivian", "Sohee", "Ono_Anna"]);
+export const localVoiceSchema = z.enum(["Serena", "Vivian", "Sohee", "Ono_Anna", "designer-local", "devops-local", "tester-local"]);
+export const specialistVoices: Record<string, string> = { designer: "designer-local", devops: "devops-local", tester: "tester-local" };
 export const voiceDefaults = { coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna" } as const;
 export const appearanceSchema = z.object({
   mode: z.enum(["presets", "seeded"]).default("presets"),
@@ -26,7 +27,8 @@ export const configSchema = z.object({
       reviewer: localVoiceSchema.default(voiceDefaults.reviewer),
     }).default({}),
   }).default({}),
-  workingPhrase: z.string().max(200).default("Задача в работе."),
+  workingPhrase: z.string().max(200).default("").transform(text => /^Задача в работе[.!]?$/i.test(text.trim()) ? "" : text),
+  modelOpenings: z.boolean().default(true),
   maxSpeechLength: z.number().int().min(100).max(8000).default(1600),
   maxVisible: z.number().int().min(1).max(4).default(4),
   scale: z.number().min(0.5).max(2).default(1),

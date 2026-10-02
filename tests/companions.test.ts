@@ -14,11 +14,12 @@ function setup(speech: "all" | "coordinator-only" | "off" = "coordinator-only", 
   return { events, send, message, text, director, complete };
 }
 describe("companion event mapping", () => {
-  it("announces a new user task once and cancels the previous speech", () => {
+  it("creates a new task once and cancels previous speech without a fixed opening", () => {
     const t = setup(); t.director.assignTask("s", { task: "Задача", messageID: "u" });
     t.message("user", "u"); t.message("user", "u");
     expect(t.events.filter(e => e.type === "stop")).toHaveLength(1);
-    expect(t.events.filter(e => e.type === "speak").map(e => e.text)).toEqual(["Задача в работе."]);
+    expect(t.events.filter(e => e.type === "speak")).toEqual([]);
+    expect(t.events.at(-1)).toMatchObject({ type: "state", state: "thinking" });
   });
   it("speaks final assistant text once despite both idle notifications", () => {
     const t = setup(); t.message("assistant", "a"); t.text("p", "a", "При"); t.text("p", "a", "Привет");
@@ -181,7 +182,7 @@ describe("companion event mapping", () => {
     t.director.assignTask("s", { agent: "build", task: "Implement login", messageID: "u" });
     t.message("user", "u");
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("developer");
-    expect(t.events.at(-1)).toMatchObject({ type: "speak", role: "developer", text: "Задача в работе." });
+    expect(t.events.at(-1)).toMatchObject({ type: "state", role: "developer", state: "thinking" });
     t.director.assignTask("s", { agent: "build", task: "Продолжай", messageID: "next" }); t.message("user", "next");
     expect(t.events.filter(e => e.type === "state").at(-1)?.role).toBe("coordinator");
   });
@@ -229,7 +230,7 @@ describe("companion event mapping", () => {
     t.text("late", "a", "Late"); t.send("session.error", { sessionID: "s" });
     expect(t.events).toHaveLength(count);
     t.director.assignTask("s", { task: "Продолжай", messageID: "resume" }); t.message("user", "resume");
-    expect(t.events.at(-1)?.text).toBe("Задача в работе.");
+    expect(t.events.at(-1)).toMatchObject({ type: "state", taskId: "resume", state: "thinking" });
     t.send("session.deleted", { info: { id: "s" } });
     const afterDelete = t.events.length;
     t.message("assistant", "late-assistant");
@@ -257,6 +258,22 @@ describe("companion event mapping", () => {
   it("uses deterministic appearances and different presets by role", () => {
     expect(appearanceFor("agent-a", "developer")).toEqual(appearanceFor("agent-a", "developer"));
     expect(appearanceFor("agent-a", "developer").column).not.toBe(appearanceFor("agent-a", "reviewer").column);
+  });
+  it("selects distinct specialist rigs and preserves explicit mixed appearances", () => {
+    for (const rig of ["designer", "devops", "tester"]) {
+      expect(appearanceFor("a", "developer", undefined, rig).rig).toBe(rig);
+    }
+    const mixed = configSchema.parse({ appearance: { roles: { developer: { head: "researcher" } } } }).appearance;
+    expect(appearanceFor("a", "developer", mixed, "designer")).toMatchObject({ headColumn: 2 });
+    expect(appearanceFor("a", "developer", mixed, "designer").rig).toBeUndefined();
+    expect(appearanceFor("a", "developer", undefined, "unknown").rig).toBe("code");
+  });
+  it("updates the rig when a visible specialist changes without changing its base role", () => {
+    const t = setup("all");
+    t.director.assignTask("s", { agent: "designer", parentID: "parent", task: "Напиши код" });
+    expect(t.events.at(-1)?.appearance?.rig).toBe("designer");
+    t.director.assignTask("s", { agent: "devops", parentID: "parent", task: "Напиши код" });
+    expect(t.events.at(-1)?.appearance?.rig).toBe("devops");
   });
   it("combines role-specific head and outfit choices without changing the role badge", () => {
     const config = configSchema.parse({ appearance: { roles: { developer: { head: "researcher", outfit: "reviewer" } } } });

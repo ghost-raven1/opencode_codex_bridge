@@ -35,7 +35,8 @@ beforeEach(async () => {
 afterEach(async () => { for (const hooks of live) await hooks.dispose?.(); live = []; await rm(dataRoot, { recursive: true, force: true }); });
 async function setup(directory = "/project") {
   const client = { app: { log: vi.fn(async () => ({})) }, tui: {
-    appendPrompt: vi.fn(async () => ({})), submitPrompt: vi.fn(), showToast: vi.fn(async () => ({})),
+    appendPrompt: vi.fn(async () => ({})), submitPrompt: vi.fn(async () => ({})), showToast: vi.fn(async () => ({})),
+    clearPrompt: vi.fn(async () => ({})), executeCommand: vi.fn(async () => ({})),
   } };
   const hooks = await Companions({ directory, client } as unknown as PluginInput); live.push(hooks);
   return { client, hooks };
@@ -56,7 +57,26 @@ describe("CLI voice and durable drafts", () => {
     expect(vi.mocked(startNativeHost).mock.calls[0]?.[1]).not.toContain("--preview");
     expect(mocks.send.mock.calls.some(([e]) => e.type === "state")).toBe(false);
     await task(t.hooks);
-    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ type: "speak", text: "Задача в работе." }));
+    expect(mocks.send.mock.calls.some(([event]) => event.type === "speak")).toBe(false);
+  });
+  it("asks the current role for a unique model opening and never repeats an accepted introduction", async () => {
+    const t = await setup(); await task(t.hooks);
+    const output = { system: ["Original system instruction"] };
+    await t.hooks["experimental.chat.system.transform"]?.({ sessionID: "s", model: {} as never }, output);
+    expect(output.system[0]).toBe("Original system instruction");
+    expect(output.system[1]).toContain("CODE:");
+    expect(output.system[1]).toContain("companion_intro");
+    const context = { sessionID: "s", abort: new AbortController().signal } as never;
+    expect(await t.hooks.tool!.companion_intro!.execute({ text: "Сейчас починим эту функцию, багам пора домой." }, context)).toContain("queued:");
+    expect(await t.hooks.tool!.companion_intro!.execute({ text: "Лишнее вступление" }, context)).toContain("skipped:");
+    await task(t.hooks, "u2");
+    expect(await t.hooks.tool!.companion_intro!.execute({ text: "Сейчас починим эту функцию, багам пора домой!" }, context)).toContain("duplicate:");
+    expect(await t.hooks.tool!.companion_intro!.execute({ text: "[Сейчас починим эту функцию, багам пора домой.](https://example.org)" }, context)).toContain("duplicate:");
+    expect(await t.hooks.tool!.companion_intro!.execute({ text: "***" }, context)).toContain("invalid:");
+    expect(await t.hooks.tool!.companion_intro!.execute({ text: "Проверим функцию заново, компилятор уже в первом ряду." }, context)).toContain("queued:");
+    const fresh = { system: [] as string[] };
+    await t.hooks["experimental.chat.system.transform"]?.({ sessionID: "s", model: {} as never }, fresh);
+    expect(fresh.system).toEqual([]);
   });
   it("persists before publishing; success is not claimed as insertion and never submits", async () => {
     const t = await setup(); mocks.receive?.({ type: "transcript", text: "Проверь тесты" });
@@ -134,7 +154,7 @@ describe("CLI voice and durable drafts", () => {
     expect((await setup()).hooks).toEqual({}); expect(startNativeHost).not.toHaveBeenCalled();
   });
   it("disposes on close and reconnects explicitly, without replaying speech or dictation", async () => {
-    vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true, tts: { engine: "local" } }));
+    vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true, workingPhrase: "Проверка озвучки", tts: { engine: "local" } }));
     const { hooks, client } = await setup(); await task(hooks);
     await vi.waitFor(() => expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ type: "play-audio" })));
     mocks.receive?.({ type: "closed" }); expect(mocks.disposeWorker).toHaveBeenCalledOnce();
@@ -143,7 +163,7 @@ describe("CLI voice and durable drafts", () => {
     expect(mocks.send).toHaveBeenLastCalledWith({ type: "show" });
   });
   it("disposes on failed audio send without interrupting the task", async () => {
-    vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true, tts: { engine: "local" } }));
+    vi.mocked(readConfig).mockResolvedValue(configSchema.parse({ enabled: true, workingPhrase: "Проверка озвучки", tts: { engine: "local" } }));
     mocks.send.mockImplementation(e => { if (e.type === "play-audio") throw new Error("pipe closed"); });
     const { hooks } = await setup(); await expect(task(hooks)).resolves.toBeUndefined();
     await vi.waitFor(() => expect(mocks.disposeWorker).toHaveBeenCalledOnce());
@@ -154,5 +174,95 @@ describe("CLI voice and durable drafts", () => {
     await action(hooks, "dictation_off"); await action(hooks, "dictation_on");
     expect(mocks.send.mock.calls.map(([e]) => e)).toEqual([{ type: "dictation-disable" }, { type: "dictation-enable" }]);
     expect(mocks.synthesize).not.toHaveBeenCalled(); expect(client.tui.appendPrompt).not.toHaveBeenCalled(); expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+  });
+  it("saves dictated text before append and sends only after the explicit command is acknowledged", async () => {
+    const { client } = await setup();
+    let release!: (value: object) => void;
+    client.tui.appendPrompt.mockImplementationOnce(() => new Promise(resolve => { release = resolve; }));
+    mocks.receive?.({ type: "voice-command", command: "submit", text: "Проверь тесты" });
+    await vi.waitFor(() => expect(client.tui.appendPrompt).toHaveBeenCalledOnce());
+    expect((await DictationDrafts.open("/project", dataRoot)).list().at(-1)?.text).toBe("Проверь тесты");
+    expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+    release({});
+    await vi.waitFor(() => expect(client.tui.submitPrompt).toHaveBeenCalledOnce());
+    expect(client.tui.submitPrompt).toHaveBeenCalledWith({ query: { directory: "/project" }, signal: expect.any(AbortSignal) });
+  });
+  it("does not submit stale input after a failed append, including a later standalone send command", async () => {
+    const { client } = await setup();
+    client.tui.appendPrompt.mockResolvedValueOnce({ error: "offline" });
+    mocks.receive?.({ type: "voice-command", command: "submit", text: "Сохранить без потерь" });
+    await vi.waitFor(() => expect(client.tui.appendPrompt).toHaveBeenCalledOnce());
+    mocks.receive?.({ type: "voice-command", command: "submit" });
+    await vi.waitFor(() => expect(client.app.log).toHaveBeenCalledWith(expect.objectContaining({ body: expect.objectContaining({ message: expect.stringContaining("старый запрос не отправлен") }) })));
+    expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+    expect((await DictationDrafts.open("/project", dataRoot)).list().at(-1)?.text).toBe("Сохранить без потерь");
+  });
+  it("orders a standalone send behind an immediately preceding transcript persistence and append", async () => {
+    const { client } = await setup();
+    mocks.receive?.({ type: "transcript", text: "Сначала сохранение" });
+    mocks.receive?.({ type: "voice-command", command: "submit" });
+    await vi.waitFor(() => expect(client.tui.submitPrompt).toHaveBeenCalledOnce());
+    expect(client.tui.appendPrompt.mock.invocationCallOrder[0]).toBeLessThan(client.tui.submitPrompt.mock.invocationCallOrder[0]!);
+    expect((await DictationDrafts.open("/project", dataRoot)).list().at(-1)?.text).toBe("Сначала сохранение");
+  });
+  it("routes controls without dictating their words and rejects unknown commands", async () => {
+    const { client } = await setup(); mocks.send.mockClear();
+    for (const command of ["cancel", "stop-speech", "hide", "show", "mute", "unmute", "disable-dictation", "help", "shell.delete"]) {
+      mocks.receive?.({ type: "voice-command", command, text: "" });
+    }
+    await vi.waitFor(() => expect(mocks.send).toHaveBeenCalledTimes(8));
+    expect(mocks.send.mock.calls.map(([event]) => event)).toEqual([
+      { type: "dictation-cancel" }, { type: "stop-speech" }, { type: "hide" }, { type: "show" },
+      { type: "mute", muted: true }, { type: "mute", muted: false }, { type: "dictation-disable" }, { type: "voice-help" },
+    ]);
+    expect(client.tui.appendPrompt).not.toHaveBeenCalled(); expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+  });
+  it("executes clear, stop-task and new-task with project-scoped TUI events", async () => {
+    const { client } = await setup("/voice-project");
+    for (const command of ["clear", "stop-task", "new-task"]) mocks.receive?.({ type: "voice-command", command });
+    await vi.waitFor(() => expect(client.tui.executeCommand).toHaveBeenCalledTimes(2));
+    expect(client.tui.clearPrompt).toHaveBeenCalledWith({ query: { directory: "/voice-project" }, signal: expect.any(AbortSignal) });
+    for (const command of ["session.interrupt", "session.new"]) expect(client.tui.executeCommand).toHaveBeenCalledWith({ query: { directory: "/voice-project" }, body: { command }, signal: expect.any(AbortSignal) });
+    expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+  });
+  it("stops native speech even while an append request has not completed", async () => {
+    const { client } = await setup();
+    let release!: (value: object) => void;
+    client.tui.appendPrompt.mockImplementationOnce(() => new Promise(resolve => { release = resolve; }));
+    mocks.receive?.({ type: "transcript", text: "Незаконченная отправка" });
+    await vi.waitFor(() => expect(client.tui.appendPrompt).toHaveBeenCalledOnce());
+    try {
+      mocks.receive?.({ type: "voice-command", command: "stop-speech" });
+      expect(mocks.send).toHaveBeenCalledWith({ type: "stop-speech" });
+      expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+    } finally { release({}); }
+  });
+  it("restores failed dictation without submitting and allows a later explicit send", async () => {
+    const { client, hooks } = await setup();
+    client.tui.appendPrompt.mockRejectedValueOnce(new Error("offline"));
+    mocks.receive?.({ type: "voice-command", command: "submit", text: "Повторить после восстановления" });
+    await vi.waitFor(() => expect(client.app.log).toHaveBeenCalledWith(expect.objectContaining({ body: expect.objectContaining({ message: "Error: offline" }) })));
+    await action(hooks, "recover_dictation");
+    expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+    mocks.receive?.({ type: "voice-command", command: "submit" });
+    await vi.waitFor(() => expect(client.tui.submitPrompt).toHaveBeenCalledOnce());
+  });
+  it("keeps ordinary transcripts as text even when they contain words or unrelated fields naming commands", async () => {
+    const { client } = await setup();
+    mocks.receive?.({ type: "transcript", text: "добавь слово отправить", command: "submit" });
+    await vi.waitFor(() => expect(client.tui.appendPrompt).toHaveBeenCalledOnce());
+    expect(client.tui.appendPrompt).toHaveBeenCalledWith(expect.objectContaining({ body: { text: "добавь слово отправить " } }));
+    expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+  });
+  it("native stop feedback clears the router queue without waiting for stale playback completion", async () => {
+    const { hooks } = await setup(); await task(hooks);
+    mocks.send.mockImplementation(event => {
+      if (event.type === "stop-speech") mocks.receive?.({ type: "speech-control", action: "stop" });
+    });
+    mocks.receive?.({ type: "voice-command", command: "stop-speech" });
+    expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({ type: "stop", characterId: "s" }));
+    const count = mocks.send.mock.calls.filter(([event]) => event.type === "speak").length;
+    mocks.receive?.({ type: "audio-finished", id: "stale-audio", phase: "end" });
+    expect(mocks.send.mock.calls.filter(([event]) => event.type === "speak")).toHaveLength(count);
   });
 });

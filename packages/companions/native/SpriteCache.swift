@@ -6,16 +6,16 @@ final class SpriteCache {
     private let context = CIContext(options: [.cacheIntermediates: false])
     private var frames: [String: NSImage] = [:]
 
-    func frame(_ image: NSImage, column: Int, row: Int, rows: Int, radius: CGFloat,
+    func frame(_ image: NSImage, column: Int, row: Int, rows: Int, radius: CGFloat, columns: Int = 4,
                face: NSImage? = nil, faceColumn: Int = 0, faceRows: [Int] = []) -> NSImage? {
         let radius = (min(4, max(0.5, radius)) * 4).rounded() / 4
-        let key = "\(ObjectIdentifier(image))-\(column)-\(row)-\(rows)-\(radius)-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)"
+        let key = "\(ObjectIdentifier(image))-\(columns)-\(column)-\(row)-\(rows)-\(radius)-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)"
         if let cached = frames[key] { return cached }
-        guard let crop = crop(image, column: column, row: row, rows: rows) else { return nil }
+        guard let crop = crop(image, column: column, row: row, rows: rows, columns: columns) else { return nil }
         var original = CIImage(cgImage: crop)
         if let face {
             for row in faceRows where row >= 0 && row < 18 {
-                if let patch = self.crop(face, column: faceColumn, row: row, rows: 18) {
+                if let patch = self.crop(face, column: faceColumn, row: row, rows: 18, columns: columns) {
                     original = CIImage(cgImage: patch).composited(over: original)
                 }
             }
@@ -38,10 +38,12 @@ final class SpriteCache {
         return rendered
     }
 
-    private func crop(_ image: NSImage, column: Int, row: Int, rows: Int) -> CGImage? {
+    private func crop(_ image: NSImage, column: Int, row: Int, rows: Int, columns: Int) -> CGImage? {
+        guard rows > 0, columns > 0, row >= 0, row < rows, column >= 0, column < columns else { return nil }
         var rect = NSRect(origin: .zero, size: image.size)
         guard let cg = image.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return nil }
-        let width = cg.width / 4, height = cg.height / rows
+        guard cg.width % columns == 0, cg.height % rows == 0, cg.width >= columns, cg.height >= rows else { return nil }
+        let width = cg.width / columns, height = cg.height / rows
         return cg.cropping(to: CGRect(x: column * width, y: row * height, width: width, height: height))
     }
 }

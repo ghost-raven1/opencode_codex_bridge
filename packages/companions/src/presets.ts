@@ -9,16 +9,23 @@ export const presets: Record<Role, { column: number; label: string; accent: stri
 };
 const headAccessories = [["headset"], ["headphones"], ["glasses"], []];
 const outfitAccessories = [["tablet"], ["laptop"], ["book"], ["tablet", "stylus"]];
+const specialistLabels: Record<string, string> = { designer: "DESIGN", devops: "OPS", tester: "TEST" };
+const coreRigs = ["lead", "code", "research", "review"] as const;
 
 /** Stable head/outfit selection; accessories remain part of the drawn pieces, not separate toggles. */
-export function appearanceFor(characterId: string, role: Role, config?: AppearanceConfig) {
+export function appearanceFor(characterId: string, role: Role, config?: AppearanceConfig, agent?: string) {
   const digest = createHash("sha256").update(characterId).digest();
   const override = config?.roles[role];
   const headColumn = override?.head ? presets[override.head].column
     : config?.mode === "seeded" ? digest[0]! % 4 : presets[role].column;
   const bodyColumn = override?.outfit ? presets[override.outfit].column
     : config?.mode === "seeded" ? digest[1]! % 4 : presets[role].column;
+  const specialty = agent?.trim().toLowerCase();
+  const rig = config?.mode !== "seeded" && !override?.head && !override?.outfit
+    ? specialty && Object.hasOwn(specialistLabels, specialty) ? specialty : coreRigs[presets[role].column]
+    : undefined;
   return { ...presets[role], role, headColumn, bodyColumn,
+    ...(rig ? { rig, label: specialistLabels[rig] ?? presets[role].label } : {}),
     accessories: [...headAccessories[headColumn]!, ...outfitAccessories[bodyColumn]!],
     seed: digest.toString("hex").slice(0, 8) };
 }

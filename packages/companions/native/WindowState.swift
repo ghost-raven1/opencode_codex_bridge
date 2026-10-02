@@ -12,6 +12,7 @@ final class CompanionPanel: NSPanel {
     private let defaults = UserDefaults.standard
     private(set) var hidden: Bool
     var onChange: (() -> Void)?
+    var onScreenChange: (() -> Void)?
 
     init(panel: NSPanel) {
         self.panel = panel
@@ -46,12 +47,15 @@ final class CompanionPanel: NSPanel {
     /// Keep the group reachable after a monitor disconnect or a change in the visible team size.
     func fitToScreen() {
         let frame = panel.frame
-        guard let screen = NSScreen.screens.min(by: { distance(frame, to: $0.visibleFrame) < distance(frame, to: $1.visibleFrame) }) else { return }
-        let visible = screen.visibleFrame
+        guard let visible = visibleFrame else { return }
         let origin = NSPoint(
             x: min(max(frame.minX, visible.minX), max(visible.minX, visible.maxX - frame.width)),
             y: min(max(frame.minY, visible.minY), max(visible.minY, visible.maxY - frame.height)))
         if origin != frame.origin { panel.setFrameOrigin(origin) }
+    }
+
+    var visibleFrame: NSRect? {
+        NSScreen.screens.min(by: { distance(panel.frame, to: $0.visibleFrame) < distance(panel.frame, to: $1.visibleFrame) })?.visibleFrame
     }
 
     private func distance(_ frame: NSRect, to screen: NSRect) -> CGFloat {
@@ -66,5 +70,5 @@ final class CompanionPanel: NSPanel {
         onChange?()
     }
 
-    @objc private func screenChanged() { fitToScreen() }
+    @objc private func screenChanged() { onScreenChange?(); fitToScreen() }
 }

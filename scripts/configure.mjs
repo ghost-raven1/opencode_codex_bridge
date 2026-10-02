@@ -71,7 +71,7 @@ const localTtsInstalled = await Promise.all([
   access(join(root, ".local/tts/models", localModel.directory, "model.safetensors")),
 ]).then(() => true, () => false);
 await writeFile(join(target, "companions.json"), JSON.stringify({
-  enabled: profile !== "quiet", speech: "all", workingPhrase: "Задача в работе.",
+  enabled: profile !== "quiet", speech: "all", modelOpenings: true,
   tts: { engine: localTtsInstalled ? "local" : "macos", voices: {
     coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna",
   } },

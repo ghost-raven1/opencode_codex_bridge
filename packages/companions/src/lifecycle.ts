@@ -1,5 +1,6 @@
-import { localVoiceSchema, type CompanionConfig, type Role } from "./config.js";
+import { localVoiceSchema, specialistVoices, type CompanionConfig, type Role } from "./config.js";
 import type { CompanionEvent } from "./director.js";
+import type { DiagnosticSink } from "./diagnostic-log.js";
 
 interface Resident {
   event: CompanionEvent;
@@ -17,7 +18,7 @@ export class CompanionLifecycle {
   private speaker?: string;
   private sequence = 0;
   private closed = false;
-  constructor(private config: CompanionConfig, private forward: (event: CompanionEvent) => void) {}
+  constructor(private config: CompanionConfig, private forward: (event: CompanionEvent) => void, private diagnostic?: DiagnosticSink) {}
 
   event(event: CompanionEvent): void {
     if (this.closed) return;
@@ -26,6 +27,9 @@ export class CompanionLifecycle {
     if (event.type === "remove") { this.retire(id); return; }
     let resident = this.residents.get(id);
     if (event.type === "state") {
+      if (!resident || resident.event.state !== event.state || resident.event.role !== event.role || resident.event.taskId !== event.taskId) {
+        this.diagnostic?.("lifecycle-state", { characterId: id, taskId: event.taskId, role: event.role, state: event.state });
+      }
       if (!resident) {
         resident = { event, recent: ++this.sequence };
         this.residents.set(id, resident);
@@ -79,13 +83,14 @@ export class CompanionLifecycle {
     const previous = this.visible;
     this.visible = next;
     for (const id of previous) if (!next.has(id)) {
+      this.diagnostic?.("lifecycle-remove", { characterId: id, reason: "visual-eviction" });
       // Eviction hides artwork but must not cancel queued speech or retire the task.
       this.forward({ type: "remove", characterId: id, visualOnly: true } as CompanionEvent);
       const resident = this.residents.get(id); if (resident) resident.voice = undefined;
     }
     const used = new Set(selected.flatMap(([, entry]) => entry.voice ? [entry.voice] : []));
     for (const [id, entry] of selected) {
-      const preferred = this.config.tts.voices[entry.event.role ?? "coordinator"];
+      const preferred = specialistVoices[entry.event.appearance?.rig ?? ""] ?? this.config.tts.voices[entry.event.role ?? "coordinator"];
       if (id === changed && entry.voice !== preferred && !used.has(preferred)) {
         if (entry.voice) used.delete(entry.voice);
         entry.voice = preferred; used.add(preferred);
@@ -94,6 +99,7 @@ export class CompanionLifecycle {
         entry.voice = !used.has(preferred) ? preferred : localVoiceSchema.options.find(voice => !used.has(voice)) ?? preferred;
         used.add(entry.voice);
       }
+      if (!previous.has(id)) this.diagnostic?.("lifecycle-visible", { characterId: id, taskId: entry.event.taskId, role: entry.event.role, voice: entry.voice, visible: next.size });
       if (!previous.has(id) || changed === id) this.forward({ ...entry.event, voice: entry.voice });
     }
     this.visible = next;
@@ -102,6 +108,7 @@ export class CompanionLifecycle {
   private retire(id: string): void {
     const entry = this.residents.get(id);
     if (!entry) return;
+    this.diagnostic?.("lifecycle-remove", { characterId: id, taskId: entry.event.taskId, reason: "retired" });
     clearTimeout(entry.timer);
     this.residents.delete(id);
     this.invalidate(id, entry.event.taskId);

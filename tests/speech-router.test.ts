@@ -22,14 +22,17 @@ describe("local role voices", () => {
     await t.finish(); await t.finish(1);
     const failed = t.send.mock.calls[0]![0];
     t.router.receive({ type: "audio-finished", id: failed.audioId, phase: "error" });
-    const fallback = t.send.mock.calls[1]![0];
+    const fallback = t.send.mock.calls.at(-1)![0];
     expect(fallback).toMatchObject({ type: "speak", characterId: "a", role: "researcher", text: "Проверяю источники." });
     expect(fallback.audioId).not.toBe(failed.audioId);
     expect(t.remove).toHaveBeenCalledWith("/audio/0.wav");
     for (const phase of ["end", "error"]) t.router.receive({ type: "audio-finished", id: failed.audioId, phase });
-    expect(t.send).toHaveBeenCalledTimes(2);
-    // Even a failed system voice advances the queue instead of starting an infinite retry.
+    expect(t.send).toHaveBeenCalledTimes(3);
+    // One fresh system synthesizer is allowed, then a repeated failure advances the queue.
     t.router.receive({ type: "audio-finished", id: fallback.audioId, phase: "error" });
+    const reset = t.send.mock.calls.at(-1)![0];
+    expect(reset).toMatchObject({ type: "speak", resetVoice: true });
+    t.router.receive({ type: "audio-finished", id: reset.audioId, phase: "error" });
     expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "b" }));
     t.router.dispose();
   });
@@ -48,7 +51,7 @@ describe("local role voices", () => {
       const retry = send.mock.calls.at(-1)![0];
       await vi.advanceTimersByTimeAsync(13_000);
       expect(send.mock.calls.filter(([event]) => ["play-audio", "speak", "stop"].includes(event.type)))
-        .toHaveLength(2);
+        .toHaveLength(3);
       expect(changed).toHaveBeenLastCalledWith(new Set(["a", "b"]), "a");
       router.receive({ type: "audio-finished", id: retry.audioId, phase: "end" });
       expect(send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "play-audio", characterId: "b" }));

@@ -1,0 +1,90 @@
+import AppKit
+
+/// Joint offsets are in source pixels/degrees; the rig applies its own authored joint limits.
+struct WorkJoint {
+    var angle: CGFloat = 0
+    var x: CGFloat = 0
+    var y: CGFloat = 0
+    func scaled(_ weight: CGFloat) -> WorkJoint { WorkJoint(angle: angle * weight, x: x * weight, y: y * weight) }
+}
+
+struct WorkPose {
+    var clip = "rest"
+    var joints: [String: WorkJoint] = [:]
+    var headX: CGFloat = 0
+    var headY: CGFloat = 0
+    func scaled(_ weight: CGFloat) -> WorkPose {
+        WorkPose(clip: clip, joints: joints.mapValues { $0.scaled(weight) }, headX: headX * weight, headY: headY * weight)
+    }
+}
+
+/// A stable per-character clock alternates two tool gestures, with rests and soft state changes.
+struct WorkAnimation {
+    private let seed: UInt64
+    private var active = false
+    private var changedAt = -Double.infinity
+    private var initialWeight: CGFloat = 0
+
+    init(seed: String) {
+        self.seed = seed.utf8.reduce(UInt64(14695981039346656037)) { ($0 ^ UInt64($1)) &* 1099511628211 }
+    }
+
+    mutating func update(active: Bool, at time: Double) {
+        guard active != self.active else { return }
+        initialWeight = weight(at: time); changedAt = time; self.active = active
+    }
+
+    private func weight(at time: Double) -> CGFloat {
+        let t = min(1, max(0, (time - changedAt) / 0.3))
+        let eased = t * t * (3 - 2 * t)
+        return initialWeight + ((active ? 1 : 0) - initialWeight) * eased
+    }
+
+    func pose(rig: String, at time: Double, reduced: Bool) -> WorkPose {
+        guard !reduced, time.isFinite, weight(at: time) > 0 else { return WorkPose() }
+        let period = 8.2 + Double(seed % 31) / 10
+        let phase = max(0, time + Double(seed % 997) / 97)
+        let cycle = Int(phase / period), elapsed = phase.truncatingRemainder(dividingBy: period)
+        let duration = 4.2
+        guard elapsed < duration else { return WorkPose() }
+        let p = elapsed / duration, envelope = pow(sin(p * .pi), 2)
+        let sweep = sin(p * 2 * .pi), taps = sin(p * 12 * .pi)
+        let alternate = (cycle + Int(seed % 2)) % 2 == 1
+        var pose = WorkPose(headY: -0.7 * envelope)
+        switch rig {
+        case "lead":
+            pose.clip = alternate ? "tablet-swipe" : "tablet-tap"
+            pose.joints = ["arm-right": WorkJoint(angle: alternate ? sweep * 2.1 : taps * 1.4, x: alternate ? sweep * 1.3 : 0, y: alternate ? 0 : taps * 0.7),
+                           "arm-left": WorkJoint(angle: -0.5 * sweep), "prop": WorkJoint(angle: 0.35 * sweep)]
+        case "code":
+            pose.clip = alternate ? "keyboard-right" : "keyboard-left"
+            let left = sin(p * 16 * .pi), right = sin(p * 16 * .pi + .pi / 2)
+            pose.joints = ["arm-left": WorkJoint(angle: left * 0.9, y: left * (alternate ? 0.65 : 1.1)),
+                           "arm-right": WorkJoint(angle: -right * 0.9, y: right * (alternate ? 1.1 : 0.65)),
+                           "prop": WorkJoint(y: 0.12 * sweep)]
+        case "research":
+            pose.clip = alternate ? "page-turn" : "read-line"
+            pose.joints = ["arm-right": WorkJoint(angle: alternate ? sweep * 2.7 : 0.6 * sweep, x: alternate ? 1.2 * sweep : 0),
+                           "arm-left": WorkJoint(angle: -0.5 * sweep), "prop": WorkJoint(angle: alternate ? 0.6 * sweep : 0.25 * sweep)]
+            pose.headX = alternate ? 0 : sweep * 0.8
+        case "review":
+            pose.clip = alternate ? "checklist-mark" : "tablet-inspect"
+            pose.joints = ["arm-right": WorkJoint(angle: alternate ? taps * 1.6 : sweep * 1.1, y: alternate ? taps * 0.8 : 0),
+                           "arm-left": WorkJoint(angle: -sweep * 0.5), "prop": WorkJoint(angle: sweep * 0.4)]
+        case "designer":
+            pose.clip = alternate ? "stylus-sketch" : "palette-check"
+            pose.joints = ["arm-left": WorkJoint(angle: alternate ? taps * 1.4 : sweep * 0.5, x: alternate ? sweep : 0),
+                           "arm-right": WorkJoint(angle: alternate ? sweep * 0.4 : sweep * 1.8)]
+        case "devops":
+            pose.clip = alternate ? "meter-check" : "probe-adjust"
+            pose.joints = ["tool-arm": WorkJoint(angle: sweep * (alternate ? 1.7 : 1.2), y: alternate ? taps * 0.5 : 0),
+                           "hip-arm": WorkJoint(angle: sweep * 0.4)]
+        case "tester":
+            pose.clip = alternate ? "controller-test" : "controller-combo"
+            pose.joints = ["controller-arms": WorkJoint(angle: sweep * (alternate ? 0.8 : 1.3),
+                                                        y: sin(p * (alternate ? 16 : 10) * .pi) * 0.7)]
+        default: return WorkPose()
+        }
+        return pose.scaled(envelope * weight(at: time))
+    }
+}

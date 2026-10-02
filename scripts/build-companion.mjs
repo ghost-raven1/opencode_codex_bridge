@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { copyFileSync, existsSync, mkdirSync, writeFileSync, symlinkSync, rmSync, readdirSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, rmSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 if (process.platform !== "darwin") throw new Error("Native companion build requires macOS and Xcode Command Line Tools");
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -21,6 +22,20 @@ for (const name of artwork) {
   if (existsSync(source)) copyFileSync(source, target);
   else rmSync(target, { force: true });
 }
+// Only authored runtime layers enter the bundle, never ImageGen sources or review previews.
+const expansion = `${root}packages/companions/assets/expansion`;
+if (existsSync(`${expansion}/manifest.json`)) {
+  const manifest = JSON.parse(readFileSync(`${expansion}/manifest.json`, "utf8"));
+  const images = Object.values(manifest.characters).flatMap(character => [
+    ...character.layers.map(layer => layer.file), character.face.file,
+  ]);
+  for (const name of ["manifest.json", ...new Set(images)]) {
+    if (name.startsWith("/") || name.split("/").includes("..")) throw new Error("Invalid rig asset path");
+    const target = join(bundle, "Contents/Resources/expansion", name);
+    mkdirSync(dirname(target), { recursive: true });
+    copyFileSync(join(expansion, name), target);
+  }
+}
 writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
@@ -33,14 +48,14 @@ writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UT
 <key>CFBundleVersion</key><string>2</string>
 <key>LSUIElement</key><true/>
 <key>LSMinimumSystemVersion</key><string>13.0</string>
-<key>NSMicrophoneUsageDescription</key><string>Диктовка по вашему нажатию в меню CodexBridge. Запись останавливается через 60 секунд.</string>
-<key>NSSpeechRecognitionUsageDescription</key><string>macOS преобразует вашу диктовку в текст для строки ввода OpenCode. Текст не отправляется автоматически.</string>
+<key>NSMicrophoneUsageDescription</key><string>Диктовка включается кнопкой микрофона и завершается через 60 секунд. Отдельная настройка «Реагировать на музыку» включает локальный анализ ритма до её выключения. Аудио не сохраняется.</string>
+<key>NSSpeechRecognitionUsageDescription</key><string>macOS преобразует диктовку в текст для OpenCode и распознаёт ваши голосовые команды. Запрос модели отправляется только по команде «Отправить».</string>
 </dict></plist>
 `);
 const result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", `${root}.local/swift-cache`,
   "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
-  "-framework", "AppKit", "-framework", "AVFoundation", "-framework", "Speech",
-  ...["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "CharacterBadgeView.swift", "CaptionState.swift", "SpriteCache.swift", "SpeechBubbleView.swift", "DraftMenu.swift", "WindowState.swift", "NativeSpeech.swift", "NativeDictation.swift", "main.swift"].map(name => `${native}/${name}`),
+  "-framework", "AppKit", "-framework", "AVFoundation", "-framework", "Speech", "-framework", "SoundAnalysis",
+  ...["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "CharacterBadgeView.swift", "CaptionState.swift", "SpriteCache.swift", "SpriteDepth.swift", "SpeechBubbleView.swift", "DraftMenu.swift", "WindowState.swift", "ScaleControl.swift", "NativeSpeech.swift", "VoiceCommands.swift", "MicrophoneTap.swift", "NativeDictation.swift", "MusicRhythm.swift", "MusicMotion.swift", "MusicAnalysis.swift", "MusicCapture.swift", "MusicControl.swift", "MusicIntegration.swift", "main.swift"].map(name => `${native}/${name}`),
   "-o", `${bundle}/Contents/MacOS/Companions`], { cwd: root, stdio: "inherit" });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const signed = spawnSync("codesign", ["--force", "--sign", "-", "--identifier", "dev.codexbridge.companions", bundle], { cwd: root, stdio: "inherit" });

@@ -1,16 +1,45 @@
 import AppKit
 import AVFoundation
 
+struct SystemVoiceCandidate {
+    let identifier: String
+    let language: String
+    let female: Bool
+    let quality: Int
+}
+
+/// Prefer an installed female voice in the requested language; selection never depends on the task role.
+enum SystemSpeechProfile {
+    static func preferredVoice(language: String, voices: [SystemVoiceCandidate]) -> String? {
+        let requested = language.replacingOccurrences(of: "_", with: "-").lowercased()
+        let family = requested.split(separator: "-").first
+        return voices.filter { $0.language.lowercased().split(separator: "-").first == family }.sorted { left, right in
+            if left.female != right.female { return left.female }
+            let leftExact = left.language.lowercased() == requested, rightExact = right.language.lowercased() == requested
+            if leftExact != rightExact { return leftExact }
+            if left.quality != right.quality { return left.quality > right.quality }
+            return left.identifier < right.identifier
+        }.first?.identifier
+    }
+
+    static func utterance(text: String, voice: AVSpeechSynthesisVoice?) -> AVSpeechUtterance {
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = voice
+        utterance.pitchMultiplier = 1
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        return utterance
+    }
+}
+
 /// One playback queue for system speech and locally generated audio; mouth motion follows real playback.
 @MainActor final class NativeSpeech: NSObject, @preconcurrency AVSpeechSynthesizerDelegate, AVAudioPlayerDelegate {
     private struct Entry {
         let characterId: String
         let text: String
-        let role: String
         var path: String? = nil
         var audioId: String? = nil
     }
-    let synthesizer = AVSpeechSynthesizer()
+    private(set) var synthesizer = AVSpeechSynthesizer()
     var voice: AVSpeechSynthesisVoice?
     var onEvent: ((String, String, NSRange?) -> Void)?
     var onStarted: ((String, String) -> Void)?
@@ -19,6 +48,7 @@ import AVFoundation
     var onAmplitude: ((Bool) -> Void)?
     var onLevel: ((Double) -> Void)?
     var onAudioFinished: ((String, String) -> Void)?
+    var onAudioStarted: ((String) -> Void)?
     private var active: AVSpeechUtterance?
     private var player: AVAudioPlayer?
     private var meter: Timer?
@@ -29,21 +59,32 @@ import AVFoundation
 
     override init() { super.init(); synthesizer.delegate = self }
 
+    /// Replace an unresponsive speech service after the router cancels its old utterance.
+    func resetSynthesizer() {
+        guard current == nil else { return }
+        synthesizer.delegate = nil; synthesizer.stopSpeaking(at: .immediate)
+        synthesizer = AVSpeechSynthesizer(); synthesizer.delegate = self
+    }
+
     func selectVoice(identifier: String?, language: String) {
+        let preferred = SystemSpeechProfile.preferredVoice(language: language, voices: AVSpeechSynthesisVoice.speechVoices().map {
+            SystemVoiceCandidate(identifier: $0.identifier, language: $0.language, female: $0.gender == .female, quality: $0.quality.rawValue)
+        })
         voice = identifier.flatMap { AVSpeechSynthesisVoice(identifier: $0) }
+            ?? preferred.flatMap { AVSpeechSynthesisVoice(identifier: $0) }
             ?? AVSpeechSynthesisVoice(language: language)
     }
 
-    func enqueue(characterId: String, text: String, role: String = "coordinator", audioId: String? = nil) {
+    func enqueue(characterId: String, text: String, role _: String = "coordinator", audioId: String? = nil) {
         guard !muted, !suspended, !text.isEmpty, queue.count < 16 else {
             if let audioId { onAudioFinished?(audioId, "cancel") }; return
         }
-        queue.append(Entry(characterId: characterId, text: String(text.prefix(8000)), role: role, audioId: audioId)); speakNext()
+        queue.append(Entry(characterId: characterId, text: String(text.prefix(8000)), audioId: audioId)); speakNext()
     }
 
-    func enqueueAudio(characterId: String, text: String, role: String, path: String, audioId: String) {
+    func enqueueAudio(characterId: String, text: String, role _: String, path: String, audioId: String) {
         guard !muted, !suspended, queue.count < 16 else { onAudioFinished?(audioId, "cancel"); return }
-        queue.append(Entry(characterId: characterId, text: text, role: role, path: path, audioId: audioId)); speakNext()
+        queue.append(Entry(characterId: characterId, text: text, path: path, audioId: audioId)); speakNext()
     }
 
     func stop(characterId id: String? = nil) {
@@ -71,6 +112,7 @@ import AVFoundation
                 let audio = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
                 audio.delegate = self; audio.isMeteringEnabled = true; player = audio
                 guard audio.play() else { complete(phase: "error"); return }
+                if let audioId = entry.audioId { onAudioStarted?(audioId) }
                 onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, entry.text)
                 meter = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in
                     MainActor.assumeIsolated {
@@ -83,19 +125,14 @@ import AVFoundation
                 }
             } catch { complete(phase: "error") }
         } else {
-            let utterance = AVSpeechUtterance(string: entry.text)
-            utterance.voice = voice
-            // Distinct fallback delivery when only one Russian system voice is installed.
-            let profiles: [String: (Float, Float)] = ["coordinator": (1.0, 0.5), "developer": (1.12, 0.53),
-                "researcher": (0.96, 0.46), "reviewer": (0.88, 0.49)]
-            let profile = profiles[entry.role] ?? (1.0, 0.5)
-            utterance.pitchMultiplier = profile.0; utterance.rate = profile.1
+            let utterance = SystemSpeechProfile.utterance(text: entry.text, voice: voice)
             active = utterance; synthesizer.speak(utterance)
         }
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         guard active === utterance, let entry = current else { return }
+        if let audioId = entry.audioId { onAudioStarted?(audioId) }
         onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, utterance.speechString)
     }
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString range: NSRange, utterance: AVSpeechUtterance) {

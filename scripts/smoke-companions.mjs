@@ -89,7 +89,8 @@ async function snapshot(name, background, offset = 0, caption, expectedCaption =
 async function captureVisuals() {
   const labels = ["LEAD", "CODE", "RESEARCH", "REVIEW"];
   const entries = labels.map((label, column) => ({ type: "state", characterId: `visual-${column}`,
-    state: "idle", appearance: { column, headColumn: column, bodyColumn: column, label } }));
+    state: "idle", appearance: { column, headColumn: column, bodyColumn: column,
+      rig: ["lead", "code", "research", "review"][column], label } }));
   entries.forEach(entry => host.send(entry));
   for (const background of ["light", "dark"]) await snapshot("entrance", background, 0.15);
   await new Promise(resolve => setTimeout(resolve, 1250));
@@ -100,7 +101,7 @@ async function captureVisuals() {
     for (const background of ["light", "dark"]) await snapshot(state, background);
   }
   entries.forEach((entry, column) => host.send({ ...entry,
-    appearance: { ...entry.appearance, headColumn: (column + 1) % 4 } }));
+    appearance: { ...entry.appearance, rig: undefined, headColumn: (column + 1) % 4 } }));
   for (const background of ["light", "dark"]) await snapshot("transform", background, 0.2);
   await new Promise(resolve => setTimeout(resolve, 1450));
   for (const background of ["light", "dark"]) await snapshot("mixed", background);
@@ -108,6 +109,19 @@ async function captureVisuals() {
   for (const background of ["light", "dark"]) await snapshot("leave", background, 0.15);
   await new Promise(resolve => setTimeout(resolve, 450));
   await windowState("visual cleanup stops rendering", event => event.count === 0 && !event.rendering);
+  const specialists = ["designer", "devops", "tester"].map((rig, column) => ({ type: "state",
+    characterId: `rig-${rig}`, state: "idle", appearance: { column, headColumn: column,
+      bodyColumn: column, rig, label: rig.toUpperCase() } }));
+  specialists.forEach(entry => host.send(entry));
+  for (const background of ["light", "dark"]) await snapshot("rig-entrance", background, 0.15);
+  await new Promise(resolve => setTimeout(resolve, 1250));
+  for (const state of ["idle", "thinking", "working", "waiting", "success", "error"]) {
+    specialists.forEach(entry => host.send({ ...entry, state }));
+    for (const background of ["light", "dark"]) await snapshot(`rig-${state}`, background);
+  }
+  specialists.forEach(entry => host.send({ type: "remove", characterId: entry.characterId }));
+  await new Promise(resolve => setTimeout(resolve, 450));
+  await windowState("specialist cleanup stops rendering", event => event.count === 0 && !event.rendering);
   console.log(`PASS visual artifacts: ${snapshots.length} PNGs at scale ${scale}`);
 }
 

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { configSchema } from "../packages/companions/src/config.js";
 import { CompanionLifecycle } from "../packages/companions/src/lifecycle.js";
 import type { CompanionEvent } from "../packages/companions/src/director.js";
+import { appearanceFor } from "../packages/companions/src/presets.js";
 function setup() {
   vi.useFakeTimers();
   const send = vi.fn(), life = new CompanionLifecycle(configSchema.parse({}), send);
@@ -43,6 +44,16 @@ describe("companion residency", () => {
     const t = setup(); t.state("a", "working", "task", "developer"); t.state("b", "working", "task", "reviewer");
     const voice = t.life.voiceFor("a", "developer");
     t.state("a", "working", "task", "reviewer"); expect(t.life.voiceFor("a", "reviewer")).toBe(voice);
+    t.life.dispose();
+  });
+  it("uses distinct synthetic references for specialists alongside the original team", () => {
+    const t = setup(); t.state("original");
+    for (const agent of ["designer", "devops", "tester"]) {
+      t.life.event({ type: "state", characterId: agent, state: "working", role: "developer",
+        appearance: appearanceFor(agent, "developer", undefined, agent) });
+      expect(t.life.voiceFor(agent, "developer")).toBe(`${agent}-local`);
+    }
+    expect(t.life.voiceFor("original", "developer")).toBe("Vivian");
     t.life.dispose();
   });
 });

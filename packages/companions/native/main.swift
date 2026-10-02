@@ -33,12 +33,14 @@ var exitStatus: Int32 = 0
     let speech = NativeSpeech()
     let dictation = NativeDictation()
     let draftMenu = DraftMenu()
+    let music = MusicControl()
     var realCharacters: [Character] = []
     var captions = CaptionState()
     var demonstration = false
     var timer: Timer?
     var speechTestTimer: Timer?
     var item: NSStatusItem?
+    var microphoneItem: NSStatusItem?
     var muteItem: NSMenuItem?
     var visibilityItem: NSMenuItem?
     var windowState: WindowState!
@@ -51,14 +53,14 @@ var exitStatus: Int32 = 0
     var dictationEnabled = true
     var localSpeech = false
     var maxVisible = 4
-    var scale: CGFloat = 1
+    var scaleControl: ScaleControl!
     var speechTest = CommandLine.arguments.contains("--speech-test")
     var speechTestCompleted = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let config = readConfiguration()
         maxVisible = min(max(config["maxVisible"] as? Int ?? 4, 1), 4)
-        scale = min(max(config["scale"] as? Double ?? 1, 0.5), 2)
+        scaleControl = ScaleControl(configured: config["scale"] as? Double ?? 1)
         language = config["language"] as? String ?? "ru-RU"
         dictationEnabled = configuredDictation(config)
         localSpeech = (config["tts"] as? [String: Any])?["engine"] as? String == "local"
@@ -66,6 +68,7 @@ var exitStatus: Int32 = 0
         if let path = argument("--atlas") {
             view.atlas = NSImage(contentsOfFile: path)
             let directory = URL(fileURLWithPath: path).deletingLastPathComponent()
+            view.loadRigs(directory: directory.appendingPathComponent("expansion"))
             view.headAtlas = NSImage(contentsOf: directory.appendingPathComponent("head-atlas.png"))
             view.bodyAtlas = NSImage(contentsOf: directory.appendingPathComponent("body-atlas.png"))
             view.mixedHeadAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-head-atlas.png"))
@@ -73,7 +76,7 @@ var exitStatus: Int32 = 0
             view.faceAtlas = NSImage(contentsOf: directory.appendingPathComponent("facial-v3.png"))
             if view.atlas == nil { emit(["type": "error", "code": "atlas", "message": "Не удалось открыть атлас персонажей; системный голос доступен."]) }
         }
-        configureCallbacks(); configurePanel(); configureMenu()
+        configureCallbacks(); configurePanel(); configureMusic(); configureMenu()
         emitReady()
         if CommandLine.arguments.contains("--preview") || argument("--snapshot") != nil {
             populatePreview()
@@ -112,6 +115,7 @@ var exitStatus: Int32 = 0
             self?.view.mouthUntil = open ? Date.timeIntervalSinceReferenceDate + 0.06 : 0
         }
         speech.onAudioFinished = { id, phase in emit(["type": "audio-finished", "id": id, "phase": phase]) }
+        speech.onAudioStarted = { id in emit(["type": "audio-started", "id": id]) }
         speech.onEvent = { [weak self] phase, id, range in
             var event: [String: Any] = ["type": "speech", "phase": phase, "characterId": id]
             if let range {
@@ -133,15 +137,20 @@ var exitStatus: Int32 = 0
             }
         }
         dictation.onPreparing = { [weak self] in
+            self?.music.setDictating(true)
             emit(["type": "speech-control", "action": "suspend", "suspended": true])
             self?.speech.suspended = true; self?.speech.stop(); self?.updateMenu()
         }
         dictation.onState = { [weak self] active in
+            self?.music.setDictating(active)
             self?.speech.suspended = active; self?.updateMenu()
             emit(["type": "dictation", "active": active])
             emit(["type": "speech-control", "action": "suspend", "suspended": active])
         }
         dictation.onTranscript = { text in emit(["type": "transcript", "text": text]) }
+        dictation.onCommand = { input in
+            emit(["type": "voice-command", "command": input.command, "text": input.text])
+        }
         dictation.onError = { message in emit(["type": "error", "code": "dictation", "message": message]) }
     }
 
@@ -154,6 +163,8 @@ var exitStatus: Int32 = 0
         view.toolTip = "Перетащи персонажа или подпись, чтобы переместить группу. Правый клик — скрыть."
         windowState = WindowState(panel: panel)
         windowState.onChange = { [weak self] in self?.updateMenu() }
+        windowState.onScreenChange = { [weak self] in self?.resize() }
+        scaleControl.onChange = { [weak self] in self?.resize(); self?.emitWindowStatus() }
         let context = NSMenu()
         context.addItem(withTitle: "Скрыть компаньонов", action: #selector(hideCompanions), keyEquivalent: "")
         context.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
@@ -184,16 +195,21 @@ var exitStatus: Int32 = 0
         startItem = menu.addItem(withTitle: "Начать диктовку…", action: #selector(startDictation), keyEquivalent: "")
         finishItem = menu.addItem(withTitle: "Завершить диктовку", action: #selector(finishDictation), keyEquivalent: "")
         cancelItem = menu.addItem(withTitle: "Отменить диктовку", action: #selector(cancelDictation), keyEquivalent: "")
+        menu.addItem(withTitle: "Команды голосового управления…", action: #selector(showVoiceHelp), keyEquivalent: "")
         menu.addItem(withTitle: "Черновики диктовки", action: nil, keyEquivalent: "").submenu = draftMenu.menu
+        menu.addItem(music.menuItem); menu.addItem(music.statusItem)
         menu.addItem(.separator())
         visibilityItem = menu.addItem(withTitle: "Скрыть компаньонов", action: #selector(toggleVisibility), keyEquivalent: "")
+        menu.addItem(scaleControl.menuItem)
         menu.addItem(withTitle: "Вернуть позицию на экран", action: #selector(resetPosition), keyEquivalent: "")
         menu.addItem(withTitle: "Демо персонажей (отдельный просмотр)", action: #selector(showPreview), keyEquivalent: "")
         menu.addItem(withTitle: "Закрыть CodexBridge Companions", action: #selector(quit), keyEquivalent: "q")
         menu.autoenablesItems = false
-        for entry in menu.items { entry.target = self }
+        for entry in menu.items where entry.target == nil { entry.target = self }
         item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         item?.button?.title = "✦"; item?.button?.toolTip = "CodexBridge: голос и персонажи"; item?.menu = menu
+        microphoneItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        microphoneItem?.button?.target = self; microphoneItem?.button?.action = #selector(toggleRecording)
         updateMenu()
     }
 
@@ -204,7 +220,12 @@ var exitStatus: Int32 = 0
         startItem?.isEnabled = dictationEnabled && !dictation.active
         finishItem?.isEnabled = dictation.active; cancelItem?.isEnabled = dictation.active
         item?.button?.title = dictation.active ? "● ✦" : "✦"
+        microphoneItem?.isVisible = dictationEnabled
+        microphoneItem?.button?.image = NSImage(systemSymbolName: dictation.active ? "stop.circle.fill" : "mic.fill", accessibilityDescription: "Диктовка")
+        microphoneItem?.button?.contentTintColor = dictation.active ? .systemRed : nil
+        microphoneItem?.button?.toolTip = dictation.active ? "Завершить диктовку без отправки. Для отправки скажи «Отправить»." : "Начать диктовку. После текста сделай паузу и скажи «Отправить»."
         for entry in voiceItems { entry.state = entry.representedObject as? String == speech.voice?.identifier ? .on : .off }
+        updateMusicIndicator()
     }
 
     func emitReady() {
@@ -227,8 +248,7 @@ var exitStatus: Int32 = 0
     func resize() {
         let count = CGFloat(max(view.characters.count, 1))
         let width = count * 168, height = view.contentHeight(width: width)
-        panel.setContentSize(NSSize(width: width * scale, height: height * scale))
-        view.setBoundsSize(NSSize(width: width, height: height))
+        scaleControl.apply(panel: panel, view: view, base: NSSize(width: width, height: height), visible: windowState.visibleFrame)
         windowState.fitToScreen()
     }
 
@@ -253,10 +273,13 @@ var exitStatus: Int32 = 0
         case "show": showCompanions()
         case "reset-position": resetPosition()
         case "window-status": emitWindowStatus()
+        case "set-scale": if let scale = value["scale"] as? Double { scaleControl.set(scale) }
+        case "reset-scale": scaleControl.reset()
         case "mute": setMuted(value["muted"] as? Bool ?? !speech.muted)
         case "stop-speech": stopSpeech()
         case "speech-test": testSpeech()
         case "show-menu": item?.button?.performClick(nil)
+        case "voice-help": showVoiceHelp()
         case "dictation-start": startDictation()
         case "dictation-stop": finishDictation()
         case "dictation-cancel": cancelDictation()
@@ -275,7 +298,8 @@ var exitStatus: Int32 = 0
             let appearance = value["appearance"] as? [String: Any] ?? [:]
             let character = Character(id: id, column: min(max(appearance["column"] as? Int ?? 0, 0), 3),
                 label: appearance["label"] as? String ?? "LEAD", state: value["state"] as? String ?? "idle",
-                headColumn: appearance["headColumn"] as? Int, bodyColumn: appearance["bodyColumn"] as? Int)
+                headColumn: appearance["headColumn"] as? Int, bodyColumn: appearance["bodyColumn"] as? Int,
+                rig: appearance["rig"] as? String)
             if let index = realCharacters.firstIndex(where: { $0.id == id }) { realCharacters[index] = character }
             else { realCharacters.append(character) }
             if demonstration { demonstration = false; view.replace(Array(realCharacters.prefix(maxVisible))) }
@@ -292,6 +316,7 @@ var exitStatus: Int32 = 0
             refreshCaption()
         case "speak":
             if let text = value["text"] as? String {
+                if value["resetVoice"] as? Bool == true { speech.resetSynthesizer() }
                 speech.enqueue(characterId: id, text: text, role: value["role"] as? String ?? "coordinator",
                     audioId: value["audioId"] as? String)
             }
@@ -329,6 +354,8 @@ var exitStatus: Int32 = 0
     }
 
     func presentCharacters() {
+        let wasRendering = timer != nil
+        defer { emitRendererState(previous: wasRendering) }
         windowState.present(hasContent: view.atlas != nil && !view.characters.isEmpty)
         if panel.isVisible && !view.characters.isEmpty {
             if timer == nil {
@@ -344,6 +371,10 @@ var exitStatus: Int32 = 0
 
     func emitWindowStatus() {
         emit(["type": "window", "hidden": windowState.hidden, "visible": panel.isVisible,
+              "scale": scaleControl.value, "effectiveScale": scaleControl.effective,
+              "width": panel.frame.width, "height": panel.frame.height,
+              "contentWidth": view.frame.width, "contentHeight": view.frame.height,
+              "logicalWidth": view.bounds.width, "logicalHeight": view.bounds.height,
               "x": panel.frame.minX, "y": panel.frame.minY, "count": view.characters.count,
               "characters": view.characters.map { $0.id }, "rendering": timer != nil, "demo": demonstration,
               "columns": view.characters.map { $0.column }, "reducedMotion": view.reduced])
@@ -397,6 +428,7 @@ var exitStatus: Int32 = 0
     }
     func setDictationEnabled(_ enabled: Bool) {
         dictationEnabled = enabled
+        if enabled { music.configure(allowed: true) } else { music.disableMicrophone() }
         UserDefaults.standard.set(enabled, forKey: "companions.dictationEnabled")
         if !enabled { dictation.cancel() }
         updateMenu(); emitDictationStatus()
@@ -409,10 +441,16 @@ var exitStatus: Int32 = 0
     }
     @objc func finishDictation() { dictation.finish() }
     @objc func cancelDictation() { dictation.cancel() }
+    @objc func toggleRecording() { if dictation.active { finishDictation() } else { startDictation() } }
+    @objc func showVoiceHelp() {
+        let alert = NSAlert(); alert.messageText = "Голосовое управление OpenCode"
+        alert.informativeText = VoiceCommands.help; alert.addButton(withTitle: "Понятно")
+        NSApp.activate(ignoringOtherApps: true); alert.runModal()
+    }
     @objc func quit() { NSApp.terminate(nil) }
 
     func applicationWillTerminate(_ notification: Notification) {
-        timer?.invalidate(); speechTestTimer?.invalidate(); dictation.cancel(); speech.stop()
+        timer?.invalidate(); speechTestTimer?.invalidate(); music.stop(); dictation.cancel(); speech.stop()
     }
 }
 

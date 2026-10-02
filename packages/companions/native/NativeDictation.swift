@@ -5,6 +5,7 @@ import Speech
 @MainActor final class NativeDictation {
     var onState: ((Bool) -> Void)?
     var onTranscript: ((String) -> Void)?
+    var onCommand: ((VoiceInput) -> Void)?
     var onError: ((String) -> Void)?
     var onPreparing: (() -> Void)?
     private(set) var active = false
@@ -16,6 +17,9 @@ import Speech
     private var recognizer: SFSpeechRecognizer?
     private var tapInstalled = false
     private var latest = ""
+    private var segments: [VoiceSegment] = []
+    private var commandCandidate: VoiceInput?
+    private var commandTimer: Timer?
     private var limitTimer: Timer?
     private var finishTimer: Timer?
 
@@ -60,7 +64,13 @@ import Speech
         task = recognizer.recognitionTask(with: request) { [weak self] result, error in
             DispatchQueue.main.async {
                 guard let self, self.token == current else { return }
-                if let result { self.latest = result.bestTranscription.formattedString }
+                if let result {
+                    self.latest = result.bestTranscription.formattedString
+                    self.segments = result.bestTranscription.segments.map {
+                        VoiceSegment(range: $0.substringRange, timestamp: $0.timestamp, duration: $0.duration)
+                    }
+                    self.scheduleCommand()
+                }
                 if result?.isFinal == true { self.complete(deliver: true) }
                 else if error != nil {
                     // Finishing a recording can produce an error after a usable partial result.
@@ -92,6 +102,18 @@ import Speech
 
     func cancel() { complete(deliver: false) }
 
+    /// Wait for a stable command before ending the microphone session; ordinary partials never send.
+    private func scheduleCommand() {
+        let candidate = VoiceCommands.recognize(latest, segments: segments)
+        guard candidate != commandCandidate else { return }
+        commandTimer?.invalidate(); commandTimer = nil; commandCandidate = candidate
+        guard candidate != nil else { return }
+        let deadline = Timer(timeInterval: 1, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated { self?.complete(deliver: true) }
+        }
+        commandTimer = deadline; RunLoop.main.add(deadline, forMode: .common)
+    }
+
     /// Query system permissions and recognizer readiness without opening the microphone.
     func status(enabled: Bool, language: String) -> [String: Any] {
         let availableRecognizer = SFSpeechRecognizer(locale: Locale(identifier: language))
@@ -118,15 +140,7 @@ import Speech
     }
 
     private func installInputTap(_ input: AVAudioInputNode, request: SFSpeechAudioBufferRecognitionRequest, format: AVAudioFormat) throws {
-#if compiler(>=6.4)
-        if #available(macOS 27.0, *) {
-            try input.__installTap(onBus: 0, bufferSize: 1024, format: format, error: ()) { buffer, _ in request.append(buffer) }
-        } else {
-            input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in request.append(buffer) }
-        }
-#else
-        input.installTap(onBus: 0, bufferSize: 1024, format: format) { buffer, _ in request.append(buffer) }
-#endif
+        try MicrophoneTap.install(on: input, format: format) { buffer, _ in request.append(buffer) }
     }
 
     private func stopAudio() {
@@ -140,11 +154,15 @@ import Speech
         guard token != nil else { return }
         token = nil
         stopAudio(); finishTimer?.invalidate(); finishTimer = nil
+        commandTimer?.invalidate(); commandTimer = nil
         request?.endAudio(); task?.cancel()
         task = nil; request = nil; engine = nil; recognizer = nil
-        let transcript = latest.trimmingCharacters(in: .whitespacesAndNewlines); latest = ""
+        let transcript = latest.trimmingCharacters(in: .whitespacesAndNewlines)
+        let command = VoiceCommands.recognize(latest, segments: segments)
+        latest = ""; segments = []; commandCandidate = nil
         active = false; onState?(false)
-        if deliver, !transcript.isEmpty { onTranscript?(transcript) }
+        if deliver, let command { onCommand?(command) }
+        else if deliver, !transcript.isEmpty { onTranscript?(transcript) }
     }
 
     private func fail(_ message: String) { complete(deliver: false); onError?(message) }

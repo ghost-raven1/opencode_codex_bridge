@@ -7,8 +7,12 @@ import time
 import uuid
 
 sys.pycache_prefix = str(Path(__file__).resolve().parents[3] / ".local/tts/cache/pycache")
-from local_paths import AUDIO, MODEL, MODEL_PATH, configure_environment, write_wav
+from local_paths import AUDIO, MODEL, MODEL_PATH, LOCAL, SOURCE, configure_environment, write_wav
 from speech_budget import SpeechLimitError, check_generation, speech_budget
+from voice_profiles import VoiceModels, read_profiles
+
+REFERENCES = SOURCE.parent / "assets/expansion/voices"
+PROFILES = read_profiles(REFERENCES)
 
 # Preserve a private protocol stream before redirecting Python and native-library stdout.
 protocol = os.fdopen(os.dup(sys.stdout.fileno()), "w", buffering=1, encoding="utf-8")
@@ -35,10 +39,10 @@ def validate(value):
     text = value.get("text")
     if not isinstance(text, str) or not 1 <= len(text.strip()) <= 2000:
         raise ValueError("text must contain 1–2000 characters")
-    choices = {name.lower(): name for name in MODEL["voices"]}
+    choices = {name.lower(): name for name in [*MODEL["voices"], *PROFILES["profiles"]]}
     voice = value.get("voice")
     if not isinstance(voice, str) or voice.lower() not in choices:
-        raise ValueError("voice must be Serena, Vivian, Sohee, or Ono_Anna")
+        raise ValueError("voice must match an installed local voice profile")
     instructions = value.get("instructions")
     if instructions is not None and (not isinstance(instructions, str) or len(instructions) > 500):
         raise ValueError("instructions must contain at most 500 characters")
@@ -59,16 +63,14 @@ def main():
         import mlx.core as mx
         from mlx_audio.tts.utils import load_model
 
-        model = load_model(str(MODEL_PATH))
-        if model.tokenizer is None or model.speech_tokenizer is None:
-            raise RuntimeError("incomplete-model")
+        models = VoiceModels(MODEL_PATH, LOCAL / "models", REFERENCES, PROFILES, load_model, mx.clear_cache)
     except Exception as failure:
         print(f"Local TTS initialization failed ({type(failure).__name__})", file=sys.stderr)
         error(None, "model-load-failed", "Local speech model could not be loaded")
         return 1
     send({"type": "ready", "model": MODEL["id"], "revision": MODEL["revision"],
-          "voices": MODEL["voices"], "sampleRate": model.sample_rate,
-          "loadSeconds": round(time.perf_counter() - started, 3)})
+          "voices": [*MODEL["voices"], *PROFILES["profiles"]], "deferredModelLoad": True,
+          "startupSeconds": round(time.perf_counter() - started, 3)})
     while True:
         # Limit bytes before parsing so an accidental unbounded stdin line cannot exhaust memory.
         line = sys.stdin.buffer.readline(64 * 1024 + 1)
@@ -93,15 +95,14 @@ def main():
         try:
             mx.reset_peak_memory()
             max_duration, max_tokens = speech_budget(text)
-            results = list(model.generate_custom_voice(text=text, speaker=voice, language=MODEL["language"],
-                instruct=instructions, temperature=0.7, max_tokens=max_tokens, verbose=False))
-            duration = sum(result.audio.size for result in results) / model.sample_rate
+            results, sample_rate = models.generate(voice, text, MODEL["language"], instructions, max_tokens)
+            duration = sum(result.audio.size for result in results) / sample_rate
             check_generation(sum(result.token_count for result in results), max_tokens, duration, max_duration)
             audio = mx.concatenate([result.audio.reshape(-1) for result in results])
             mx.eval(audio)
-            duration = write_wav(path, audio, model.sample_rate)
+            duration = write_wav(path, audio, sample_rate)
             send({"type": "audio", "id": request_id, "path": str(path), "duration": duration,
-                  "sampleRate": model.sample_rate, "elapsedSeconds": round(time.perf_counter() - started, 3),
+                  "sampleRate": sample_rate, "elapsedSeconds": round(time.perf_counter() - started, 3),
                   "peakMemoryBytes": mx.get_peak_memory()})
         except BrokenPipeError:
             path.unlink(missing_ok=True)
