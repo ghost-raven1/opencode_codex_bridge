@@ -54,7 +54,7 @@ function windowState(name, matches) {
     host.send({ type: "window-status" });
   });
 }
-const realCharacter = { type: "state", characterId: "smoke-real-agent", state: "thinking", role: "developer",
+const realCharacter = { type: "state", characterId: "smoke-real-agent", name: "Хикари", state: "thinking", role: "developer",
   appearance: { column: 1, headColumn: 1, bodyColumn: 1, label: "CODE" } };
 const containsReal = event => event.count === 1 && event.characters?.[0] === realCharacter.characterId;
 
@@ -89,7 +89,7 @@ async function snapshot(name, background, offset = 0, caption, expectedCaption =
 async function captureVisuals() {
   const labels = ["LEAD", "CODE", "RESEARCH", "REVIEW"];
   const entries = labels.map((label, column) => ({ type: "state", characterId: `visual-${column}`,
-    state: "idle", appearance: { column, headColumn: column, bodyColumn: column,
+    name: ["Акира", "Юино", "Микана", "Рикоми"][column], state: "idle", appearance: { column, headColumn: column, bodyColumn: column,
       rig: ["lead", "code", "research", "review"][column], label } }));
   entries.forEach(entry => host.send(entry));
   for (const background of ["light", "dark"]) await snapshot("entrance", background, 0.15);
@@ -110,7 +110,7 @@ async function captureVisuals() {
   await new Promise(resolve => setTimeout(resolve, 450));
   await windowState("visual cleanup stops rendering", event => event.count === 0 && !event.rendering);
   const specialists = ["designer", "devops", "tester"].map((rig, column) => ({ type: "state",
-    characterId: `rig-${rig}`, state: "idle", appearance: { column, headColumn: column,
+    characterId: `rig-${rig}`, name: ["Хару", "Наори", "Коэми"][column], state: "idle", appearance: { column, headColumn: column,
       bodyColumn: column, rig, label: rig.toUpperCase() } }));
   specialists.forEach(entry => host.send(entry));
   for (const background of ["light", "dark"]) await snapshot("rig-entrance", background, 0.15);
