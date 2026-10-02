@@ -65,8 +65,10 @@ class Models:
             try:
                 for index, duration in enumerate(durations):
                     if voice == "crash" and index == 1:
-                        time.sleep(0.15)
-                        sys.exit(3)
+                        # Die only after the test confirms that the queue owns the first WAV.
+                        while not (log_path.parent / "crash-now").exists():
+                            time.sleep(0.01)
+                        os._exit(3)
                     if voice == "cancel":
                         time.sleep(0.12)
                     yield Result(duration)

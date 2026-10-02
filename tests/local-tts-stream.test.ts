@@ -130,8 +130,10 @@ describe("incremental local speech", () => {
 
   it("preserves already-issued PCM across worker death and resets for a new generation", async () => {
     const f = await fixture(), chunks: LocalSpeechChunk[] = [];
-    await expect(f.tts.stream(request("crash", "crash"), { chunk: audio => chunks.push(audio) })).rejects.toThrow("exited");
-    expect(chunks).toHaveLength(1);
+    const failed = f.tts.stream(request("crash", "crash"), { chunk: audio => chunks.push(audio) }).catch(error => error as Error);
+    await vi.waitFor(() => expect(chunks).toHaveLength(1));
+    await writeFile(join(f.audioDirectory, "..", "crash-now"), "");
+    expect(await failed).toMatchObject({ message: "Local speech worker exited" });
     for (const audio of chunks) { await expect(access(audio.path)).resolves.toBeUndefined(); f.tts.consumed("crash", audio.index); }
     await expect(f.tts.stream(request("after-crash"), { chunk: audio => f.tts.consumed("after-crash", audio.index) })).resolves.toBeUndefined();
     expect((await readFile(f.log, "utf8")).match(/^launch$/gm)).toHaveLength(2);
