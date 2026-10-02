@@ -5,6 +5,7 @@ import { realpath, rm, stat, unlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { speechBudget } from "./speech-budget.js";
 
 export interface LocalSpeechRequest { id: string; text: string; voice: string; instructions?: string }
 export interface LocalSpeechAudio { path: string; duration: number; sampleRate: number }
@@ -14,6 +15,7 @@ interface Options {
 }
 interface Pending {
   resolve: (audio: LocalSpeechAudio) => void; reject: (error: Error) => void; timer: NodeJS.Timeout;
+  maxDuration: number;
   receiving?: boolean;
 }
 const root = fileURLToPath(new URL("../../../", import.meta.url));
@@ -46,6 +48,7 @@ export class LocalTts {
     if (!request.id || request.id.length > 128 || Buffer.byteLength(encoded) > 64 * 1024) {
       throw new Error("Invalid local speech request");
     }
+    const maxDuration = speechBudget(request.text).seconds;
     await this.start();
     if (this.disposed) throw new Error("Local speech worker is closed");
     if (!this.child || !this.ready) throw new Error("Local speech worker is unavailable");
@@ -54,7 +57,7 @@ export class LocalTts {
     const child = this.child;
     return new Promise((resolveRequest, reject) => {
       const timer = setTimeout(() => this.fail("Local speech generation timed out"), this.options.requestTimeoutMs ?? 120_000);
-      this.pending.set(request.id, { resolve: resolveRequest, reject, timer });
+      this.pending.set(request.id, { resolve: resolveRequest, reject, timer, maxDuration });
       child.stdin.write(encoded, error => { if (error && this.child === child) this.fail("Local speech input channel failed"); });
     });
   }
@@ -142,6 +145,12 @@ export class LocalTts {
       return;
     }
     if (this.pending.get(id) !== pending) { await unlink(audio.path).catch(() => undefined); return; }
+    if (audio.duration > pending.maxDuration) {
+      clearTimeout(pending.timer); this.pending.delete(id);
+      await unlink(audio.path).catch(() => undefined);
+      pending.reject(new Error("Local speech exceeded its duration budget"));
+      return;
+    }
     clearTimeout(pending.timer); this.pending.delete(id); pending.resolve(audio);
   }
 

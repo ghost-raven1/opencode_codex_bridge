@@ -1,0 +1,8 @@
+{
+  "minimumSeconds": 15,
+  "maximumSeconds": 120,
+  "charactersPerSecond": 6,
+  "paddingSeconds": 4,
+  "extraCharactersPerDigit": 3,
+  "framesPerSecond": 12.5
+}

@@ -8,6 +8,7 @@ import uuid
 
 sys.pycache_prefix = str(Path(__file__).resolve().parents[3] / ".local/tts/cache/pycache")
 from local_paths import AUDIO, MODEL, MODEL_PATH, configure_environment, write_wav
+from speech_budget import SpeechLimitError, check_generation, speech_budget
 
 # Preserve a private protocol stream before redirecting Python and native-library stdout.
 protocol = os.fdopen(os.dup(sys.stdout.fileno()), "w", buffering=1, encoding="utf-8")
@@ -91,10 +92,11 @@ def main():
         started = time.perf_counter()
         try:
             mx.reset_peak_memory()
+            max_duration, max_tokens = speech_budget(text)
             results = list(model.generate_custom_voice(text=text, speaker=voice, language=MODEL["language"],
-                instruct=instructions, temperature=0.7, max_tokens=2048, verbose=False))
-            if not results or sum(result.token_count for result in results) >= 2048:
-                raise RuntimeError("speech-limit")
+                instruct=instructions, temperature=0.7, max_tokens=max_tokens, verbose=False))
+            duration = sum(result.audio.size for result in results) / model.sample_rate
+            check_generation(sum(result.token_count for result in results), max_tokens, duration, max_duration)
             audio = mx.concatenate([result.audio.reshape(-1) for result in results])
             mx.eval(audio)
             duration = write_wav(path, audio, model.sample_rate)
@@ -104,6 +106,9 @@ def main():
         except BrokenPipeError:
             path.unlink(missing_ok=True)
             return 0
+        except SpeechLimitError:
+            path.unlink(missing_ok=True)
+            error(request_id, "speech-limit", "Local speech exceeded its generation budget")
         except Exception as failure:
             path.unlink(missing_ok=True)
             print(f"Local TTS generation failed ({type(failure).__name__})", file=sys.stderr)

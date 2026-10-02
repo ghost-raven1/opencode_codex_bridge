@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mkdtemp, readFile, realpath, rm, writeFile, mkdir, access, stat } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, realpath, rm, writeFile, mkdir, access, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 const home = vi.hoisted(() => ({ directory: "" }));
 vi.mock("node:os", async original => ({ ...await original<object>(), homedir: () => home.directory }));
 import { LocalTts } from "../packages/companions/src/local-tts.js";
+import { configSchema } from "../packages/companions/src/config.js";
+import { SpeechRouter } from "../packages/companions/src/speech-router.js";
 
 const instances: LocalTts[] = [];
 const directories: string[] = [];
@@ -16,7 +18,7 @@ afterEach(async () => {
   await Promise.all(directories.splice(0).map(directory => rm(directory, { recursive: true, force: true })));
 });
 
-async function fixture(options: { startupHang?: boolean; requestTimeoutMs?: number; startupTimeoutMs?: number; defaultAudio?: boolean } = {}) {
+async function fixture(options: { startupHang?: boolean; requestTimeoutMs?: number; startupTimeoutMs?: number; defaultAudio?: boolean; duration?: number } = {}) {
   const directory = await mkdtemp(join(tmpdir(), "codexbridge-tts-")); directories.push(directory);
   const audioDirectory = join(directory, "audio"), worker = join(directory, "worker.py");
   const launches = join(directory, "launches"), outside = join(directory, "outside.wav");
@@ -36,13 +38,15 @@ for line in sys.stdin:
  if mode == "large": print("x" * (128*1024+1), flush=True); continue
  if mode == "invalid": print("invalid SECRET request text", flush=True); continue
  if mode == "error": print(json.dumps({"type":"error", "id":request["id"], "message":request["text"]}), flush=True); continue
+ if mode == "limit": print(json.dumps({"type":"error", "id":request["id"], "code":"speech-limit"}), flush=True); continue
  path=directory / ("голос-" + request["id"] + ".wav")
+ duration=${options.duration ?? 0.01}
  with wave.open(str(path), "wb") as file:
-  file.setnchannels(1); file.setsampwidth(2); file.setframerate(24000); file.writeframes(bytes(480))
+  file.setnchannels(1); file.setsampwidth(2); file.setframerate(24000); file.writeframes(bytes(int(duration*24000)*2))
  if mode == "escape": path=outside
  if mode == "symlink":
   path.unlink(); path.symlink_to(outside)
- result=json.dumps({"type":"audio", "id":request["id"], "path":str(path), "duration":0.01, "sampleRate":24000}, ensure_ascii=False).encode("utf8")
+ result=json.dumps({"type":"audio", "id":request["id"], "path":str(path), "duration":duration, "sampleRate":24000}, ensure_ascii=False).encode("utf8")
  split=result.find("голос".encode("utf8"))+1
  sys.stdout.buffer.write(result[:split]); sys.stdout.buffer.flush()
  sys.stdout.buffer.write(result[split:]+b"\\n"); sys.stdout.buffer.flush()
@@ -56,6 +60,29 @@ for line in sys.stdin:
 
 const request = (id: string, voice = "ok") => ({ id, text: "SECRET request text", voice });
 describe("local speech worker channel", () => {
+  it("rejects and deletes 45 seconds for 32 characters, while allowing normal short and long speech", async () => {
+    const text = "Публичная короткая фраза".padEnd(32, ".");
+    const short = await fixture({ duration: 4 });
+    await expect(short.tts.synthesize({ id: "short", text, voice: "ok" })).resolves.toMatchObject({ duration: 4 });
+    const long = await fixture({ duration: 45 });
+    await expect(long.tts.synthesize({ id: "overrun", text, voice: "ok" })).rejects.toThrow("duration budget");
+    await expect(access(join(long.audioDirectory, "голос-overrun.wav"))).rejects.toThrow();
+    await expect(long.tts.synthesize({ id: "long", text: "Проверю русский текст и документацию. ".repeat(10).slice(0, 320), voice: "ok" }))
+      .resolves.toMatchObject({ duration: 45 });
+    expect((await readFile(long.launches, "utf8")).trim().split("\n")).toHaveLength(1);
+  });
+  it.each(["ok", "limit"])("routes %s overrun rejection to full macOS speech without playing a truncated WAV", async voice => {
+    const f = await fixture({ duration: 45 }), send = vi.fn();
+    const router = new SpeechRouter(configSchema.parse({ tts: { engine: "local" } }), f.tts, send, () => {});
+    const text = "Публичная короткая фраза".padEnd(32, ".");
+    try {
+      router.event({ type: "speak", characterId: "agent", voice, text });
+      await vi.waitFor(() => expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: "speak", characterId: "agent", text })));
+      expect(send.mock.calls.some(([event]) => event.type === "play-audio")).toBe(false);
+      expect(send).toHaveBeenCalledWith({ type: "caption", characterId: "agent", text });
+      expect(await readdir(f.audioDirectory)).toEqual([]);
+    } finally { router.dispose(); }
+  });
   it("keeps default runtime audio outside the project and isolates cleanup between workers", async () => {
     const a = await fixture({ defaultAudio: true }), b = await fixture({ defaultAudio: true });
     const [first, second] = await Promise.all([a.tts.synthesize(request("one")), b.tts.synthesize(request("two"))]);
