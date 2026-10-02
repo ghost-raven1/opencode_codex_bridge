@@ -24,16 +24,17 @@ for (const name of artwork) {
 }
 // Only authored runtime layers enter the bundle, never ImageGen sources or review previews.
 const expansion = `${root}packages/companions/assets/expansion`;
-if (existsSync(`${expansion}/manifest.json`)) {
-  const manifest = JSON.parse(readFileSync(`${expansion}/manifest.json`, "utf8"));
+for (const name of ["manifest.json", "poses.json"]) {
+  if (!existsSync(`${expansion}/${name}`)) continue;
+  const manifest = JSON.parse(readFileSync(`${expansion}/${name}`, "utf8"));
   const images = Object.values(manifest.characters).flatMap(character => [
     ...character.layers.map(layer => layer.file), character.face.file,
   ]);
-  for (const name of ["manifest.json", ...new Set(images)]) {
-    if (name.startsWith("/") || name.split("/").includes("..")) throw new Error("Invalid rig asset path");
-    const target = join(bundle, "Contents/Resources/expansion", name);
+  for (const file of [name, ...new Set(images)]) {
+    if (file.startsWith("/") || file.split("/").includes("..")) throw new Error("Invalid rig asset path");
+    const target = join(bundle, "Contents/Resources/expansion", file);
     mkdirSync(dirname(target), { recursive: true });
-    copyFileSync(join(expansion, name), target);
+    copyFileSync(join(expansion, file), target);
   }
 }
 writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UTF-8"?>
@@ -52,10 +53,10 @@ writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UT
 <key>NSSpeechRecognitionUsageDescription</key><string>macOS преобразует диктовку в текст для OpenCode и распознаёт ваши голосовые команды. Запрос модели отправляется только по команде «Отправить».</string>
 </dict></plist>
 `);
-const result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", `${root}.local/swift-cache`,
+const result = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", `${root}.local/swift-cache`,
   "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
   "-framework", "AppKit", "-framework", "AVFoundation", "-framework", "Speech", "-framework", "SoundAnalysis",
-  ...["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "CharacterBadgeView.swift", "CaptionState.swift", "SpriteCache.swift", "SpriteDepth.swift", "SpeechBubbleView.swift", "DraftMenu.swift", "WindowState.swift", "ScaleControl.swift", "NativeAudioEngine.swift", "NativeAudioStream.swift", "NativeSpeech.swift", "NativeSpeechStatus.swift", "NativeSpeechCommands.swift", "NativeWindow.swift", "VoiceCommands.swift", "MicrophoneTap.swift", "NativeDictation.swift", "MusicRhythm.swift", "MusicMotion.swift", "MusicAnalysis.swift", "MusicCapture.swift", "MusicControl.swift", "MusicIntegration.swift", "main.swift"].map(name => `${native}/${name}`),
+  ...["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "PoseAnimation.swift", "CharacterBadgeView.swift", "CaptionState.swift", "SpriteCache.swift", "SpriteDepth.swift", "SpeechBubbleView.swift", "DraftMenu.swift", "WindowState.swift", "ScaleControl.swift", "NativeAudioEngine.swift", "NativeAudioStream.swift", "NativeSpeech.swift", "NativeSpeechStatus.swift", "NativeSpeechCommands.swift", "NativeWindow.swift", "VoiceCommands.swift", "MicrophoneTap.swift", "NativeDictation.swift", "MusicRhythm.swift", "MusicMotion.swift", "MusicAnalysis.swift", "MusicCapture.swift", "MusicControl.swift", "MusicIntegration.swift", "main.swift"].map(name => `${native}/${name}`),
   "-o", `${bundle}/Contents/MacOS/Companions`], { cwd: root, stdio: "inherit" });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const signed = spawnSync("codesign", ["--force", "--sign", "-", "--identifier", "dev.codexbridge.companions", bundle], { cwd: root, stdio: "inherit" });

@@ -1,0 +1,1813 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 256,
+    "height": 384
+  },
+  "coordinates": "top-left",
+  "feetBaseline": 368,
+  "characters": {
+    "lead/seated": {
+      "name": "LEAD seated",
+      "roleHint": "lead",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/lead-seated.png",
+        "scaleX": 0.19107985343762598,
+        "scaleY": 0.19107985343762598,
+        "offsetX": 5.422274019762924,
+        "offsetY": 132.97178027172004,
+        "sourceFeet": 1230,
+        "targetFeet": 368,
+        "facialSource": "lead/facial.png",
+        "facialAnchors": [
+          [
+            114.911,
+            181.697
+          ],
+          [
+            132.681,
+            175.583
+          ],
+          [
+            124.847,
+            190.487
+          ]
+        ],
+        "eyeScale": 0.19107985343762598,
+        "backingSource": "lead-backing.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/lead/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/lead/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            129.624,
+            282.778
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/lead/seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            75.74,
+            267.492
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/lead/seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            166.12,
+            280.485
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "head",
+          "file": "poses/lead/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            127.904,
+            197.366
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/lead/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "lead/reclining": {
+      "name": "LEAD reclining",
+      "roleHint": "lead",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/lead-reclining.png",
+        "scaleX": 0.20333333333333334,
+        "scaleY": 0.20333333333333334,
+        "offsetX": -1.0150000000000148,
+        "offsetY": 129.28666666666666,
+        "sourceFeet": 1174,
+        "targetFeet": 368,
+        "facialSource": "lead/facial.png",
+        "facialAnchors": [
+          [
+            146.808,
+            187.237
+          ],
+          [
+            164.295,
+            181.34
+          ],
+          [
+            157.178,
+            195.573
+          ]
+        ],
+        "eyeScale": 0.20706703286743164,
+        "backingSource": "lead-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/lead/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/lead/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            118.545,
+            280.567
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/lead/reclining/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            103.702,
+            260.03
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/lead/reclining/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            210.452,
+            308.627
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "head",
+          "file": "poses/lead/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            159.618,
+            203.3
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/lead/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "code/seated": {
+      "name": "CODE seated",
+      "roleHint": "code",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/code-seated.png",
+        "scaleX": 0.21059414545716054,
+        "scaleY": 0.21059414545716054,
+        "offsetX": -4.463717492553968,
+        "offsetY": 106.44207134220659,
+        "sourceFeet": 1242,
+        "targetFeet": 368,
+        "facialSource": "code/facial.png",
+        "facialAnchors": [
+          [
+            117.681,
+            157.195
+          ],
+          [
+            134.528,
+            164.777
+          ],
+          [
+            123.999,
+            174.043
+          ]
+        ],
+        "eyeScale": 0.21059414545716054,
+        "backingSource": "code-backing-neck-clean.png"
+      },
+      "layers": [
+        {
+          "id": "hair-back",
+          "file": "poses/code/seated/hair-back.png",
+          "parent": "head",
+          "pivot": [
+            103.15,
+            128.765
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.45
+        },
+        {
+          "id": "body",
+          "file": "poses/code/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/code/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            155.798,
+            280.603
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/code/seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            114.522,
+            273.022
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/code/seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            144.848,
+            268.178
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "head",
+          "file": "poses/code/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            119.997,
+            181.624
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/code/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "code/reclining": {
+      "name": "CODE reclining",
+      "roleHint": "code",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/code-reclining-compact.png",
+        "scaleX": 0.21675095207097766,
+        "scaleY": 0.21675095207097766,
+        "offsetX": 8.895351836997776,
+        "offsetY": 122.20442035151132,
+        "sourceFeet": 1134,
+        "targetFeet": 368,
+        "facialSource": "code/facial.png",
+        "facialAnchors": [
+          [
+            106.217,
+            193.515
+          ],
+          [
+            123.34,
+            200.452
+          ],
+          [
+            112.936,
+            209.989
+          ]
+        ],
+        "eyeScale": 0.21675095207097766,
+        "backingSource": "code-backing-neck-clean.png"
+      },
+      "layers": [
+        {
+          "id": "hair-back",
+          "file": "poses/code/reclining/hair-back.png",
+          "parent": "head",
+          "pivot": [
+            86.059,
+            168.806
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "body",
+          "file": "poses/code/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/code/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            70.019,
+            333.97
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/code/reclining/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            95.162,
+            318.147
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "head",
+          "file": "poses/code/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            111.852,
+            216.925
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/code/reclining/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            151.084,
+            235.348
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        }
+      ],
+      "face": {
+        "file": "poses/code/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "research/seated": {
+      "name": "RESEARCH seated",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/research-seated.png",
+        "scaleX": 0.1961079613987592,
+        "scaleY": 0.1961079613987592,
+        "offsetX": 4.648092280180464,
+        "offsetY": 125.4144517497349,
+        "sourceFeet": 1237,
+        "targetFeet": 368,
+        "facialSource": "research/facial.png",
+        "facialAnchors": [
+          [
+            113.488,
+            167.97
+          ],
+          [
+            130.353,
+            173.657
+          ],
+          [
+            121.528,
+            183.855
+          ]
+        ],
+        "eyeScale": 0.1961079613987592,
+        "backingSource": "research-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/research/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/research/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            159.966,
+            271.319
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/research/seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            105.055,
+            259.552
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/research/seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            161.927,
+            277.398
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "head",
+          "file": "poses/research/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            116.626,
+            190.326
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/research/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "research/reclining": {
+      "name": "RESEARCH reclining",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/research-reclining.png",
+        "scaleX": 0.20916089154688108,
+        "scaleY": 0.20916089154688108,
+        "offsetX": -5.967551035777348,
+        "offsetY": 116.17028657755517,
+        "sourceFeet": 1204,
+        "targetFeet": 368,
+        "facialSource": "research/facial.png",
+        "facialAnchors": [
+          [
+            89.201,
+            167.206
+          ],
+          [
+            105.934,
+            173.271
+          ],
+          [
+            95.057,
+            182.893
+          ]
+        ],
+        "eyeScale": 0.20916089154688108,
+        "backingSource": "research-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/research/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/research/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            119.111,
+            272.623
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/research/reclining/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            47.368,
+            314.664
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/research/reclining/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            146.302,
+            255.681
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "head",
+          "file": "poses/research/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            94.639,
+            189.795
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/research/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "review/seated": {
+      "name": "REVIEW seated",
+      "roleHint": "review",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/review-seated.png",
+        "scaleX": 0.19660107279610115,
+        "scaleY": 0.19660107279610115,
+        "offsetX": 1.4872096557089094,
+        "offsetY": 130.30930298951372,
+        "sourceFeet": 1209,
+        "targetFeet": 368,
+        "facialSource": "review/facial.png",
+        "facialAnchors": [
+          [
+            120.431,
+            176.511
+          ],
+          [
+            137.732,
+            171.006
+          ],
+          [
+            131.441,
+            185.751
+          ]
+        ],
+        "eyeScale": 0.19660107279610115,
+        "backingSource": "review-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/review/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/review/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            114.533,
+            248.073
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/review/seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            80.717,
+            223.498
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/review/seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            166.239,
+            264.391
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "head",
+          "file": "poses/review/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            133.407,
+            192.828
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/review/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "review/reclining": {
+      "name": "REVIEW reclining",
+      "roleHint": "review",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/review-reclining.png",
+        "scaleX": 0.20088689891511013,
+        "scaleY": 0.20088689891511013,
+        "offsetX": 0.23593228998996096,
+        "offsetY": 142.80578631616154,
+        "sourceFeet": 1121,
+        "targetFeet": 368,
+        "facialSource": "review/facial.png",
+        "facialAnchors": [
+          [
+            184.449,
+            205.282
+          ],
+          [
+            200.922,
+            197.648
+          ],
+          [
+            193.69,
+            211.308
+          ]
+        ],
+        "eyeScale": 0.20088689891511013,
+        "backingSource": "review-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/review/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/review/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            126.393,
+            261.932
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/review/reclining/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            120.165,
+            238.026
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/review/reclining/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            226.435,
+            308.337
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "head",
+          "file": "poses/review/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            196.703,
+            218.138
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/review/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "designer/seated": {
+      "name": "DESIGNER seated",
+      "roleHint": "lead",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/designer-seated.png",
+        "scaleX": 0.20623816213050508,
+        "scaleY": 0.20623816213050508,
+        "offsetX": -3.3737092771317236,
+        "offsetY": 114.12082241734825,
+        "sourceFeet": 1231,
+        "targetFeet": 368,
+        "facialSource": "designer/facial.png",
+        "facialAnchors": [
+          [
+            118.307,
+            179.086
+          ],
+          [
+            135.837,
+            173.105
+          ],
+          [
+            128.825,
+            186.51
+          ]
+        ],
+        "eyeScale": 0.20623816213050508,
+        "backingSource": "designer-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/designer/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/designer/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            102.22,
+            285.505
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/designer/seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            97.683,
+            269.624
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.8
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/designer/seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            159.761,
+            277.668
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.8
+        },
+        {
+          "id": "braid",
+          "file": "poses/designer/seated/braid.png",
+          "parent": "head",
+          "pivot": [
+            125.319,
+            197.029
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.2
+        },
+        {
+          "id": "head",
+          "file": "poses/designer/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            136.25,
+            196.822
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/designer/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "designer/reclining": {
+      "name": "DESIGNER reclining",
+      "roleHint": "lead",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/designer-reclining.png",
+        "scaleX": 0.2040861841767103,
+        "scaleY": 0.2040861841767103,
+        "offsetX": -2.411071688917872,
+        "offsetY": 125.9537855664216,
+        "sourceFeet": 1186,
+        "targetFeet": 368,
+        "facialSource": "designer/facial.png",
+        "facialAnchors": [
+          [
+            164.123,
+            200.445
+          ],
+          [
+            181.675,
+            194.527
+          ],
+          [
+            173.511,
+            207.792
+          ]
+        ],
+        "eyeScale": 0.2040861841767103,
+        "backingSource": "designer-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/designer/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/designer/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            109.836,
+            278.61
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "poses/designer/reclining/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            117.592,
+            263.508
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.8
+        },
+        {
+          "id": "arm-right",
+          "file": "poses/designer/reclining/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            214.124,
+            308.611
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "braid",
+          "file": "poses/designer/reclining/braid.png",
+          "parent": "head",
+          "pivot": [
+            170.858,
+            217.793
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.2
+        },
+        {
+          "id": "head",
+          "file": "poses/designer/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            181.879,
+            217.384
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/designer/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "devops/seated": {
+      "name": "DEVOPS seated",
+      "roleHint": "code",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/devops-seated.png",
+        "scaleX": 0.192558034170116,
+        "scaleY": 0.192558034170116,
+        "offsetX": 5.2442532165510585,
+        "offsetY": 133.84943044913896,
+        "sourceFeet": 1216,
+        "targetFeet": 368,
+        "facialSource": "devops/facial.png",
+        "facialAnchors": [
+          [
+            110.381,
+            183.144
+          ],
+          [
+            125.786,
+            178.138
+          ],
+          [
+            120.201,
+            192.58
+          ]
+        ],
+        "eyeScale": 0.192558034170116,
+        "backingSource": "devops-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/devops/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/devops/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            165.453,
+            263.826
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "hip-arm",
+          "file": "poses/devops/seated/hip-arm.png",
+          "parent": "body",
+          "pivot": [
+            84.0,
+            247.266
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "tool-arm",
+          "file": "poses/devops/seated/tool-arm.png",
+          "parent": "body",
+          "pivot": [
+            165.453,
+            263.826
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "poses/devops/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            123.282,
+            200.667
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/devops/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "devops/reclining": {
+      "name": "DEVOPS reclining",
+      "roleHint": "code",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/devops-reclining.png",
+        "scaleX": 0.1828187466867864,
+        "scaleY": 0.1828187466867864,
+        "offsetX": 12.54996146729438,
+        "offsetY": 145.8752227755545,
+        "sourceFeet": 1215,
+        "targetFeet": 368,
+        "facialSource": "devops/facial.png",
+        "facialAnchors": [
+          [
+            84.398,
+            191.397
+          ],
+          [
+            99.937,
+            186.827
+          ],
+          [
+            93.539,
+            199.441
+          ]
+        ],
+        "eyeScale": 0.1828187466867864,
+        "backingSource": "devops-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/devops/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/devops/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            156.063,
+            254.835
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "hip-arm",
+          "file": "poses/devops/reclining/hip-arm.png",
+          "parent": "body",
+          "pivot": [
+            63.922,
+            256.481
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.2
+        },
+        {
+          "id": "tool-arm",
+          "file": "poses/devops/reclining/tool-arm.png",
+          "parent": "body",
+          "pivot": [
+            156.063,
+            254.835
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "poses/devops/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            96.829,
+            208.399
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/devops/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "tester/seated": {
+      "name": "TESTER seated",
+      "roleHint": "review",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/tester-seated.png",
+        "scaleX": 0.1568208003251932,
+        "scaleY": 0.1568208003251932,
+        "offsetX": 28.105150192851937,
+        "offsetY": 173.69902839708564,
+        "sourceFeet": 1239,
+        "targetFeet": 368,
+        "facialSource": "tester/facial.png",
+        "facialAnchors": [
+          [
+            113.886,
+            213.218
+          ],
+          [
+            129.098,
+            208.67
+          ],
+          [
+            123.452,
+            221.529
+          ]
+        ],
+        "eyeScale": 0.1568208003251932,
+        "backingSource": "tester-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/tester/seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/tester/seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            124.393,
+            296.019
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.55
+        },
+        {
+          "id": "controller-arms",
+          "file": "poses/tester/seated/controller-arms.png",
+          "parent": "body",
+          "pivot": [
+            124.393,
+            296.019
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.55
+        },
+        {
+          "id": "head",
+          "file": "poses/tester/seated/head.png",
+          "parent": "body",
+          "pivot": [
+            126.118,
+            229.214
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/tester/seated/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 4.7,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    },
+    "tester/reclining": {
+      "name": "TESTER reclining",
+      "roleHint": "review",
+      "registration": {
+        "kind": "uniform",
+        "source": "poses/tester-reclining.png",
+        "scaleX": 0.16040542216215148,
+        "scaleY": 0.16040542216215148,
+        "offsetX": 25.74154337162844,
+        "offsetY": 171.98457411785088,
+        "sourceFeet": 1222,
+        "targetFeet": 368,
+        "facialSource": "tester/facial.png",
+        "facialAnchors": [
+          [
+            135.78,
+            216.256
+          ],
+          [
+            150.858,
+            211.284
+          ],
+          [
+            144.762,
+            224.918
+          ]
+        ],
+        "eyeScale": 0.16040542216215148,
+        "backingSource": "tester-backing-clean.png"
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "poses/tester/reclining/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "prop",
+          "file": "poses/tester/reclining/prop.png",
+          "parent": "body",
+          "pivot": [
+            102.255,
+            282.504
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "controller-arms",
+          "file": "poses/tester/reclining/controller-arms.png",
+          "parent": "body",
+          "pivot": [
+            102.255,
+            282.504
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "support-arm",
+          "file": "poses/tester/reclining/support-arm.png",
+          "parent": "body",
+          "pivot": [
+            191.28,
+            310.254
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 0.25
+        },
+        {
+          "id": "head",
+          "file": "poses/tester/reclining/head.png",
+          "parent": "body",
+          "pivot": [
+            147.168,
+            233.099
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.1
+        }
+      ],
+      "face": {
+        "file": "poses/tester/reclining/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ]
+      },
+      "motion": {
+        "breathSeconds": 5.1,
+        "gestureSeconds": 4.4,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      }
+    }
+  },
+  "runtimeFiles": [
+    "poses/lead/seated/body.png",
+    "poses/lead/seated/prop.png",
+    "poses/lead/seated/arm-right.png",
+    "poses/lead/seated/arm-left.png",
+    "poses/lead/seated/head.png",
+    "poses/lead/reclining/body.png",
+    "poses/lead/reclining/prop.png",
+    "poses/lead/reclining/arm-left.png",
+    "poses/lead/reclining/arm-right.png",
+    "poses/lead/reclining/head.png",
+    "poses/code/seated/hair-back.png",
+    "poses/code/seated/body.png",
+    "poses/code/seated/prop.png",
+    "poses/code/seated/arm-left.png",
+    "poses/code/seated/arm-right.png",
+    "poses/code/seated/head.png",
+    "poses/code/reclining/hair-back.png",
+    "poses/code/reclining/body.png",
+    "poses/code/reclining/prop.png",
+    "poses/code/reclining/arm-left.png",
+    "poses/code/reclining/head.png",
+    "poses/code/reclining/arm-right.png",
+    "poses/research/seated/body.png",
+    "poses/research/seated/prop.png",
+    "poses/research/seated/arm-left.png",
+    "poses/research/seated/arm-right.png",
+    "poses/research/seated/head.png",
+    "poses/research/reclining/body.png",
+    "poses/research/reclining/prop.png",
+    "poses/research/reclining/arm-left.png",
+    "poses/research/reclining/arm-right.png",
+    "poses/research/reclining/head.png",
+    "poses/review/seated/body.png",
+    "poses/review/seated/prop.png",
+    "poses/review/seated/arm-left.png",
+    "poses/review/seated/arm-right.png",
+    "poses/review/seated/head.png",
+    "poses/review/reclining/body.png",
+    "poses/review/reclining/prop.png",
+    "poses/review/reclining/arm-left.png",
+    "poses/review/reclining/arm-right.png",
+    "poses/review/reclining/head.png",
+    "poses/designer/seated/body.png",
+    "poses/designer/seated/prop.png",
+    "poses/designer/seated/arm-left.png",
+    "poses/designer/seated/arm-right.png",
+    "poses/designer/seated/braid.png",
+    "poses/designer/seated/head.png",
+    "poses/designer/reclining/body.png",
+    "poses/designer/reclining/prop.png",
+    "poses/designer/reclining/arm-left.png",
+    "poses/designer/reclining/arm-right.png",
+    "poses/designer/reclining/braid.png",
+    "poses/designer/reclining/head.png",
+    "poses/devops/seated/body.png",
+    "poses/devops/seated/prop.png",
+    "poses/devops/seated/hip-arm.png",
+    "poses/devops/seated/tool-arm.png",
+    "poses/devops/seated/head.png",
+    "poses/devops/reclining/body.png",
+    "poses/devops/reclining/prop.png",
+    "poses/devops/reclining/hip-arm.png",
+    "poses/devops/reclining/tool-arm.png",
+    "poses/devops/reclining/head.png",
+    "poses/tester/seated/body.png",
+    "poses/tester/seated/prop.png",
+    "poses/tester/seated/controller-arms.png",
+    "poses/tester/seated/head.png",
+    "poses/tester/reclining/body.png",
+    "poses/tester/reclining/prop.png",
+    "poses/tester/reclining/controller-arms.png",
+    "poses/tester/reclining/support-arm.png",
+    "poses/tester/reclining/head.png",
+    "poses/lead/seated/facial.png",
+    "poses/lead/reclining/facial.png",
+    "poses/code/seated/facial.png",
+    "poses/code/reclining/facial.png",
+    "poses/research/seated/facial.png",
+    "poses/research/reclining/facial.png",
+    "poses/review/seated/facial.png",
+    "poses/review/reclining/facial.png",
+    "poses/designer/seated/facial.png",
+    "poses/designer/reclining/facial.png",
+    "poses/devops/seated/facial.png",
+    "poses/devops/reclining/facial.png",
+    "poses/tester/seated/facial.png",
+    "poses/tester/reclining/facial.png"
+  ]
+}

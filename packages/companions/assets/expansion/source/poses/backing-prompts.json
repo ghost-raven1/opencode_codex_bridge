@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "prompts": [
+    {
+      "role": "lead",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/lead-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/lead-reclining.png"
+      ],
+      "source": "source/poses/lead-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "code",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/code-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/code-reclining.png"
+      ],
+      "source": "source/poses/code-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "research",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/research-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/research-reclining.png"
+      ],
+      "source": "source/poses/research-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "review",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/review-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/review-reclining.png"
+      ],
+      "source": "source/poses/review-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "designer",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/designer-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/designer-reclining.png"
+      ],
+      "source": "source/poses/designer-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "devops",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/devops-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/devops-reclining.png"
+      ],
+      "source": "source/poses/devops-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "tester",
+      "prompt": "Use case: precise-object-edit. Production 2D animation underpainting atlas, actual transparent background. Two reference images show the SAME adult woman in two poses: reference1 is seated and reference2 is reclining. Create one wide 2560x1280 atlas with TWO EQUAL1280x1280 cells: LEFT matches reference1 exactly at the same pixel position, scale, posture, anatomy, clothes, legs and shoes; RIGHT matches reference2 exactly. This is hidden clean backing for extracted moving hands and handheld tools. Change ONLY this: remove the fingers/hands that overlap the torso or lap, the handheld tablet/laptop/book/meter/controller and any held stylus/probe, and paint the continuous matching jacket/shirt/apron/trousers or skirt fabric that was hidden behind them. Preserve the cuffs and arm connections; do not leave hand-shaped transparent holes inside the body. Hands that support her on the floor can remain unchanged. Keep head/hair unaltered and accurately aligned, keep the entire body silhouette and every other pixel layout as close to reference as possible. Do NOT straighten her, alter pose, stretch, change clothes, change colours, combine the figures, add limbs or add a background. NO text, labels, dividers, shadow or glow. Each pose wholly in its own square cell. This is a single reusable transparent torso-underpainting sheet, not final character art.",
+      "references": [
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/tester-seated.png",
+        "/Users/aleksejstarodubcev/Documents/ChatGPT/CodexBridge/packages/companions/assets/expansion/source/poses/tester-reclining.png"
+      ],
+      "source": "source/poses/tester-backing.png",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    }
+  ]
+}

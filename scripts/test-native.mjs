@@ -12,11 +12,12 @@ try {
     ["depth", ["SpriteDepth.swift"], "test-sprite-depth.swift"],
     ["bubble", ["SpeechBubbleView.swift"], "test-speech-bubble.swift"],
     ["animation", ["CharacterMotion.swift"], "test-animation.swift"],
-    ["character", ["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "MusicRhythm.swift", "MusicMotion.swift", "CharacterBadgeView.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "SpriteDepth.swift", "WindowState.swift"], "test-character-view.swift"],
-    ["render-clear", ["CharacterView.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "MusicRhythm.swift", "MusicMotion.swift", "CharacterBadgeView.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-render-clear.swift"],
+    ["character", ["CharacterView.swift", "PoseAnimation.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "MusicRhythm.swift", "MusicMotion.swift", "CharacterBadgeView.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "SpriteDepth.swift", "WindowState.swift"], "test-character-view.swift"],
+    ["render-clear", ["CharacterView.swift", "PoseAnimation.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "MusicRhythm.swift", "MusicMotion.swift", "CharacterBadgeView.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-render-clear.swift"],
     ["layered", ["LayeredMotion.swift", "CaptionState.swift"], "test-layered.swift"],
     ["rig", ["LayeredRig.swift", "LayeredMotion.swift", "WorkMotion.swift", "CharacterMotion.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-rig.swift"],
     ["work", ["WorkMotion.swift"], "test-work-motion.swift"],
+    ["poses", ["CharacterView.swift", "PoseAnimation.swift", "CharacterMotion.swift", "LayeredRig.swift", "LayeredMotion.swift", "WorkMotion.swift", "MusicRhythm.swift", "MusicMotion.swift", "CharacterBadgeView.swift", "SpeechBubbleView.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-poses.swift"],
     ["music", ["MusicRhythm.swift", "MusicMotion.swift"], "test-music.swift"],
     ["music-control", ["MusicRhythm.swift", "MusicControl.swift"], "test-music-control.swift"],
     ["voice-commands", ["VoiceCommands.swift"], "test-voice-commands.swift"],
@@ -26,7 +27,7 @@ try {
     ["speech-status", ["NativeSpeechStatus.swift"], "test-native-speech-status.swift"],
   ]) {
     const binary = join(temporary, name);
-    let result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),
+    let result = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),
       "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
       "-framework", "AppKit", ...sources.map(source => join(root, "packages/companions/native", source)), join(root, "scripts", test), "-o", binary],
     { stdio: "inherit" });

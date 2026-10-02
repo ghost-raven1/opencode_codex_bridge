@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "corrections": [
+    {
+      "role": "lead",
+      "target": "lead-backing.png",
+      "source": "lead-backing-clean.png",
+      "prompt": "Use case: precise-object-edit. Input image is the EDIT TARGET: a transparent two-cell underpainting atlas for a layered animated adult character. Change ONLY the RIGHT cell: remove the entire left-image hand and fingers resting on the grey trouser thigh (around original atlas x1200..1308,y490..635); replace every visible skin-coloured finger/hand pixel there with uninterrupted dark grey trouser fabric, folds, and matching shading. The lap must have NO HAND, NO FINGERS, NO NEW OBJECT. The left-image cuff may end as an EMPTY open sleeve above the lap; that is intentional, this is an incomplete animation backing layer, NOT a final human illustration. Keep the supporting hand on the floor at far right unchanged. Keep the entire LEFT cell unchanged. Preserve both heads, faces, clothes, poses, scale, positions, feet, alpha silhouette, transparent background, and the same wide two-cell layout. Do not add labels, background, ghost fingers or skin-coloured cloth. It is essential that the lap of the right figure contains grey cloth ONLY where her hand previously was.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "code",
+      "target": "code-reclining.png",
+      "source": "code-reclining-compact.png",
+      "prompt": "Use case: precise-object-edit. The input is the EDIT TARGET: the same adult purple-haired coder, headphones, purple hoodie, shorts and tights, semi-reclining with folded knees. Change ONLY the feet/lower legs: tuck the two purple sneakers closer beneath her knees and move both shoes about 140 pixels toward the LEFT in this 1254x1254 composition. The far-right toe must end near x1090, not x1240. Keep the knees bent naturally; shorten the horizontal footprint by repositioning the lower legs, NOT by shrinking/stretching anatomy. Keep head, face, hair, headphones, torso, lap, arms, hand touching headphones and closed laptop exactly in their original positions and original sizes. Keep the same top-left registration and same floor baseline. Entire hair, fingers and shoes within image; preserve real transparent background. The output is still a complete relaxed clothed adult character, anatomically natural, with a more compact tucked-leg silhouette. No text or extra objects.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "designer",
+      "target": "designer-backing.png",
+      "source": "designer-backing-clean.png",
+      "prompt": "Use case: precise-object-edit. The reference is the EDIT TARGET: two-cell transparent hidden underpainting atlas for the same adult designer. Change ONLY these occlusions in BOTH cells: REMOVE the long braid and teal hair tie that hang across the chest/apron; paint the uninterrupted original black turtleneck shirt and cream artist's apron fabric beneath the braid. REMOVE every hand/finger that rests on the lap/torso, leaving uninterrupted cream apron fabric with matching folds. The arm cuffs may end EMPTY, intentional for an incomplete animation body layer. Keep the supporting floor hand of the right figure unchanged. Keep both faces, heads, bun hairstyles above the neck, every garment edge, body poses, legs/shoes, pixel position, scale, transparent alpha background, and two equal-cell layout unchanged. Absolutely NO extra relaxed hand on either lap and NO second braid or tie on the apron: these will be supplied as separate moving layers. Do not add objects, borders or text.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "research",
+      "target": "research-backing.png",
+      "source": "research-backing-clean.png",
+      "prompt": "Use case: precise-object-edit. The supplied image is the EDIT TARGET: a transparent TWO-CELL technical underpainting atlas for the same fully dressed adult character. In BOTH cells remove ALL hands/fingers/gloves and exposed forearms that overlap the torso, lap or raised knee. Replace those occluded areas with uninterrupted dark green dress fabric, appropriate folds and shading. The cuffs should end EMPTY, as incomplete animation body layers; DO NOT replace removed hands with another relaxed hand, stump on the lap, glove, or object. Keep any hand supporting her on the FLOOR at the far outer edge unchanged. Preserve heads, faces, hair, necks, clothing silhouette, props attached to her belt, poses, legs, shoes, exact original positions and scale, transparent alpha background and equal two-cell layout. This is hidden clean clothing used UNDER separately animated arms, not a complete human illustration. No hands, fingers or gloves may remain anywhere on either LAP OR TORSO. No labels, text, backdrop or new objects.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "review",
+      "target": "review-backing.png",
+      "source": "review-backing-clean.png",
+      "prompt": "Use case: precise-object-edit. The supplied image is the EDIT TARGET: a transparent TWO-CELL technical underpainting atlas for the same fully dressed adult character. In BOTH cells remove ALL hands/fingers/gloves and exposed forearms that overlap the torso, lap or raised knee. Replace those occluded areas with uninterrupted black ribbed turtleneck / charcoal cargo trouser fabric, appropriate folds and shading. The cuffs should end EMPTY, as incomplete animation body layers; DO NOT replace removed hands with another relaxed hand, stump on the lap, glove, or object. Keep any hand supporting her on the FLOOR at the far outer edge unchanged. Preserve heads, faces, hair, necks, clothing silhouette, props attached to her belt, poses, legs, shoes, exact original positions and scale, transparent alpha background and equal two-cell layout. This is hidden clean clothing used UNDER separately animated arms, not a complete human illustration. No hands, fingers or gloves may remain anywhere on either LAP OR TORSO. No labels, text, backdrop or new objects.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "devops",
+      "target": "devops-backing.png",
+      "source": "devops-backing-clean.png",
+      "prompt": "Use case: precise-object-edit. The supplied image is the EDIT TARGET: a transparent TWO-CELL technical underpainting atlas for the same fully dressed adult character. In BOTH cells remove ALL hands/fingers/gloves and exposed forearms that overlap the torso, lap or raised knee. Replace those occluded areas with uninterrupted navy blue work trousers and jacket fabric, with the same cyan trim, appropriate folds and shading. The cuffs should end EMPTY, as incomplete animation body layers; DO NOT replace removed hands with another relaxed hand, stump on the lap, glove, or object. Keep any hand supporting her on the FLOOR at the far outer edge unchanged. Preserve heads, faces, hair, necks, clothing silhouette, props attached to her belt, poses, legs, shoes, exact original positions and scale, transparent alpha background and equal two-cell layout. This is hidden clean clothing used UNDER separately animated arms, not a complete human illustration. No hands, fingers or gloves may remain anywhere on either LAP OR TORSO. No labels, text, backdrop or new objects.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "tester",
+      "target": "tester-backing.png",
+      "source": "tester-backing-clean.png",
+      "prompt": "Use case: precise-object-edit. The supplied image is the EDIT TARGET: a transparent TWO-CELL technical underpainting atlas for the same fully dressed adult character. In BOTH cells remove ALL hands/fingers/gloves and exposed forearms that overlap the torso, lap or raised knee. Replace those occluded areas with uninterrupted charcoal grey trouser fabric, appropriate folds and shading. The cuffs should end EMPTY, as incomplete animation body layers; DO NOT replace removed hands with another relaxed hand, stump on the lap, glove, or object. Keep any hand supporting her on the FLOOR at the far outer edge unchanged. Preserve heads, faces, hair, necks, clothing silhouette, props attached to her belt, poses, legs, shoes, exact original positions and scale, transparent alpha background and equal two-cell layout. This is hidden clean clothing used UNDER separately animated arms, not a complete human illustration. No hands, fingers or gloves may remain anywhere on either LAP OR TORSO. No labels, text, backdrop or new objects.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "code",
+      "target": "code-reclining-compact.png",
+      "source": "code-reclining-head-clean.png",
+      "prompt": "Use case: precise-object-edit. The reference image is the EDIT TARGET, a transparent adult purple-haired coder. Change ONLY the right-image hand that touches the black headphone cup at her neck: REMOVE that hand and all its fingers/skin overlapping the cup. Restore a COMPLETE intact circular black headphone ear cup with its purple rim and highlights under the removed fingertips. The cup must contain absolutely no skin-coloured finger fragments, and no hand-shaped holes. Remove the rest of that touching forearm as far as the open purple cuff, leaving the cuff EMPTY; this is an intentional cutout-animation underpainting plate, not a final human illustration. KEEP head, face, ponytail, headphones positions/size, opposite hand resting on laptop, torso, folded compact legs, shoes, entire pose placement and scale unchanged. Outside the cup, areas vacated by fingers are transparent or the original hoodie/skin behind them, as anatomically appropriate; no new fingers anywhere. Real transparent background, no labels or objects.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "code",
+      "target": "code-backing.png",
+      "source": "code-backing-neck-clean.png",
+      "prompt": "Use case: precise-object-edit. The input is the EDIT TARGET, a transparent two-cell hidden animation backing atlas of an adult purple-haired coder. In BOTH cells REMOVE the two black/purple headphone ear cups and all headband/headphone parts around the neck. Paint a complete anatomically natural bare neck and upper chest, matching skin tone, plus the black crop-top edge and purple hood fabric that were hidden under the headphones. No circular empty holes, no dark headphone remains. Also remove every visible hand/finger on the lap or behind the neck, leaving empty sleeve cuffs and matching clothing under the removed hand; keep other pose geometry. Keep the heads, faces, ponytails, body posture, clothing design, scales, cell positions, legs, sneakers and real transparent background unchanged. This is an intentionally incomplete body backing layer for independently animated head+headphones and hands, so there must be NO headphones and NO lap/neck fingers. Preserve the wide two-equal-cell layout. No text, labels, extra limbs or backdrop.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "code",
+      "target": "code-seated.png",
+      "source": "code-seated-neck-plate.png",
+      "prompt": "Use case: precise-object-edit. Edit this EXACT transparent 1254x1254 character source to produce a hidden neck/chest clothing plate for a layered puppet. Only remove both headphones and their band from around this adult woman's neck. In the small area they occupied, draw the natural continuous skin of her neck, clavicles and upper chest, with the purple hoodie collar continuing naturally at its sides. There must be NO headphones, NO earring fragments, NO purple HAIR fragments inside the repaired neck/collar regions. Do not change her actual hair, face, earrings, head, pose, laptop, hands, sleeves or any other existing pixels outside that repair. Preserve the exact composition, scale and pixel location, clean anime linework and shading, real alpha transparency. Her head and long ponytail must stay identical. This is a technical occlusion underpainting, not a redesigned character. Both empty headphone areas need complete opaque skin/own hoodie, without transparent holes.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    },
+    {
+      "role": "code",
+      "target": "code-reclining-compact.png",
+      "source": "code-reclining-neck-plate.png",
+      "prompt": "Use case: precise-object-edit. Edit this EXACT transparent 1254x1254 reclining adult character source to create a technical hidden neck/chest plate for a layered animation puppet. Remove both headphones and their headband from her neck. Also remove only the raised hand and forearm touching the right headphone: replace the exposed small background gap with real transparency, and draw natural skin, neck, clavicles, upper chest and the purple hoodie collar where they were obscured. There must be no residual fingers, headphone fragments or purple HAIR fragments anywhere on that restored neck/upper chest. Keep her face, head, actual long ponytail, body, feet, laptop, outfit geometry and all other image pixels unchanged at their EXACT original position and size. Do not move or scale her. Maintain matching anime linework and shading, fully dressed appearance and real alpha background. This is hidden underpainting beneath the independently moving head/headset/hand; restore a complete opaque neck-to-chest skin surface and own purple hoodie collar beneath BOTH former headphone cups.",
+      "generator": "built-in ImageGen",
+      "transparentBackground": true
+    }
+  ]
+}

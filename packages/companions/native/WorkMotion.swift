@@ -17,6 +17,14 @@ struct WorkPose {
         WorkPose(clip: clip, joints: joints.mapValues { $0.scaled(weight) }, headX: headX * weight, headY: headY * weight)
     }
 
+    /// New seated/reclining cutouts separate the held prop from its driving hand.
+    func forPose(rig: String, standing: Bool) -> WorkPose {
+        guard !standing, let hand = ["devops": "tool-arm", "tester": "controller-arms"][rig],
+              let joint = joints[hand] else { return self }
+        var result = self; result.joints["prop"] = joint
+        return result
+    }
+
     /// Crossfade gestures over the ongoing work loop without adding joint amplitudes.
     func blending(_ other: WorkPose, weight: CGFloat) -> WorkPose {
         var result = scaled(1 - weight)

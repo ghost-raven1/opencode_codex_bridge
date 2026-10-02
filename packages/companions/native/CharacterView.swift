@@ -10,10 +10,13 @@ final class CharacterView: NSView {
     var faceAtlas: NSImage?
     private let sprites = SpriteCache()
     private var rigs: [String: LayeredRig] = [:]
+    private var poseRigs: PoseRigLibrary?
     var characters: [Character] = []
     private var motions: [String: Motion] = [:]
     private var ambient: [String: AmbientMotion] = [:]
     private var workAnimations: [String: WorkAnimation] = [:]
+    private var poseAnimations: [String: PoseAnimation] = [:]
+    private var previousPostures: [String: PoseAnimation] = [:]
     private var badges: [String: CharacterBadgeView] = [:]
     var speaker: String?
     var mouthUntil: TimeInterval = 0
@@ -39,7 +42,10 @@ final class CharacterView: NSView {
     override init(frame: NSRect) { super.init(frame: frame); addSubview(speechBubble) }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-    func loadRigs(directory: URL) { rigs = LayeredRig.load(directory: directory) }
+    func loadRigs(directory: URL) {
+        rigs = LayeredRig.load(directory: directory)
+        poseRigs = PoseRigLibrary(directory: directory)
+    }
 
     func contentHeight(width: CGFloat) -> CGFloat {
         let height = speechBubble.update(bubble, width: width - 20)
@@ -81,8 +87,12 @@ final class CharacterView: NSView {
         if let index = characters.firstIndex(where: { $0.id == character.id }) {
             let old = characters[index]
             if !old.looksLike(character) {
-                let previous = motions[old.id].flatMap { $0.kind == "turn" && $0.progress(time, reduced: reduced) < 0.5 ? $0.previous : nil } ?? old
-                motions[old.id] = Motion(kind: "turn", start: time, previous: previous)
+                let previous = motions[old.id].flatMap { $0.kind == "turn" && $0.progress(time, reduced: reduced) < 0.5 ? $0.previous : nil }
+                if previous == nil || previousPostures[old.id] == nil {
+                    _ = posture(for: old, at: time)
+                    previousPostures[old.id] = poseAnimations[old.id]
+                }
+                motions[old.id] = Motion(kind: "turn", start: time, previous: previous ?? old)
             } else if motions[old.id]?.kind == "leave" {
                 motions[old.id] = Motion(kind: "enter", start: time)
             }
@@ -95,6 +105,7 @@ final class CharacterView: NSView {
         var work = workAnimations[character.id] ?? WorkAnimation(seed: character.id)
         work.update(active: ["working", "thinking"].contains(character.state), at: time)
         workAnimations[character.id] = work
+        _ = posture(for: character, at: time)
         if badge.superview == nil { addSubview(badge); badges[character.id] = badge }
         badge.update(character, color: accents[character.column])
         layoutBadges()
@@ -102,13 +113,13 @@ final class CharacterView: NSView {
 
     func remove(_ id: String, immediately: Bool = false) {
         guard characters.contains(where: { $0.id == id }) else { return }
-        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; workAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
+        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; workAnimations[id] = nil; poseAnimations[id] = nil; previousPostures[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
         else { motions[id] = Motion(kind: "leave", start: now) }
     }
 
     func replace(_ entries: [Character], animated: Bool = true) {
         badges.values.forEach { $0.removeFromSuperview() }; badges = [:]
-        characters = []; motions = [:]; ambient = [:]; workAnimations = [:]
+        characters = []; motions = [:]; ambient = [:]; workAnimations = [:]; poseAnimations = [:]; previousPostures = [:]
         for entry in entries { update(entry) }
         if !animated { motions = [:]; layoutBadges() }
     }
@@ -116,10 +127,13 @@ final class CharacterView: NSView {
     @discardableResult func tick() -> Bool {
         let before = characters.count, time = now
         for (id, motion) in motions where motion.progress(time, reduced: reduced) >= 1 {
-            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; workAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
-            motions[id] = nil
+            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; workAnimations[id] = nil; poseAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
+            motions[id] = nil; previousPostures[id] = nil
         }
-        for character in characters { ambient[character.id]?.advance(time, gestureInterval: gestureInterval(for: character)) }
+        for character in characters {
+            ambient[character.id]?.advance(time, gestureInterval: gestureInterval(for: character))
+            _ = posture(for: character, at: time)
+        }
         layoutBadges()
         needsDisplay = true
         return before != characters.count
@@ -129,6 +143,42 @@ final class CharacterView: NSView {
 
     private func gestureInterval(for character: Character) -> ClosedRange<Double> {
         character.rig.flatMap { rigs[$0]?.gestureInterval } ?? 8...15
+    }
+
+    private func rigNames(for character: Character) -> (body: String, head: String?) {
+        let core = ["lead", "code", "research", "review"]
+        return (character.rig ?? core[character.bodyColumn],
+                character.rig == nil && character.headColumn != character.bodyColumn ? core[character.headColumn] : nil)
+    }
+
+    /// A mixed identity changes posture only when both its outfit and original head have that pose.
+    func posture(for character: Character, at time: TimeInterval) -> PoseFrame {
+        let names = rigNames(for: character)
+        var available = Set(CharacterPose.allCases.filter { pose in
+            pose != .standing && poseRigs?.contains("\(names.body)/\(pose.rawValue)") == true &&
+                (names.head == nil || poseRigs?.contains("\(names.head!)/\(pose.rawValue)") == true)
+        })
+        var animation = poseAnimations[character.id] ?? PoseAnimation(seed: character.id)
+        let dancing = MusicMotion.pose(beat: musicBeat, time: time, column: character.column, rig: character.rig, reduced: reduced).strength > 0
+        let identity = "\(names.body):\(names.head ?? names.body):\(character.name ?? "")"
+        var result = animation.advance(identity: identity,
+            state: character.state, speaking: speaker == character.id, dancing: dancing, available: available, at: time, reduced: reduced)
+        if animation.requested != .standing {
+            let key = animation.requested.rawValue
+            if poseRigs?.rig("\(names.body)/\(key)") == nil || (names.head != nil && poseRigs?.rig("\(names.head!)/\(key)") == nil) {
+                available.remove(animation.requested)
+                result = animation.advance(identity: identity, state: character.state, speaking: speaker == character.id,
+                    dancing: dancing, available: available, at: time, reduced: reduced)
+            }
+        }
+        poseAnimations[character.id] = animation
+        return result
+    }
+
+    func displayPosture(for character: Character, at time: TimeInterval) -> PoseFrame {
+        if let motion = motions[character.id], motion.kind == "turn", motion.progress(time, reduced: reduced) < 0.5,
+           let previous = previousPostures[character.id] { return previous.frame(at: time, reduced: reduced) }
+        return posture(for: character, at: time)
     }
 
     private func layoutBadges() {
@@ -161,26 +211,29 @@ final class CharacterView: NSView {
                                              blinkElapsed: !reduced && blink ? time - (ambient[character.id]?.blinkAt ?? time) : nil)
             let factor = min(width / 256, 220.0 / 384)
             let gesture = ambient[character.id]?.gestureStart
-            let core = ["lead", "code", "research", "review"]
-            let rigName = displayed.rig ?? core[displayed.bodyColumn]
-            let rig = rigs[rigName]
-            let mixedHead = displayed.rig == nil && displayed.headColumn != displayed.bodyColumn ? rigs[core[displayed.headColumn]] : nil
+            let names = rigNames(for: displayed), rigName = names.body
+            let posture = displayPosture(for: character, at: time)
+            let rig = posture.kind == .standing ? rigs[rigName] : poseRigs?.rig("\(rigName)/\(posture.kind.rawValue)") ?? rigs[rigName]
+            let mixedHead = names.head.flatMap { name in
+                posture.kind == .standing ? rigs[name] : poseRigs?.rig("\(name)/\(posture.kind.rawValue)") ?? rigs[name]
+            }
             let motionTime = rig.map { time * 2 * .pi / (1.35 * $0.definition.motion.breathSeconds) } ?? time
             var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
                 gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
                 speaking: speaking, reduced: reduced, seed: index)
             let dance = MusicMotion.pose(beat: musicBeat, time: time, column: displayed.column, rig: displayed.rig, reduced: reduced)
             pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
-            let work = rig != nil ? workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced).scaled(1 - dance.strength) ?? WorkPose() : WorkPose()
+            let work = rig != nil ? workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced)
+                .scaled(1 - dance.strength).forPose(rig: rigName, standing: posture.kind == .standing) ?? WorkPose() : WorkPose()
             pose.headX += work.headX; pose.headY += work.headY
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
                                 width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
-            var opacity = 1.0
+            var opacity = posture.opacity
             if let motion {
-                if motion.kind == "enter" { opacity = min(1, progress * 2) }
-                if motion.kind == "leave" { opacity = 1 - progress }
+                if motion.kind == "enter" { opacity *= min(1, progress * 2) }
+                if motion.kind == "leave" { opacity *= 1 - progress }
                 if motion.kind == "turn" {
-                    if reduced { opacity = abs(progress * 2 - 1) }
+                    if reduced { opacity *= abs(progress * 2 - 1) }
                     else { target = target.insetBy(dx: target.width * 0.25 * sin(progress * .pi), dy: 0) }
                 }
             }

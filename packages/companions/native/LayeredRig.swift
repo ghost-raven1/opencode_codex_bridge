@@ -59,11 +59,15 @@ final class LayeredRig {
         return pixels.width == width && pixels.height == height
     }
 
-    static func load(directory: URL) -> [String: LayeredRig] {
-        guard let data = try? Data(contentsOf: directory.appendingPathComponent("manifest.json")),
+    static func load(directory: URL, manifest name: String = "manifest.json") -> [String: LayeredRig] {
+        definitions(directory: directory, manifest: name).compactMapValues { LayeredRig(definition: $0, directory: directory) }
+    }
+
+    static func definitions(directory: URL, manifest name: String) -> [String: RigManifest.Character] {
+        guard let data = try? Data(contentsOf: directory.appendingPathComponent(name)),
               let manifest = try? JSONDecoder().decode(RigManifest.self, from: data),
               manifest.version == 1, manifest.canvas.width == 256, manifest.canvas.height == 384 else { return [:] }
-        return manifest.characters.compactMapValues { LayeredRig(definition: $0, directory: directory) }
+        return manifest.characters
     }
 
     func draw(in target: NSRect, pose: LayerPose, time: Double, gestureElapsed: Double?, reduced: Bool,
@@ -134,5 +138,30 @@ final class LayeredRig {
         transform.rotate(byDegrees: angle)
         transform.translateX(by: -point.x, yBy: -point.y)
         return transform
+    }
+}
+
+/// Optional pose sheets decode only when selected; failed poses are also cached for safe fallback.
+final class PoseRigLibrary {
+    private let directory: URL
+    private let definitions: [String: RigManifest.Character]
+    private var loaded: [String: LayeredRig] = [:]
+    private var failed = Set<String>()
+    private(set) var loadCount = 0
+
+    init(directory: URL) {
+        self.directory = directory
+        definitions = LayeredRig.definitions(directory: directory, manifest: "poses.json")
+    }
+
+    func contains(_ name: String) -> Bool { definitions[name] != nil && !failed.contains(name) }
+
+    func rig(_ name: String) -> LayeredRig? {
+        if let cached = loaded[name] { return cached }
+        guard !failed.contains(name), let definition = definitions[name] else { return nil }
+        loadCount += 1
+        guard let rig = LayeredRig(definition: definition, directory: directory) else { failed.insert(name); return nil }
+        loaded[name] = rig
+        return rig
     }
 }
