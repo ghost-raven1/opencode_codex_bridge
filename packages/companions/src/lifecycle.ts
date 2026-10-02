@@ -1,6 +1,7 @@
 import { localVoiceSchema, specialistVoices, type CompanionConfig, type Role } from "./config.js";
 import type { CompanionEvent } from "./director.js";
 import type { DiagnosticSink } from "./diagnostic-log.js";
+import { CharacterNames } from "./character-names.js";
 
 interface Resident {
   event: CompanionEvent;
@@ -17,6 +18,7 @@ export class CompanionLifecycle {
   private pending = new Set<string>();
   private speaker?: string;
   private sequence = 0;
+  private names = new CharacterNames();
   private closed = false;
   constructor(private config: CompanionConfig, private forward: (event: CompanionEvent) => void, private diagnostic?: DiagnosticSink) {}
 
@@ -27,6 +29,11 @@ export class CompanionLifecycle {
     if (event.type === "remove") { this.retire(id); return; }
     let resident = this.residents.get(id);
     if (event.type === "state") {
+      const sameInvocation = resident && (event.invocationId
+        ? event.invocationId === resident.event.invocationId : event.taskId === resident.event.taskId);
+      const name = sameInvocation && resident ? resident.event.name! : this.names.next(
+        [...this.residents.values()].flatMap(entry => entry.event.name ? [entry.event.name] : []));
+      event = { ...event, name };
       if (!resident || resident.event.state !== event.state || resident.event.role !== event.role || resident.event.taskId !== event.taskId) {
         this.diagnostic?.("lifecycle-state", { characterId: id, taskId: event.taskId, role: event.role, state: event.state });
       }
@@ -48,7 +55,7 @@ export class CompanionLifecycle {
       clearTimeout(resident.timer); resident.timer = undefined;
       resident.recent = ++this.sequence;
       this.reconcile();
-      this.forward({ ...event, voice: resident.voice });
+      this.forward({ ...event, name: resident.event.name, voice: resident.voice });
       this.schedule(id, resident);
     } else if (event.type === "stop") this.forward(event);
   }
@@ -64,6 +71,8 @@ export class CompanionLifecycle {
   voiceFor(id: string, role: Role): string {
     return this.residents.get(id)?.voice ?? this.config.tts.voices[role];
   }
+
+  nameFor(id: string): string | undefined { return this.residents.get(id)?.event.name; }
 
   private schedule(id: string, resident: Resident): void {
     const finished = ["idle", "success", "error"].includes(resident.event.state ?? "working");

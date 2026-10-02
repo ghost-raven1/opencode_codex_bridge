@@ -22,7 +22,8 @@ describe("private companion diagnostics", () => {
     t.log.record("speech-start", { characterId: "raw-character-secret", taskId: "raw-task-secret", audioId: "raw-audio-secret",
       engine: "local", voice: "Vivian", elapsedMs: 12.34567, text: "secret spoken phrase", token: "sk-secret",
       reasoning: "secret private reasoning", audio: "secret audio bytes", path: "/private/user/project.wav", confidence: NaN,
-      state: "secret state", reason: "secret upstream error", message: "secret transcript" });
+      state: "secret state", reason: "secret upstream error", message: "secret transcript",
+      name: "secret companion name", invocationId: "secret invocation identity" });
     t.log.record("speech-end", { characterId: "raw-character-secret", phase: "end", elapsedMs: 20 });
     t.log.record("secret-event" as DiagnosticEvent, { text: "also secret" });
     expect(() => t.log.record("native-error", JSON.parse('{"__proto__":"secret","constructor":"secret","toString":"secret"}'))).not.toThrow();
@@ -33,6 +34,7 @@ describe("private companion diagnostics", () => {
     expect(entries[1]).toMatchObject({ event: "speech-start", engine: "local", voice: "Vivian", elapsedMs: 12.346 });
     expect(entries[1].characterId).toMatch(/^[a-f0-9]{24}$/);
     expect(entries[1].characterId).toBe(entries[2].characterId);
+    expect(entries[1]).not.toHaveProperty("name"); expect(entries[1]).not.toHaveProperty("invocationId");
     expect((await stat(t.log.path)).mode & 0o777).toBe(0o600);
     expect((await stat(dirname(t.log.path))).mode & 0o777).toBe(0o700);
     await chmod(t.log.path, 0o644);

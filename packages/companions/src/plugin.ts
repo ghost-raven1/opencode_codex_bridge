@@ -151,7 +151,7 @@ const Companions: Plugin = async ({ directory, client }) => {
       if (!input.sessionID) return;
       const context = director.openingContext(input.sessionID);
       if (!context) return;
-      try { output.system.push(await openings.instruction(context.role, context.agent)); }
+      try { output.system.push(await openings.instruction(context.role, context.agent, lifecycle.nameFor(input.sessionID))); }
       catch (error) { log(String(error)); }
     },
     "tool.execute.after": async (input, output) => {

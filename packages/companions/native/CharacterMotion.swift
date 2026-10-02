@@ -8,11 +8,14 @@ struct Character {
     var headColumn: Int
     var bodyColumn: Int
     var rig: String?
-    init(id: String, column: Int, label: String, state: String, headColumn: Int? = nil, bodyColumn: Int? = nil, rig: String? = nil) {
+    var name: String?
+    init(id: String, column: Int, label: String, state: String, headColumn: Int? = nil, bodyColumn: Int? = nil, rig: String? = nil, name: String? = nil) {
         self.id = id; self.column = min(max(column, 0), 3); self.label = label; self.state = state
         self.headColumn = min(max(headColumn ?? column, 0), 3)
         self.bodyColumn = min(max(bodyColumn ?? column, 0), 3)
         self.rig = rig
+        let cleanName = name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        self.name = cleanName.isEmpty ? nil : String(cleanName.prefix(10))
     }
     func looksLike(_ other: Character) -> Bool {
         column == other.column && headColumn == other.headColumn && bodyColumn == other.bodyColumn && rig == other.rig

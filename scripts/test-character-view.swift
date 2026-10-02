@@ -21,6 +21,23 @@ import AppKit
         precondition(view.characters.count == 1, "New work did not cancel departure")
         view.snapshotTime = 1010; view.replace([thinking], animated: false)
         let badge = view.subviews.compactMap { $0 as? CharacterBadgeView }.first!
+        for scale in [0.5, 1.0, 2.0] {
+            for state in ["working", "success", "error", "waiting"] {
+                badge.frame = NSRect(x: 0, y: 0, width: 148 * scale, height: 28 * scale)
+                badge.setBoundsSize(NSSize(width: 148, height: 28))
+                badge.update(Character(id: "named", column: 0, label: "CODEX · RESEARCH", state: state, name: "Каэми"), color: .systemGreen)
+                badge.layoutSubtreeIfNeeded()
+                let fields = badge.subviews.compactMap { $0 as? NSTextField }
+                let name = fields.first { $0.stringValue == "Каэми" }!
+                let role = fields.first { $0.stringValue == "RESEARCH" }!
+                precondition(name.frame.maxX <= role.frame.minX, "Name and role overlap")
+                precondition(name.intrinsicContentSize.width + 6 <= name.frame.width, "Generated name is truncated")
+                precondition(role.intrinsicContentSize.width + 6 <= role.frame.width, "Role is truncated")
+                precondition(badge.bounds.contains(name.frame) && badge.bounds.contains(role.frame), "Named badge exceeds its original height")
+                precondition(badge.toolTip == "Каэми · CODEX · RESEARCH", "Full identity is missing from tooltip")
+            }
+        }
+        badge.frame = NSRect(x: 0, y: 0, width: 148, height: 28); badge.setBoundsSize(badge.frame.size)
         for index in 0..<1000 {
             view.snapshotTime = 1010 + Double(index) / 24
             let character = Character(id: "agent", column: index % 4, label: "CODEX · REVIEW", state: ["working", "thinking", "success", "waiting", "error"][index % 5])

@@ -66,6 +66,9 @@ describe("CLI voice and durable drafts", () => {
     expect(output.system[0]).toBe("Original system instruction");
     expect(output.system[1]).toContain("CODE:");
     expect(output.system[1]).toContain("companion_intro");
+    const named = mocks.send.mock.calls.find(([event]) => event.type === "state")![0];
+    expect(named.name).toEqual(expect.any(String));
+    expect(output.system[1]).toContain(`Имя этого персонажа — ${named.name}`);
     const context = { sessionID: "s", abort: new AbortController().signal } as never;
     expect(await t.hooks.tool!.companion_intro!.execute({ text: "Сейчас починим эту функцию, багам пора домой." }, context)).toContain("queued:");
     expect(await t.hooks.tool!.companion_intro!.execute({ text: "Лишнее вступление" }, context)).toContain("skipped:");

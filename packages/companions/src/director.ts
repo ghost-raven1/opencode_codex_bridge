@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import type { CompanionConfig, Role } from "./config.js";
 import { appearanceFor } from "./presets.js";
 import { detectRole, type TaskAssignment } from "./role-detection.js";
@@ -9,6 +10,8 @@ export interface CompanionEvent {
   type: "state" | "speak" | "stop" | "remove";
   characterId: string;
   taskId?: string;
+  invocationId?: string;
+  name?: string;
   runId?: string;
   voice?: string;
   role?: Role;
@@ -46,6 +49,8 @@ interface Session {
   runs: Map<string, { id: string; partId: string; messageId: string; snapshot: NonNullable<ReturnType<typeof readCodexSpeech>> }>;
   users: Set<string>;
   openingDone?: boolean;
+  invocationId?: string;
+  startedTask?: boolean;
 }
 type ObjectValue = Record<string, unknown>;
 const object = (value: unknown): ObjectValue => value && typeof value === "object" ? value as ObjectValue : {};
@@ -140,11 +145,13 @@ export class CompanionDirector {
     const session = this.sessions.get(id);
     if (!session) return;
     this.emit({ characterId: id, ...(session.taskId ? { taskId: session.taskId } : {}),
+      ...(event.type === "state" && session.invocationId ? { invocationId: session.invocationId } : {}),
       ...(session.runId ? { runId: session.runId } : {}), ...event });
   }
 
   private state(id: string, state: State): void {
     const session = this.sessions.get(id)!;
+    session.invocationId ??= randomUUID();
     session.state = state; session.visible = true;
     const appearance = appearanceFor(id, session.role, this.config.appearance, session.agent);
     this.output(id, { type: "state", role: session.role, state,
@@ -188,6 +195,10 @@ export class CompanionDirector {
     const session = this.sessions.get(id)!;
     this.invalidate(session, session.assistant); this.stopRuns(id);
     this.output(id, { type: "stop" });
+    // A child may appear from parent metadata before its first own user message.
+    if (session.startedTask) session.invocationId = randomUUID();
+    else session.invocationId ??= randomUUID();
+    session.startedTask = true;
     const inherited = !session.taskId && session.taskMessageID === undefined && !!session.parentID;
     session.task = assignment?.task.slice(0, 16000) ?? (inherited ? session.task : undefined);
     session.agent = assignment?.agent ?? session.pendingAgent ?? session.agent;
