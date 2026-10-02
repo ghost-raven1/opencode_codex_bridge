@@ -102,6 +102,13 @@ def extract(role, spec):
         head_region=np.zeros(alpha.shape,dtype=bool);head_region[:335]=True
         head_matte=(rgb.max(2)-rgb.min(2)<40)&(rgb.min(2)>55)&(np.array(protected)==0)
         alpha[(neutral&border)|(head_matte&head_region)]=0
+        # Trouser/cuff folds can put an exterior checkerboard island deeper than the
+        # border radius. Follow only neutral pixels connected to transparency;
+        # the authored dark outline separates real gray cloth/hardware from it.
+        _,matte_labels=cv2.connectedComponents(((alpha==0)|neutral).astype('uint8'),8)
+        outside_labels=np.unique(matte_labels[alpha==0])
+        clothing=np.zeros(alpha.shape,dtype=bool);clothing[335:1320]=True
+        alpha[clothing&neutral&np.isin(matte_labels,outside_labels)]=0
     # Connected thin outlines count as artwork; detached matte speckles do not.
     count, labels, stats, _ = cv2.connectedComponentsWithStats(alpha, 8)
     for index in range(1, count):

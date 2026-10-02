@@ -52,4 +52,18 @@ describe("authored specialist layers", () => {
     for (const [x, y] of [[185, 129], [187, 137], [191, 148], [198, 169]]) expect(alpha(x!, y!)).toBe(0);
     for (const [x, y] of [[181, 129], [184, 137], [188, 148], [195, 169]]) expect(alpha(x!, y!)).toBe(255);
   });
+
+  it("clears TESTER's trouser/cuff checkerboard islands without removing the cargo clasp or cloth", () => {
+    const image = rgbaPng(directory + "tester/body.png");
+    const alpha = (x: number, y: number) => image.pixels[(y * 256 + x) * 4 + 3];
+    // Native dark phase 0.5: gray protrusions at outer knee and inner calf,
+    // confirmed as background against the retained RGB source.
+    for (const [x, y] of [[172, 261], [175, 270], [150, 311], [153, 315]]) expect(alpha(x!, y!)).toBe(0);
+    for (const [x, y] of [[158, 236], [157, 241], [167, 261], [170, 270], [154, 311], [158, 316]]) {
+      expect(alpha(x!, y!), `preserved clasp/cloth at ${x},${y}`).toBe(255);
+    }
+    expect(alpha(75, 182), "checkerboard below the left cuff").toBeLessThan(20);
+    const rightCuff = [...image.pixels.subarray((185 * 256 + 160) * 4, (185 * 256 + 160) * 4 + 3)];
+    expect(Math.max(...rightCuff) - Math.min(...rightCuff), "authored yellow underpainting replaces right-cuff gray matte").toBeGreaterThan(50);
+  });
 });
