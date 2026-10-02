@@ -2,6 +2,7 @@ import type { CompanionConfig, Role } from "./config.js";
 import { appearanceFor } from "./presets.js";
 import { detectRole, type TaskAssignment } from "./role-detection.js";
 import { readCodexSpeech } from "./codex-speech.js";
+import { stripSpeechCode } from "./speech-text.js";
 
 export type State = "idle" | "thinking" | "working" | "success" | "error" | "waiting";
 export interface CompanionEvent {
@@ -56,7 +57,7 @@ const tracked = new Set([
 
 /** Remove code/URLs from speech without changing the original terminal message. */
 export function spokenText(text: string, maxLength: number): string {
-  return text.replace(/```[\s\S]*?```/g, " ").replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+  return stripSpeechCode(text).replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/https?:\/\/\S+/g, " ").replace(/[*#`_>]/g, " ")
     .replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
@@ -108,7 +109,8 @@ export class CompanionDirector {
     if (task.parentID) session.parentID = task.parentID;
     if (task.parentID && !task.messageID) {
       const parent = this.sessions.get(task.parentID);
-      session.taskId = parent?.taskId ?? parent?.lastUser ?? parent?.assistant ?? session.taskId ?? id;
+      // Metadata can arrive again after the child has started its own user message.
+      session.taskId ??= parent?.taskId ?? parent?.lastUser ?? parent?.assistant ?? id;
     }
     session.task = task.task.slice(0, 16000);
     session.taskMessageID = task.messageID ?? session.lastUser;
@@ -355,7 +357,8 @@ export class CompanionDirector {
       } else if (part.type === "text" && partId && messageId) {
         if (part.ignored || part.synthetic) session.parts.delete(partId);
         else if (typeof part.text === "string") {
-          session.parts.set(partId, { messageId, text: part.text.slice(0, this.config.maxSpeechLength * 2),
+          // Clean the full part before capping it so a truncated closing fence cannot expose code.
+          session.parts.set(partId, { messageId, text: spokenText(part.text, this.config.maxSpeechLength * 2),
             complete: typeof object(part.time).end === "number" });
           if (session.parts.size > 128) session.parts.delete(session.parts.keys().next().value!);
           this.flushSpeech(id);
