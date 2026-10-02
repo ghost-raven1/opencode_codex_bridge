@@ -48,7 +48,7 @@ export async function startNativeHost(binary: string, args: string[], receive: (
     if (closed) return;
     buffer += decoder.write(chunk);
     let newline: number;
-    while ((newline = buffer.indexOf("\n")) !== -1) {
+    while (!closed && (newline = buffer.indexOf("\n")) !== -1) {
       const line = buffer.slice(0, newline); buffer = buffer.slice(newline + 1);
       if (Buffer.byteLength(line) > MAX_FRAME) { fail(new Error("Native voice output exceeded its frame limit")); return; }
       if (!line.trim()) continue;
@@ -67,6 +67,8 @@ export async function startNativeHost(binary: string, args: string[], receive: (
     if (Buffer.byteLength(buffer) > MAX_FRAME) fail(new Error("Native voice output exceeded its frame limit"));
   });
   stdout.on("error", fail);
+  // EOF is terminal even when the app (or its LaunchServices monitor) stays alive.
+  stdout.once("end", () => fail(new Error(`Native voice output closed${ready ? "" : " before startup"}`)));
   child.once("error", fail);
   stdin.on("error", error => { if (!closed) fail(error); });
   process.once("exit", close);

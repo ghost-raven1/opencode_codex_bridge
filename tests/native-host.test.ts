@@ -27,6 +27,27 @@ describe("native voice transport", () => {
   it("rejects a process that exits before ready", async () => {
     await expect(launch("process.exit(2)")).rejects.toThrow("before startup");
   });
+  it("rejects startup immediately when stdout closes but the process remains alive", async () => {
+    await expect(launch(`
+      require('node:fs').closeSync(1);
+      setTimeout(() => process.exit(0), 1000);
+    `)).rejects.toThrow("Native voice output closed before startup");
+  });
+  it("disconnects and reaps a ready process when its output channel reaches EOF", async () => {
+    const events: NativeEvent[] = [];
+    const host = await launch(`
+      process.stdout.write(JSON.stringify({type:'ready',pid:process.pid})+'\\n');
+      process.stdin.once('data', () => require('node:fs').closeSync(1));
+      setInterval(() => {}, 1000);
+    `, event => events.push(event));
+    try {
+      host.send({ type: "close-output" });
+      await vi.waitFor(() => expect(events.filter(event => event.type === "closed")).toHaveLength(1), { timeout: 500 });
+      expect(() => host.send({ type: "show" })).toThrow("closed");
+      const pid = events.find(event => event.type === "ready")!.pid as number;
+      expect(() => process.kill(pid, 0)).toThrow();
+    } finally { host.close(); }
+  });
   it("rejects malformed or unbounded native output", async () => {
     await expect(launch("process.stdout.write('garbage\\n');setInterval(()=>{},1000)")).rejects.toThrow();
     await expect(launch("process.stdout.write('x'.repeat(150000));setInterval(()=>{},1000)")).rejects.toThrow("frame limit");
@@ -58,6 +79,26 @@ describe("native voice transport", () => {
     });
     host.close(); host.close(); await closed;
     expect(events.filter(event => event.type === "closed")).toHaveLength(1);
+  });
+  it("drops buffered events after the receiver closes the host", async () => {
+    const events: NativeEvent[] = [];
+    let complete!: () => void;
+    const closed = new Promise<void>(resolve => { complete = resolve; });
+    const host = await launch(`
+      process.stdout.write('{"type":"ready"}\\n');
+      process.stdin.once('data', () => process.stdout.write(
+        '{"type":"disconnect"}\\n{"type":"transcript","text":"late text"}\\n'
+      ));
+      setInterval(() => {}, 1000);
+    `, event => {
+      events.push(event);
+      if (event.type === "disconnect") host.close();
+      if (event.type === "closed") complete();
+    });
+    try {
+      host.send({ type: "test" }); await closed;
+      expect(events.map(event => event.type)).toEqual(["ready", "disconnect", "closed"]);
+    } finally { host.close(); }
   });
   it("limits incoming and outgoing frames by UTF-8 bytes", async () => {
     await expect(launch("process.stdout.write(JSON.stringify({type:'large',text:'я'.repeat(70000)})+'\\n');setInterval(()=>{},1000)"))
