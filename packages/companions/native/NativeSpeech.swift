@@ -53,9 +53,11 @@ enum SystemSpeechProfile {
     private var player: AVAudioPlayer?
     private var meter: Timer?
     private var current: Entry?
+    private var started = false
     private var queue: [Entry] = []
     private(set) var muted = false
     var suspended = false
+    var playbackPhase: String? { current.map { started ? ($0.path == nil ? "system" : "local") : "queued" } }
 
     override init() { super.init(); synthesizer.delegate = self }
 
@@ -92,7 +94,7 @@ enum SystemSpeechProfile {
         queue.removeAll { id == nil || $0.characterId == id }
         for entry in removed { if let audioId = entry.audioId { onAudioFinished?(audioId, "cancel") } }
         if let entry = current, id == nil || entry.characterId == id {
-            active = nil; current = nil
+            active = nil; current = nil; started = false
             synthesizer.stopSpeaking(at: .immediate)
             player?.stop(); player = nil; meter?.invalidate(); meter = nil
             onEvent?("cancel", entry.characterId, nil); onReset?()
@@ -106,12 +108,13 @@ enum SystemSpeechProfile {
     private func speakNext() {
         guard current == nil, !queue.isEmpty, !muted, !suspended else { return }
         let entry = queue.removeFirst()
-        current = entry
+        current = entry; started = false
         if let path = entry.path {
             do {
                 let audio = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
                 audio.delegate = self; audio.isMeteringEnabled = true; player = audio
                 guard audio.play() else { complete(phase: "error"); return }
+                started = true
                 if let audioId = entry.audioId { onAudioStarted?(audioId) }
                 onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, entry.text)
                 meter = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in
@@ -132,6 +135,7 @@ enum SystemSpeechProfile {
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didStart utterance: AVSpeechUtterance) {
         guard active === utterance, let entry = current else { return }
+        started = true
         if let audioId = entry.audioId { onAudioStarted?(audioId) }
         onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, utterance.speechString)
     }
@@ -153,7 +157,7 @@ enum SystemSpeechProfile {
     }
     private func complete(phase: String) {
         guard let entry = current else { return }
-        active = nil; current = nil; player = nil; meter?.invalidate(); meter = nil
+        active = nil; current = nil; started = false; player = nil; meter?.invalidate(); meter = nil
         onEvent?(phase, entry.characterId, nil); onReset?()
         if let audioId = entry.audioId { onAudioFinished?(audioId, phase) }
         if queue.isEmpty { onDrained?() } else { speakNext() }

@@ -127,6 +127,7 @@ const Companions: Plugin = async ({ directory, client }) => {
       speech = new SpeechRouter(config, new LocalTts({ log, diagnostic }), send, log, undefined, {
         changed: (pending, speaker) => lifecycle.speechActivity(pending, speaker),
         voiceFor: (id, role) => lifecycle.voiceFor(id, role),
+        status: value => send({ type: "speech-status", ...value }),
       }, diagnostic);
       syncDrafts(); lifecycle.replay();
     })().finally(() => { connection = undefined; });

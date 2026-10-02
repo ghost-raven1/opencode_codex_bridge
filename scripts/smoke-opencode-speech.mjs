@@ -14,9 +14,10 @@ const project = join(temporary, "project"), runtime = join(temporary, "runtime")
 const trace = join(temporary, "events.jsonl");
 const bundle = join(runtime, "packages/companions/native/CodexBridge Companions.app");
 const identifier = `dev.codexbridge.companions.task-qa.${Date.now()}`;
-const injected = process.argv.includes("--inject-failure");
+const recovery = process.argv.includes("--recover-voice");
+const injected = recovery || process.argv.includes("--inject-failure");
 const exec = promisify(execFile), delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-const report = { checkedAt: new Date().toISOString(), passed: false, injected,
+const report = { checkedAt: new Date().toISOString(), passed: false, injected, recovery,
   measurement: "Real OpenCode task, Codex model, Qwen synthesis and native speech callbacks; not an acoustic recording." };
 let child, exited, endpoint, stderr = "";
 const rows = async () => (await readFile(trace, "utf8").catch(() => "")).trim().split("\n").filter(Boolean).map(JSON.parse);
@@ -27,11 +28,12 @@ async function request(path, body, timeout = 180_000) {
   assert.equal(result.status, 200, `OpenCode ${path}: HTTP ${result.status}`);
   return result.json();
 }
-async function drain() {
+async function drain(minPlaybacks = 1) {
   const deadline = Date.now() + 240_000;
   while (Date.now() < deadline) {
     const events = await rows(), pending = events.findLast(event => event.channel === "router" && event.type === "pending");
-    if (pending?.count === 0 && events.some(event => event.type === "audio-finished")) return;
+    const plays = events.filter(event => event.channel === "native-send" && ["speak", "play-audio"].includes(event.type));
+    if (pending?.count === 0 && plays.length >= minPlaybacks && events.some(event => event.type === "audio-finished")) return;
     await delay(500);
   }
   throw new Error("Speech queue did not drain within four minutes");
@@ -74,6 +76,7 @@ test('empty basket', () => assert.equal(total([]), 0));
       XDG_CONFIG_HOME: join(temporary, "config"), XDG_DATA_HOME: join(temporary, "data"),
       XDG_STATE_HOME: join(temporary, "state"), XDG_CACHE_HOME: join(temporary, "cache"),
       CODEXBRIDGE_QA_RUNTIME: runtime, CODEXBRIDGE_QA_TRACE: trace, CODEXBRIDGE_QA_FAIL_REQUEST: injected ? "2" : "0",
+      CODEXBRIDGE_QA_RECOVER: recovery ? "1" : "0",
       CODEXBRIDGE_DATA_DIR: join(temporary, "companion-data"),
     },
   });
@@ -110,7 +113,39 @@ test('empty basket', () => assert.equal(total([]), 0));
   report.taskPassed = true;
   console.log(JSON.stringify({ phase: "task-complete", waitingForSpeech: true }));
   await drain();
+  if (recovery) {
+    const before = await rows();
+    const playbacks = before.filter(event => event.channel === "native-send" && ["speak", "play-audio"].includes(event.type)).length;
+    assert(before.some(event => event.type === "injected-failure"), "Local failure was not injected");
+    assert(before.findLast(event => event.channel === "status")?.canRecover, "Drained failed voice was not recoverable");
+    await writeFile(join(runtime, "recover-speech"), "explicit QA menu-equivalent request\n");
+    const deadline = Date.now() + 15_000;
+    let restored;
+    while (Date.now() < deadline) {
+      restored = (await rows()).findLast(event => event.channel === "status" && event.reason === "restored");
+      if (restored) break;
+      await delay(100);
+    }
+    assert(restored, "Explicit voice recovery did not complete");
+    await delay(400);
+    const after = await rows();
+    assert.equal(after.filter(event => event.type === "reset-speech").length, 1, "Recovery reset must happen once");
+    assert.equal(after.filter(event => event.channel === "native-send" && ["speak", "play-audio"].includes(event.type)).length,
+      playbacks, "Recovery replayed stale speech");
+    console.log(JSON.stringify({ phase: "voice-restored", testingNextReply: true }));
+    const next = await request(`/session/${session.id}/message`, {
+      model: { providerID: "codexbridge", modelID: config.model.slice("codexbridge/".length) }, agent: "build",
+      parts: [{ type: "text", text: "Проверка следующей реплики после восстановления голоса. Не вызывай инструменты и ничего не меняй. Ответь только: Голос снова готов. Проверка завершена." }],
+    });
+    assert(!next.info?.error, JSON.stringify(next.info?.error));
+    await drain(playbacks + 1);
+    const resumed = (await rows()).filter(event => event.at > restored.at && event.channel === "native-send" && event.type === "play-audio");
+    assert(resumed.length > 0, "Next model reply did not return to local audio");
+    report.recoveryPassed = true;
+  }
   const events = await rows();
+  report.statuses = [...new Set(events.filter(event => event.channel === "status").map(event => event.phase))];
+  assert(report.statuses.includes("system") || report.statuses.includes("local"), "No observed playback status");
   const started = events.filter(event => event.channel === "native-send" && ["speak", "play-audio"].includes(event.type));
   const completed = events.filter(event => event.channel === "native-receive" && event.type === "audio-finished");
   report.gaps = started.slice(1).map((event, index) => {
@@ -165,7 +200,7 @@ finally {
   }
   await exec("/usr/bin/defaults", ["delete", identifier]).catch(() => undefined);
   await mkdir(join(root, ".local"), { recursive: true });
-  const output = join(root, ".local", `opencode-speech-${injected ? "fallback" : "natural"}.json`);
+  const output = join(root, ".local", `opencode-speech-${recovery ? "recovery" : injected ? "fallback" : "natural"}.json`);
   await writeFile(output, JSON.stringify(report, null, 2) + "\n");
   await rm(temporary, { recursive: true, force: true });
   const { events, ...summary } = report; console.log(JSON.stringify({ ...summary, output }));

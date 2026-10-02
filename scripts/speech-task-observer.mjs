@@ -1,4 +1,4 @@
-import { appendFileSync } from "node:fs";
+import { appendFileSync, existsSync, unlinkSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { join } from "node:path";
 
@@ -10,17 +10,39 @@ const [{ default: Companions }, { SpeechRouter }, { LocalTts }] = await Promise.
   moduleAt("plugin.js"), moduleAt("speech-router.js"), moduleAt("local-tts.js"),
 ]);
 const record = (channel, event) => {
-  const { type, id, audioId, characterId, phase, state, voice, code } = event;
+  const { type, id, audioId, characterId, phase, state, voice, code, pending, reason, canRecover } = event;
   appendFileSync(trace, JSON.stringify({ at: Date.now(), channel, type, id, audioId, characterId,
-    phase, state, voice, code, characters: event.text?.length, ...event.metrics }) + "\n");
+    phase, state, voice, code, pending, reason, canRecover, characters: event.text?.length, ...event.metrics }) + "\n");
 };
+let currentRouter, recovered = false;
+const publishStatus = SpeechRouter.prototype.publishStatus;
+SpeechRouter.prototype.publishStatus = function () {
+  currentRouter = this;
+  const previous = this.lastStatus;
+  const result = publishStatus.call(this);
+  if (this.lastStatus && this.lastStatus !== previous) record("status", { type: "speech-status", ...JSON.parse(this.lastStatus) });
+  return result;
+};
+if (process.env.CODEXBRIDGE_QA_RECOVER === "1") {
+  // Only the isolated smoke writes this marker, after observing a drained queue.
+  const marker = join(runtime, "recover-speech");
+  setInterval(() => {
+    if (!existsSync(marker) || !currentRouter?.status().canRecover) return;
+    unlinkSync(marker);
+    record("qa", { type: "explicit-recovery" });
+    currentRouter.receive({ type: "speech-control", action: "recover" });
+  }, 100).unref();
+}
 for (const method of ["event", "receive"]) {
   const original = SpeechRouter.prototype[method];
   SpeechRouter.prototype[method] = function (event) {
     if (!this.observed) {
       this.observed = true;
       const send = this.send;
-      this.send = event => { record("native-send", event); send(event); };
+      this.send = event => {
+        if (event.type === "reset-speech") recovered = true;
+        record("native-send", event); send(event);
+      };
       const log = this.log;
       this.log = message => { record("router", { type: "warning", metrics: { message } }); log(message); };
     }
@@ -41,7 +63,8 @@ LocalTts.prototype.synthesize = async function (request) {
   const started = Date.now();
   record("tts", { type: "start", ...request });
   try {
-    if (++requests === Number(process.env.CODEXBRIDGE_QA_FAIL_REQUEST ?? 0)) {
+    const requestNumber = ++requests, failureAt = Number(process.env.CODEXBRIDGE_QA_FAIL_REQUEST ?? 0);
+    if (requestNumber === failureAt || (process.env.CODEXBRIDGE_QA_RECOVER === "1" && requestNumber >= failureAt && !recovered)) {
       record("tts", { type: "injected-failure", id: request.id });
       throw new Error("QA injected generation failure");
     }

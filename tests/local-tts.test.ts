@@ -23,16 +23,23 @@ afterEach(async () => {
   await Promise.all(directories.splice(0).map(directory => rm(directory, { recursive: true, force: true })));
 });
 
-async function fixture(options: { startupHang?: boolean; requestTimeoutMs?: number; startupTimeoutMs?: number; defaultAudio?: boolean; duration?: number } = {}) {
+async function fixture(options: { startupHang?: boolean; requestTimeoutMs?: number; startupTimeoutMs?: number; defaultAudio?: boolean; duration?: number; shutdownDelayMs?: number } = {}) {
   const directory = await mkdtemp(join(tmpdir(), "codexbridge-tts-")); directories.push(directory);
   const audioDirectory = join(directory, "audio"), worker = join(directory, "worker.py");
   const launches = join(directory, "launches"), outside = join(directory, "outside.wav");
+  const processLog = join(directory, "process-log");
   await mkdir(audioDirectory); await writeFile(outside, Buffer.alloc(100));
-  await writeFile(worker, `import json, os, sys, time, wave
+  await writeFile(worker, `import json, os, sys, time, wave, signal
 from pathlib import Path
 directory = Path(os.environ["CODEXBRIDGE_TTS_AUDIO_DIR"])
 outside = Path(${JSON.stringify(outside)})
 with open(${JSON.stringify(launches)}, "a") as file: file.write("start\\n")
+with open(${JSON.stringify(processLog)}, "a") as file: file.write("start\\n")
+def shutdown(signum, frame):
+ time.sleep(${(options.shutdownDelayMs ?? 0) / 1000})
+ with open(${JSON.stringify(processLog)}, "a") as file: file.write("stopped\\n")
+ sys.exit(0)
+if ${options.shutdownDelayMs ? "True" : "False"}: signal.signal(signal.SIGTERM, shutdown)
 if ${options.startupHang ? "True" : "False"}: time.sleep(30)
 print(json.dumps({"type":"ready"}), flush=True)
 for line in sys.stdin:
@@ -60,13 +67,23 @@ for line in sys.stdin:
   const tts = new LocalTts({ python: "python3", worker, ...(options.defaultAudio ? {} : { audioDirectory }), log: message => logs.push(message),
     startupTimeoutMs: options.startupTimeoutMs ?? 2000, requestTimeoutMs: options.requestTimeoutMs ?? 2000 });
   instances.push(tts);
-  return { tts, launches, outside, logs, audioDirectory };
+  return { tts, launches, outside, logs, audioDirectory, processLog };
 }
 
 const request = (id: string, voice = "ok") => ({ id, text: "SECRET request text", voice });
 // Worker close rejects requests before its asynchronous cleanup finishes.
 const finishRemovals = () => Promise.all(vi.mocked(rm).mock.results.map(result => result.value));
 describe("local speech worker channel", () => {
+  it("explicitly resets a failed worker once and waits for exit before accepting the next process", async () => {
+    const f = await fixture({ shutdownDelayMs: 120 });
+    await expect(f.tts.synthesize(request("failed", "error"))).rejects.toThrow("generation failed");
+    const resets = [f.tts.reset(), f.tts.reset()];
+    const next = f.tts.synthesize(request("next"));
+    await Promise.all(resets);
+    await expect(next).resolves.toMatchObject({ sampleRate: 24000 });
+    expect((await readFile(f.processLog, "utf8")).trim().split("\n")).toEqual(["start", "stopped", "start"]);
+    expect((await readFile(f.launches, "utf8")).trim().split("\n")).toHaveLength(2);
+  });
   it("rejects and deletes 45 seconds for 32 characters, while allowing normal short and long speech", async () => {
     const text = "Публичная короткая фраза".padEnd(32, ".");
     const short = await fixture({ duration: 4 });

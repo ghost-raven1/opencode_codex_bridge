@@ -29,6 +29,7 @@ export class LocalTts {
   private audioDirectory = "";
   private child?: ChildProcessWithoutNullStreams;
   private starting?: Promise<void>;
+  private stopping?: Promise<void>;
   private resolveReady?: () => void;
   private rejectReady?: (error: Error) => void;
   private startupTimer?: NodeJS.Timeout;
@@ -73,6 +74,8 @@ export class LocalTts {
   }
 
   private start(): Promise<void> {
+    if (this.disposed) return Promise.reject(new Error("Local speech worker is closed"));
+    if (this.stopping) return this.stopping.then(() => this.start());
     if (this.ready) return Promise.resolve();
     if (this.starting) return this.starting;
     // LaunchServices gives the player its own TCC identity: runtime WAVs must stay outside Documents.
@@ -191,10 +194,26 @@ export class LocalTts {
     clearTimeout(this.startupTimer);
     const child = this.child;
     this.child = undefined; this.starting = undefined; this.ready = false; this.buffer = Buffer.alloc(0);
-    if (!child) return;
+    if (!child || child.exitCode !== null || child.signalCode !== null) return;
+    // Do not load another model until the previous worker has actually exited.
+    let closed!: () => void;
+    const stopping = new Promise<void>(resolve => { closed = resolve; });
+    this.stopping = stopping;
+    let killTimer: NodeJS.Timeout | undefined;
+    child.once("close", () => {
+      clearTimeout(killTimer);
+      if (this.stopping === stopping) this.stopping = undefined;
+      closed();
+    });
     child.stdin.end(); child.kill("SIGTERM");
-    const killTimer = setTimeout(() => child.kill("SIGKILL"), 1500); killTimer.unref();
-    child.once("close", () => clearTimeout(killTimer));
+    killTimer = setTimeout(() => child.kill("SIGKILL"), 1500); killTimer.unref();
+  }
+
+  /** Discard failed preparation; the next request starts one fresh worker after exit. */
+  async reset(): Promise<void> {
+    if (this.disposed) return;
+    this.fail("Local speech worker reset", false);
+    await this.stopping;
   }
 
   private cleanDirectory(directory: string): void {

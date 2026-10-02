@@ -22,6 +22,7 @@ try {
     ["voice-commands", ["VoiceCommands.swift"], "test-voice-commands.swift"],
     ["scale", ["ScaleControl.swift"], "test-scale.swift"],
     ["speech", ["NativeSpeech.swift"], "test-native-speech.swift"],
+    ["speech-status", ["NativeSpeechStatus.swift"], "test-native-speech-status.swift"],
   ]) {
     const binary = join(temporary, name);
     let result = spawnSync("swiftc", ["-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),

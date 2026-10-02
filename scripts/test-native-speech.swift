@@ -30,6 +30,10 @@ import AVFoundation
             precondition(selected.voice?.identifier == explicit.identifier)
             precondition(selected.pitchMultiplier == neutral.pitchMultiplier && selected.rate == neutral.rate)
         }
-        print("PASS neutral system speech profile, deterministic female/language selection and explicit voice override; no audio played")
+        let previous = speech.synthesizer, identifier = speech.voice?.identifier
+        speech.setMuted(true); speech.suspended = true; speech.resetSynthesizer()
+        precondition(previous !== speech.synthesizer && speech.voice?.identifier == identifier)
+        precondition(speech.muted && speech.suspended && speech.playbackPhase == nil, "Reset changed user controls or started old speech")
+        print("PASS neutral system speech profile, deterministic female/language selection, explicit override and reset preserving controls; no audio played")
     }
 }

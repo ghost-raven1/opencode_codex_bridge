@@ -31,6 +31,7 @@ var exitStatus: Int32 = 0
     let panel = CompanionPanel(contentRect: NSRect(x: 0, y: 0, width: 672, height: 330),
         styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
     let speech = NativeSpeech()
+    let speechStatus = NativeSpeechStatus()
     let dictation = NativeDictation()
     let draftMenu = DraftMenu()
     let music = MusicControl()
@@ -105,10 +106,11 @@ var exitStatus: Int32 = 0
             self.view.speaker = id
             if !self.captions.contains(id) { self.captions.update(id, text: text) }
             self.refreshCaption()
+            self.updateMenu()
         }
         speech.onReset = { [weak self] in
             self?.view.speaker = nil; self?.view.mouthUntil = 0; self?.view.mouthLevel = 0
-            self?.refreshCaption()
+            self?.refreshCaption(); self?.updateMenu()
         }
         speech.onLevel = { [weak self] level in self?.view.mouthLevel = level }
         speech.onAmplitude = { [weak self] open in
@@ -175,8 +177,9 @@ var exitStatus: Int32 = 0
 
     func configureMenu() {
         let menu = NSMenu()
+        speechStatus.attach(to: menu, localVoice: localSpeech) { emit(["type": "speech-control", "action": "recover"]) }
         if localSpeech {
-            let engine = menu.addItem(withTitle: "Qwen3-TTS · 4 локальных голоса", action: nil, keyEquivalent: "")
+            let engine = menu.addItem(withTitle: "Qwen3-TTS · локальные голоса", action: nil, keyEquivalent: "")
             engine.isEnabled = false
         }
         let voiceMenu = NSMenu()
@@ -214,6 +217,7 @@ var exitStatus: Int32 = 0
     }
 
     func updateMenu() {
+        speechStatus.update(muted: speech.muted, suspended: speech.suspended, playback: speech.playbackPhase)
         muteItem?.state = speech.muted ? .on : .off
         visibilityItem?.title = windowState?.hidden == true ? "Показать компаньонов" : "Скрыть компаньонов"
         dictationToggleItem?.title = dictationEnabled ? "Выключить диктовку" : "Включить диктовку"
@@ -278,6 +282,8 @@ var exitStatus: Int32 = 0
         case "mute": setMuted(value["muted"] as? Bool ?? !speech.muted)
         case "stop-speech": stopSpeech()
         case "speech-test": testSpeech()
+        case "speech-status": speechStatus.receive(value); updateMenu()
+        case "reset-speech": speech.resetSynthesizer(); updateMenu()
         case "show-menu": item?.button?.performClick(nil)
         case "voice-help": showVoiceHelp()
         case "dictation-start": startDictation()
@@ -415,6 +421,7 @@ var exitStatus: Int32 = 0
         emit(["type": "speech-control", "action": "mute", "muted": false])
         if localSpeech && !speechTest { emit(["type": "test-voices"]); return }
         speech.enqueue(characterId: view.characters.first?.id ?? "system-speech-test", text: "Проверка системного голоса. Задача в работе.")
+        updateMenu()
     }
 
     func setMuted(_ muted: Bool) {
