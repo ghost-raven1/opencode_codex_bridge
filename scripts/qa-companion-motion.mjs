@@ -53,7 +53,7 @@ try {
   }
   writeFileSync(join(temporary, "WorkMotion.swift"), work);
   const sources = ["CharacterMotion", "LayeredMotion", "LayeredRig", "PoseAnimation", "IdleMotion", "TeamMotion", "SpriteTransition",
-    "MusicRhythm", "MusicMotion", "CharacterBadgeView", "SpeechBubbleView", "SpriteCache", "SpriteDepth"];
+    "MusicRhythm", "MusicMotion", "ActionMotion", "CharacterBadgeView", "SpeechBubbleView", "SpriteCache", "SpriteDepth"];
   const binary = join(temporary, "qa-motion");
   const compiled = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),
     "-framework", "AppKit", ...sources.map(name => join(native, name + ".swift")), join(temporary, "CharacterView.swift"),

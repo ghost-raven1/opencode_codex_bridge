@@ -48,12 +48,26 @@ struct WorkAnimation {
     private var active = false
     private var changedAt = -Double.infinity
     private var initialWeight: CGFloat = 0
+    private var activity: String?
+    private var previousActivity: String?
+    private var activityChangedAt = -Double.infinity
+    private var activitySeenAt = -Double.infinity
+    private var invocation: String?
 
     init(seed: String) {
         self.seed = seed.utf8.reduce(UInt64(14695981039346656037)) { ($0 ^ UInt64($1)) &* 1099511628211 }
     }
 
-    mutating func update(active: Bool, at time: Double) {
+    mutating func update(active: Bool, at time: Double, activity: String? = nil, invocation: String? = nil) {
+        if invocation != self.invocation {
+            self.invocation = invocation; self.activity = nil; previousActivity = nil
+            activitySeenAt = -.infinity; activityChangedAt = -.infinity
+        }
+        let next = activity.flatMap { ActionMotion.kinds.contains($0) ? $0 : nil }
+        if let next {
+            activitySeenAt = time
+            if next != self.activity { previousActivity = self.activity; self.activity = next; activityChangedAt = time }
+        }
         guard active != self.active else { return }
         initialWeight = weight(at: time); changedAt = time; self.active = active
     }
@@ -71,6 +85,16 @@ struct WorkAnimation {
         let phase = max(0, time + Double(seed % 997) / 97)
         let cycle = Int(phase / period), elapsed = phase.truncatingRemainder(dividingBy: period)
         let focus = focusPose(rig: rig, phase: phase)
+        if let activity {
+            let held = time - activitySeenAt
+            let actionWeight = min(1, max(0, (1.6 - held) / 0.4))
+            // Running tools renew their hold; completed short tools finish one readable beat.
+            let action = ActionMotion.pose(rig: rig, kind: activity, time: phase, seed: seed)
+            let from = previousActivity.map { ActionMotion.pose(rig: rig, kind: $0, time: phase, seed: seed) } ?? focus
+            let t = min(1, max(0, (time - activityChangedAt) / 0.4))
+            let transitioned = from.blending(action, weight: t * t * (3 - 2 * t))
+            if actionWeight > 0 { return rest.blending(focus.blending(transitioned, weight: actionWeight), weight: weight(at: time)) }
+        }
         let duration = 4.2 + Double(cycle % 3) * 0.25
         guard elapsed < duration else { return rest.blending(focus, weight: weight(at: time)) }
         let p = elapsed / duration, envelope = pow(sin(p * .pi), 2)

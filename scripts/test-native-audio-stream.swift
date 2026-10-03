@@ -3,7 +3,7 @@ import AVFoundation
 
 @MainActor final class TestAudioOutput: NativeAudioOutput {
     var onConsumed: ((Int) -> Void)?
-    var onRendered: ((Double) -> Void)?
+    var onRendered: ((Double, Double) -> Void)?
     var onFailure: (() -> Void)?
     var buffers: [Int: AVAudioPCMBuffer] = [:]
     var plays = 0, stops = 0, prepares = 0
@@ -13,7 +13,7 @@ import AVFoundation
     func play() throws { if failPlay { throw NSError(domain: "test", code: 1) }; plays += 1 }
     func stop() { stops += 1 }
     func consume(_ index: Int) { onConsumed?(index) }
-    func render(_ level: Double = 0.6) { onRendered?(level) }
+    func render(_ level: Double = 0.6, position: Double = 0) { onRendered?(level, position) }
 }
 
 @main struct NativeAudioStreamTests {
@@ -104,6 +104,24 @@ import AVFoundation
         precondition(abs((copied.buffers[0]?.floatChannelData?[0][0] ?? 0) - 0.1) < 0.0001,
                      "Accepted WAV must already live in a native PCM buffer")
         independent.cancel()
+
+        let clock = TestAudioOutput(), timed = NativeAudioStream(output: clock)
+        var positions: [Double] = [], totals: [Double?] = []
+        timed.onProgress = { elapsed, total, _ in positions.append(elapsed); totals.append(total) }
+        timed.append(index: 0, path: two, duration: 2, sampleRate: 24_000)
+        timed.append(index: 1, path: two, duration: 2, sampleRate: 24_000)
+        precondition(positions.isEmpty, "Generated PCM advanced captions before playback")
+        clock.render(position: 0.1); clock.render(position: 1.1)
+        precondition(abs(positions.last! - 1) < 0.001 && totals.last! == nil)
+        clock.consume(0); clock.consume(1)
+        let count = positions.count; clock.render(position: 100)
+        precondition(positions.count == count, "Buffering advanced the caption clock")
+        timed.append(index: 2, path: two, duration: 2, sampleRate: 24_000)
+        clock.render(position: 100); precondition(positions.last == 4, "Underrun wall time entered PCM progress")
+        timed.end(chunks: 3); clock.render(position: 101)
+        precondition(positions.last == 5 && totals.last! == 6)
+        timed.cancel(); let cancelledCount = positions.count; clock.render(position: 102)
+        precondition(positions.count == cancelledCount, "Late render advanced a cancelled caption")
 
         let speech = NativeSpeech()
         var drivers: [TestAudioOutput] = [], finished: [String] = [], audioStarts = 0, drained = 0

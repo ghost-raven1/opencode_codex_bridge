@@ -5,6 +5,7 @@ final class CharacterBadgeView: NSView {
     private let label = NSTextField(labelWithString: "")
     private let role = NSTextField(labelWithString: "")
     private let status = NSTextField(labelWithString: "")
+    private var hasActivity = false
 
     override init(frame: NSRect) {
         super.init(frame: frame)
@@ -23,11 +24,14 @@ final class CharacterBadgeView: NSView {
 
     func update(_ character: Character, color: NSColor) {
         label.stringValue = character.name ?? character.label
-        role.stringValue = character.name == nil ? "" : character.label.replacingOccurrences(of: "CODEX · ", with: "")
+        let activity = ActionMotion.title(character.activity)
+        hasActivity = activity != nil
+        role.stringValue = [character.name == nil ? nil : character.label.replacingOccurrences(of: "CODEX · ", with: ""), activity]
+            .compactMap { $0 }.joined(separator: " · ")
         role.textColor = color.withAlphaComponent(0.8)
         label.textColor = color; status.textColor = color
         status.stringValue = ["success": "OK", "error": "!", "waiting": "?"][character.state] ?? ""
-        toolTip = [character.name, character.label].compactMap { $0 }.joined(separator: " · ")
+        toolTip = [character.name, character.label, activity].compactMap { $0 }.joined(separator: " · ")
         needsLayout = true
     }
 
@@ -36,6 +40,11 @@ final class CharacterBadgeView: NSView {
         let inset: CGFloat = status.stringValue.isEmpty ? 10 : 35
         status.frame = NSRect(x: 9, y: 5, width: 25, height: 18)
         let available = max(1, bounds.width - inset - 8)
+        if hasActivity {
+            label.frame = NSRect(x: inset, y: 11, width: available, height: 16)
+            role.frame = NSRect(x: inset, y: 1, width: available, height: 11)
+            return
+        }
         // NSTextField's cell needs a few extra points beyond the intrinsic glyph width.
         let nameMinimum = ceil(label.intrinsicContentSize.width) + 6
         let roleWidth = role.stringValue.isEmpty ? 0 : min(ceil(role.intrinsicContentSize.width) + 6, max(0, available - nameMinimum - 5))

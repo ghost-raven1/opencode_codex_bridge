@@ -21,6 +21,7 @@ final class CharacterView: NSView {
     var teamActionKinds: [String] { team.actions.map { $0.kind.rawValue } }
     private var badges: [String: CharacterBadgeView] = [:]
     var speaker: String?
+    var bubbleOwner: String?
     var mouthUntil: TimeInterval = 0
     var mouthLevel: Double = 0
     var musicBeat: MusicBeatState?
@@ -50,9 +51,18 @@ final class CharacterView: NSView {
     }
 
     func contentHeight(width: CGFloat) -> CGFloat {
-        let height = speechBubble.update(bubble, width: width - 20)
-        speechBubble.setFrameOrigin(NSPoint(x: 10, y: 261))
+        let height = speechBubble.update(bubble, width: min(316, width - 20))
+        layoutBubble(width: width)
         return max(330, 273 + height)
+    }
+
+    /// Follow the owner while clamping long captions inside the scalable transparent panel.
+    func layoutBubble(width: CGFloat) {
+        let index = characters.firstIndex(where: { $0.id == (bubbleOwner ?? speaker) }) ?? 0
+        let center = (CGFloat(index) + 0.5) * width / CGFloat(max(1, characters.count))
+        let x = min(max(10, center - speechBubble.frame.width / 2), max(10, width - 10 - speechBubble.frame.width))
+        speechBubble.setFrameOrigin(NSPoint(x: x, y: 261))
+        if characters.indices.contains(index) { speechBubble.accent = accent(for: characters[index]) }
     }
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
     var resizeHandle: NSRect { NSRect(x: bounds.maxX - 24, y: 0, width: 24, height: 12) }
@@ -106,7 +116,8 @@ final class CharacterView: NSView {
         }
         let badge = badges[character.id] ?? CharacterBadgeView(frame: .zero)
         var work = workAnimations[character.id] ?? WorkAnimation(seed: character.id)
-        work.update(active: ["working", "thinking"].contains(character.state), at: time)
+        work.update(active: ["working", "thinking"].contains(character.state), at: time,
+                    activity: character.activity, invocation: character.invocationID)
         workAnimations[character.id] = work
         let delay = motions[character.id].map { (1 - $0.progress(time, reduced: reduced)) * $0.duration(reduced: reduced) } ?? 0
         team.observe(character, at: time, entranceDelay: delay, animated: animateInteractions)
@@ -141,14 +152,19 @@ final class CharacterView: NSView {
         }
         for character in characters {
             ambient[character.id]?.advance(time, gestureInterval: gestureInterval(for: character))
+            if let activity = character.activity, ["working", "thinking"].contains(character.state) {
+                workAnimations[character.id]?.update(active: true, at: time, activity: activity, invocation: character.invocationID)
+            }
             _ = posture(for: character, at: time)
         }
         layoutBadges()
+        layoutBubble(width: bounds.width)
+        speechBubble.tick(at: time, reduced: reduced)
         needsDisplay = true
         return before != characters.count
     }
 
-    override func layout() { super.layout(); layoutBadges() }
+    override func layout() { super.layout(); layoutBadges(); layoutBubble(width: bounds.width) }
 
     private func gestureInterval(for character: Character) -> ClosedRange<Double> {
         character.rig.flatMap { rigs[$0]?.gestureInterval } ?? 8...15
@@ -217,6 +233,14 @@ final class CharacterView: NSView {
         guard let atlas else { return }
         if let background = snapshotBackground {
             (background == "light" ? NSColor.white : NSColor(calibratedWhite: 0.06, alpha: 1)).setFill(); bounds.fill()
+        }
+        if !speechBubble.isHidden, let index = characters.firstIndex(where: { $0.id == (bubbleOwner ?? speaker) }) {
+            let center = (CGFloat(index) + 0.5) * bounds.width / CGFloat(max(1, characters.count))
+            let base = min(max(speechBubble.frame.minX + 16, center), speechBubble.frame.maxX - 16)
+            let tail = NSBezierPath()
+            tail.move(to: NSPoint(x: base - 9, y: 262)); tail.line(to: NSPoint(x: center, y: 250))
+            tail.line(to: NSPoint(x: base + 9, y: 262)); tail.close()
+            NSColor(calibratedWhite: 0.07, alpha: 0.97).setFill(); tail.fill()
         }
         NSGraphicsContext.current?.imageInterpolation = .none
         let time = now, width = bounds.width / CGFloat(max(characters.count, 1))

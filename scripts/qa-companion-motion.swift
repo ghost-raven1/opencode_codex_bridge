@@ -52,6 +52,7 @@ enum MotionAudit { static var variant: Int?; static var progress: Double? }
             require(allowEmpty || coloured > 20, "Empty sprites: run AppKit QA outside the restricted graphics sandbox: \(name)")
             snapshots.append(["name": name, "path": path.path, "background": background, "scale": scale,
                               "backingScale": panel.backingScaleFactor, "time": view.snapshotTime ?? 0, "colouredSamples": coloured])
+            if snapshots.count % 100 == 0 { print("Rendered \(snapshots.count) native frames") }
         }
         let entries = roles.map { character($0) }
         let phases = [0.0, 0.08, 0.16, 0.25, 0.4, 0.55, 0.72, 0.9, 1.0]
@@ -94,6 +95,31 @@ enum MotionAudit { static var variant: Int?; static var progress: Double? }
                 try save("idle-\(variant)-\(index)-\(background)", background: background)
             }
         } }
+        // Real tool clips, every authored posture: inspect hand/prop/neck seams at several phases.
+        for background in ["light", "dark"] { for kind in ActionMotion.kinds { for pose in CharacterPose.allCases {
+            setup(entries.map { entry in var actor = entry; actor.activity = kind; return actor })
+            view.auditPose = pose
+            for index in 0..<6 {
+                view.snapshotTime = 1002 + Double(index)
+                view.tick()
+                try save("action-\(kind)-\(pose.rawValue)-\(index)-\(background)", background: background)
+            }
+        } } }
+        // Caption ownership, word reveal and long-text layout at proportional scale.
+        let captionText = "Проверяю изменения в коде. Сейчас запускаю тесты, затем проверю результат и связанные сценарии."
+        for background in ["light", "dark"] { for size in [0.5, 1.0, 2.0] { for owner in 0..<4 {
+            setup(Array(entries.prefix(4))); view.bubbleOwner = entries[owner].id; view.bubble = captionText
+            let width = view.bounds.width, height = view.contentHeight(width: width)
+            panel.setContentSize(NSSize(width: width, height: height)); view.setFrameSize(panel.contentView!.frame.size)
+            view.setBoundsSize(NSSize(width: width, height: height)); scale(size)
+            let range = (captionText as NSString).range(of: "Сейчас")
+            view.speechBubble.reveal(until: NSMaxRange(range), word: range, reduced: true)
+            view.layoutBubble(width: width)
+            require(view.speechBubble.frame.minX >= 0 && view.speechBubble.frame.maxX <= width, "Caption outside panel")
+            require(view.speechBubble.laidOutCharacters == (captionText as NSString).length, "Caption text lost")
+            try save("caption-owner-\(owner)-\(background)-\(size)", background: background, scale: size)
+            view.bubble = ""; _ = view.contentHeight(width: width)
+        } } }
         // Extreme proportional scaling, all three rigs, soft edges and static volume.
         for background in ["light", "dark"] { for size in [0.5, 1.0, 2.0] { for pose in CharacterPose.allCases {
             setup(roles.map { character($0, state: "idle") }); scale(size)

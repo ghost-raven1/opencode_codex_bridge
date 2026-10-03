@@ -7,12 +7,19 @@ final class SpeechBubbleView: NSScrollView {
     private(set) var laidOutCharacters = 0
     private var lastWidth: CGFloat = 0
     private var lastText = ""
+    private var visibleCharacters: Int?
+    private var currentWord: NSRange?
+    private var fading: NSRange?
+    private var fadeStarted = 0.0
+    private var manualScroll = false
+    var accent = NSColor.systemPurple
 
     init() {
         super.init(frame: .zero)
         drawsBackground = true
         backgroundColor = NSColor(calibratedWhite: 0.07, alpha: 0.97)
-        wantsLayer = true; layer?.cornerRadius = 10
+        wantsLayer = true; layer?.cornerRadius = 12
+        layer?.borderWidth = 1; layer?.borderColor = NSColor.white.withAlphaComponent(0.16).cgColor
         hasHorizontalScroller = false; autohidesScrollers = false
         scrollerStyle = .legacy; borderType = .noBorder
         text.isEditable = false; text.isSelectable = true
@@ -53,13 +60,56 @@ final class SpeechBubbleView: NSScrollView {
         hasVerticalScroller = contentHeight > height
         frame.size = NSSize(width: width, height: height)
         text.setFrameSize(NSSize(width: documentWidth, height: max(height, contentHeight)))
-        if changed { contentView.scroll(to: .zero); reflectScrolledClipView(contentView) }
+        if changed {
+            visibleCharacters = nil; currentWord = nil; fading = nil; manualScroll = false
+            contentView.scroll(to: .zero); reflectScrolledClipView(contentView)
+        }
+        else { applyColors() }
         toolTip = hasVerticalScroller ? "Прокрути, чтобы прочитать всю реплику. Текст можно выделить и скопировать." : nil
         return height
     }
 
+    /// Preserve complete text/layout for selection; only the spoken prefix receives full contrast.
+    func reveal(until requested: Int?, word: NSRange?, reduced: Bool) {
+        let length = (lastText as NSString).length
+        let visible = requested.map { max(0, min(length, $0)) }
+        guard visible != visibleCharacters || word != currentWord else { return }
+        if let visible, let old = visibleCharacters, visible > old, !reduced {
+            fading = NSRange(location: old, length: visible - old)
+            fadeStarted = Date.timeIntervalSinceReferenceDate
+        } else { fading = nil }
+        visibleCharacters = visible
+        currentWord = word.flatMap { $0.location >= 0 && NSMaxRange($0) <= length ? $0 : nil }
+        applyColors()
+        if !manualScroll, let word = currentWord { text.scrollRangeToVisible(word) }
+    }
+
+    func tick(at time: Double, reduced: Bool) {
+        guard let range = fading else { return }
+        let progress = reduced ? 1 : min(1, max(0, (time - fadeStarted) / 0.16))
+        text.textStorage?.addAttribute(.foregroundColor, value: NSColor.white.withAlphaComponent(0.18 + progress * 0.82), range: range)
+        if progress >= 1 { fading = nil; applyColors() }
+    }
+
+    private func applyColors() {
+        guard let storage = text.textStorage else { return }
+        storage.beginEditing()
+        let full = NSRange(location: 0, length: storage.length)
+        storage.addAttribute(.foregroundColor, value: NSColor.white.withAlphaComponent(visibleCharacters == nil ? 1 : 0.18), range: full)
+        storage.removeAttribute(.backgroundColor, range: full)
+        if let visibleCharacters {
+            storage.addAttribute(.foregroundColor, value: NSColor.white, range: NSRange(location: 0, length: visibleCharacters))
+        }
+        if let currentWord { storage.addAttribute(.backgroundColor, value: accent.withAlphaComponent(0.18), range: currentWord) }
+        if let fading { storage.addAttribute(.foregroundColor, value: NSColor.white.withAlphaComponent(0.18), range: fading) }
+        storage.endEditing()
+    }
+
+    override func scrollWheel(with event: NSEvent) { manualScroll = true; super.scrollWheel(with: event) }
+
     var diagnostics: [String: Any] {
         ["characters": (lastText as NSString).length, "laidOutCharacters": laidOutCharacters,
-         "contentHeight": contentHeight, "visibleHeight": frame.height, "scrollable": hasVerticalScroller]
+         "contentHeight": contentHeight, "visibleHeight": frame.height, "scrollable": hasVerticalScroller,
+         "revealedCharacters": visibleCharacters ?? (lastText as NSString).length]
     }
 }

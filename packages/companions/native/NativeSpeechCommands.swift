@@ -17,7 +17,8 @@ import AppKit
         switch type {
         case "audio-stream-start":
             if let id = value["characterId"] as? String {
-                speech.startStream(characterId: id, text: value["text"] as? String ?? "", audioId: audioId)
+                speech.startStream(characterId: id, text: value["text"] as? String ?? "", audioId: audioId,
+                    captionId: value["captionId"] as? String, captionOffset: value["captionOffset"] as? Int ?? 0)
             }
         case "audio-stream-chunk":
             if let index = value["index"] as? Int, let path = value["path"] as? String,

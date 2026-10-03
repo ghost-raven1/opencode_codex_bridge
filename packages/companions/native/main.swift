@@ -101,6 +101,7 @@ var exitStatus: Int32 = 0
 
     func configureCallbacks() {
         configureStreamCallbacks()
+        configureCaptionCallbacks()
         view.onBubbleChange = { [weak self] in self?.resize() }
         speech.onStarted = { [weak self] id, text in
             guard let self else { return }
@@ -245,7 +246,7 @@ var exitStatus: Int32 = 0
                 view.snapshotBackground = value["background"] as? String
                 let saved = view.snapshot(path); view.snapshotTime = nil; view.snapshotBackground = nil
                 let diagnostics = view.speechBubble.diagnostics
-                if value["caption"] is String { view.bubble = previousBubble }
+                if value["caption"] is String { view.bubble = previousBubble; refreshCaption() }
                 emit(saved ? ["type": "snapshot", "path": path, "bubble": diagnostics] : ["type": "error", "message": "Не удалось сохранить снимок."])
             }
         case "preview": showPreview()
@@ -282,7 +283,8 @@ var exitStatus: Int32 = 0
                 label: appearance["label"] as? String ?? "LEAD", state: value["state"] as? String ?? "idle",
                 headColumn: appearance["headColumn"] as? Int, bodyColumn: appearance["bodyColumn"] as? Int,
                 rig: appearance["rig"] as? String, name: value["name"] as? String,
-                parentID: value["parentCharacterId"] as? String, invocationID: value["invocationId"] as? String)
+                parentID: value["parentCharacterId"] as? String, invocationID: value["invocationId"] as? String,
+                activity: value["activity"] as? String)
             if let index = realCharacters.firstIndex(where: { $0.id == id }) { realCharacters[index] = character }
             else { realCharacters.append(character) }
             if demonstration { demonstration = false; view.replace(Array(realCharacters.prefix(maxVisible))) }
@@ -295,18 +297,21 @@ var exitStatus: Int32 = 0
             resize()
             presentCharacters()
         case "caption":
-            captions.update(id, text: value["text"] as? String ?? "")
+            captions.update(id, text: value["text"] as? String ?? "", captionId: value["captionId"] as? String,
+                animated: value["animated"] as? Bool == true)
             refreshCaption()
         case "speak":
             if let text = value["text"] as? String {
                 if value["resetVoice"] as? Bool == true { speech.resetSynthesizer() }
                 speech.enqueue(characterId: id, text: text, role: value["role"] as? String ?? "coordinator",
-                    audioId: value["audioId"] as? String)
+                    audioId: value["audioId"] as? String, captionId: value["captionId"] as? String,
+                    captionOffset: value["captionOffset"] as? Int ?? 0)
             }
         case "play-audio":
             if let path = value["path"] as? String, let audioId = value["audioId"] as? String {
                 speech.enqueueAudio(characterId: id, text: value["text"] as? String ?? "",
-                    role: value["role"] as? String ?? "coordinator", path: path, audioId: audioId)
+                    role: value["role"] as? String ?? "coordinator", path: path, audioId: audioId,
+                    captionId: value["captionId"] as? String, captionOffset: value["captionOffset"] as? Int ?? 0)
             }
         case "stop": speech.stop(characterId: id)
         case "remove":
@@ -317,11 +322,6 @@ var exitStatus: Int32 = 0
             resize(); presentCharacters()
         default: break
         }
-    }
-
-    func refreshCaption() {
-        let text = captions.text(visible: Set(view.characters.map { $0.id }), preferred: view.speaker)
-        if view.bubble != text { view.bubble = text }
     }
 
     func populatePreview() {

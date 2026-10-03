@@ -39,11 +39,17 @@ enum SystemSpeechProfile {
         var path: String? = nil
         var audioId: String? = nil
         var streaming = false
+        var captionId: String? = nil
+        var captionOffset = 0
     }
     private(set) var synthesizer = AVSpeechSynthesizer()
     var voice: AVSpeechSynthesisVoice?
     var onEvent: ((String, String, NSRange?) -> Void)?
     var onStarted: ((String, String) -> Void)?
+    var onCaptionStarted: ((String, String, String?, Int) -> Void)?
+    var onCaptionWord: ((String, NSRange) -> Void)?
+    var onCaptionProgress: ((String, Double, Double?, Double) -> Void)?
+    var onCaptionFinished: ((String, String) -> Void)?
     var onReset: (() -> Void)?
     var onDrained: (() -> Void)?
     var onAmplitude: ((Bool) -> Void)?
@@ -89,24 +95,29 @@ enum SystemSpeechProfile {
             ?? AVSpeechSynthesisVoice(language: language)
     }
 
-    func enqueue(characterId: String, text: String, role _: String = "coordinator", audioId: String? = nil) {
+    func enqueue(characterId: String, text: String, role _: String = "coordinator", audioId: String? = nil,
+                 captionId: String? = nil, captionOffset: Int = 0) {
         guard !muted, !suspended, !text.isEmpty, queue.count < 16 else {
             if let audioId { onAudioFinished?(audioId, "cancel") }; return
         }
-        queue.append(Entry(characterId: characterId, text: String(text.prefix(8000)), audioId: audioId)); speakNext()
+        queue.append(Entry(characterId: characterId, text: String(text.prefix(8000)), audioId: audioId,
+                           captionId: captionId, captionOffset: captionOffset)); speakNext()
     }
 
-    func enqueueAudio(characterId: String, text: String, role _: String, path: String, audioId: String) {
+    func enqueueAudio(characterId: String, text: String, role _: String, path: String, audioId: String,
+                      captionId: String? = nil, captionOffset: Int = 0) {
         guard !muted, !suspended, queue.count < 16 else { onAudioFinished?(audioId, "cancel"); return }
-        queue.append(Entry(characterId: characterId, text: text, path: path, audioId: audioId)); speakNext()
+        queue.append(Entry(characterId: characterId, text: text, path: path, audioId: audioId,
+                           captionId: captionId, captionOffset: captionOffset)); speakNext()
     }
 
     /// Only the router's active stream is admitted; future streams remain in the TypeScript queue.
-    func startStream(characterId: String, text: String, audioId: String) {
+    func startStream(characterId: String, text: String, audioId: String, captionId: String? = nil, captionOffset: Int = 0) {
         guard knownStreams.insert(audioId).inserted else { return }
         guard !muted, !suspended, current == nil, queue.isEmpty else { onAudioFinished?(audioId, "cancel"); return }
         let output = makeStream()
-        current = Entry(characterId: characterId, text: String(text.prefix(8000)), audioId: audioId, streaming: true)
+        current = Entry(characterId: characterId, text: String(text.prefix(8000)), audioId: audioId, streaming: true,
+                        captionId: captionId, captionOffset: captionOffset)
         stream = output; started = false
         output.onAccepted = { [weak self, weak output] index in
             guard let self, self.stream === output else { return }; self.onChunkAccepted?(audioId, index)
@@ -118,8 +129,7 @@ enum SystemSpeechProfile {
             guard let self, self.stream === output else { return }
             self.started = true; self.onAudioStarted?(audioId)
             guard self.stream === output else { return }
-            self.onEvent?("start", characterId, nil)
-            if self.stream === output { self.onStarted?(characterId, text) }
+            if let entry = self.current { self.announce(entry) }
         }
         output.onLevel = { [weak self, weak output] level in
             guard let self, self.stream === output else { return }
@@ -127,6 +137,10 @@ enum SystemSpeechProfile {
         }
         output.onBuffering = { [weak self, weak output] buffering, seconds in
             guard let self, self.stream === output else { return }; self.onBuffering?(audioId, buffering, seconds)
+        }
+        output.onProgress = { [weak self, weak output] elapsed, duration, level in
+            guard let self, self.stream === output else { return }
+            self.onCaptionProgress?(characterId, elapsed, duration, level)
         }
         output.onFinished = { [weak self, weak output] phase in
             guard let self, self.stream === output else { return }; self.complete(phase: phase)
@@ -154,6 +168,7 @@ enum SystemSpeechProfile {
             cancelled = entry
         }
         if let entry = cancelled {
+            onCaptionFinished?(entry.characterId, "cancel")
             onReset?(); onEvent?("cancel", entry.characterId, nil)
             if let audioId = entry.audioId { onAudioFinished?(audioId, "cancel") }
         }
@@ -174,7 +189,7 @@ enum SystemSpeechProfile {
                 guard audio.play() else { complete(phase: "error"); return }
                 started = true
                 if let audioId = entry.audioId { onAudioStarted?(audioId) }
-                onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, entry.text)
+                announce(entry)
                 meter = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in
                     MainActor.assumeIsolated {
                         guard let self, let player = self.player else { return }
@@ -182,6 +197,8 @@ enum SystemSpeechProfile {
                         let power = player.averagePower(forChannel: 0)
                         self.onAmplitude?(player.isPlaying && power > -38)
                         self.onLevel?(player.isPlaying ? min(1, max(0, Double(power + 45) / 35)) : 0)
+                        self.onCaptionProgress?(entry.characterId, player.currentTime, player.duration,
+                            player.isPlaying ? min(1, max(0, Double(power + 45) / 35)) : 0)
                     }
                 }
             } catch { complete(phase: "error") }
@@ -195,10 +212,11 @@ enum SystemSpeechProfile {
         guard active === utterance, let entry = current else { return }
         started = true
         if let audioId = entry.audioId { onAudioStarted?(audioId) }
-        onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, utterance.speechString)
+        announce(entry)
     }
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeakRangeOfSpeechString range: NSRange, utterance: AVSpeechUtterance) {
         guard active === utterance, let entry = current else { return }
+        onCaptionWord?(entry.characterId, range)
         onEvent?("word", entry.characterId, range)
     }
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
@@ -213,9 +231,15 @@ enum SystemSpeechProfile {
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
         if self.player === player { complete(phase: "error") }
     }
+    private func announce(_ entry: Entry) {
+        onCaptionStarted?(entry.characterId, entry.text, entry.captionId, entry.captionOffset)
+        onEvent?("start", entry.characterId, nil); onStarted?(entry.characterId, entry.text)
+    }
+
     private func complete(phase: String) {
         guard let entry = current else { return }
         stream = nil; active = nil; current = nil; started = false; player = nil; meter?.invalidate(); meter = nil
+        onCaptionFinished?(entry.characterId, phase)
         onReset?(); onEvent?(phase, entry.characterId, nil)
         if let audioId = entry.audioId { onAudioFinished?(audioId, phase) }
         if current == nil, queue.isEmpty { onDrained?() } else { speakNext() }

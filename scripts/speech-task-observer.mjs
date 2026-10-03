@@ -11,9 +11,9 @@ const [{ default: Companions }, { SpeechRouter }, { LocalTts }] = await Promise.
 ]);
 const record = (channel, event) => {
   const { type, id, audioId, characterId, phase, state, voice, code, pending, reason, canRecover,
-    index, buffering, bufferedSeconds, chunks, invocationId } = event;
+    index, buffering, bufferedSeconds, chunks, invocationId, activity, captionId, captionOffset } = event;
   appendFileSync(trace, JSON.stringify({ at: Date.now(), channel, type, id, audioId, characterId,
-    phase, state, voice, code, pending, reason, canRecover, index, buffering, bufferedSeconds, chunks, invocationId,
+    phase, state, voice, code, pending, reason, canRecover, index, buffering, bufferedSeconds, chunks, invocationId, activity, captionId, captionOffset,
     characters: event.text?.length, ...event.metrics }) + "\n");
 };
 let currentRouter, recovered = false, partialInjected = false;

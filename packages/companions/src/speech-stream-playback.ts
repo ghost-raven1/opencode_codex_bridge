@@ -27,10 +27,11 @@ export class SpeechStreamPlayback {
     return true;
   }
 
-  start(characterId: string, role: string, text: string): void {
+  start(characterId: string, role: string, text: string, captionId?: string, captionOffset = 0): void {
     if (this.closed || this.active) return;
     this.active = true;
-    this.send({ type: "audio-stream-start", audioId: this.id, characterId, role, text });
+    this.send({ type: "audio-stream-start", audioId: this.id, characterId, role, text,
+      ...(captionId ? { captionId, captionOffset } : {}) });
     for (const { audio } of this.chunks.values()) {
       if (this.closed) return;
       this.sendChunk(audio);

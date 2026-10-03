@@ -15,6 +15,7 @@ const trace = join(temporary, "events.jsonl");
 const bundle = join(runtime, "packages/companions/native/CodexBridge Companions.app");
 const identifier = `dev.codexbridge.companions.task-qa.${Date.now()}`;
 const recovery = process.argv.includes("--recover-voice");
+const reviewer = process.argv.includes("--reviewer");
 const partial = process.argv.includes("--partial-failure");
 const injected = !partial && (recovery || process.argv.includes("--inject-failure"));
 const exec = promisify(execFile), delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -59,6 +60,8 @@ try {
   config.permission = { "*": "deny", read: "allow", edit: "allow", write: "allow", apply_patch: "allow",
     bash: "allow", task: "allow", glob: "allow", grep: "allow", list: "allow", companion_intro: "allow" };
   config.agent = { ...config.agent, title: { disable: true }, summary: { disable: true } };
+  if (reviewer) config.agent.reviewer = { mode: "subagent", description: "Read-only code reviewer for isolated speech QA",
+    prompt: "Проверь только указанные файлы. Не меняй файлы. Ответь кратко по-русски.", permission: { edit: "deny", write: "deny", apply_patch: "deny" } };
   await writeFile(join(temporary, "opencode.json"), JSON.stringify(config));
   await writeFile(join(temporary, "smart-voice-notify.jsonc"), '{"enabled":false}');
   await writeFile(join(temporary, "companions.json"), JSON.stringify({ enabled: true, dictation: false,
@@ -101,7 +104,7 @@ test('empty basket', () => assert.equal(total([]), 0));
   const session = await request("/session", {});
   report.sessionId = session.id; report.model = config.model;
   console.log(JSON.stringify({ phase: "task-start", sessionId: session.id, injected }));
-  const prompt = "Это тестовое задание для проверки голоса. Работай только с total.js и total.test.js в текущем проекте. Сначала обязательно вызови companion_intro с кратким русским вступлением о начале проверки, чтобы протестировать этот инструмент. Делегируй субагенту tester через task чтение этих двух файлов и поиск причины провала теста без изменения файлов; попроси короткий ответ по-русски. Затем сам исправь подсчёт с учётом quantity, запусти node --test total.test.js через bash. Не устанавливай пакеты. В конце напиши связный русский ответ на 600–750 символов без кода и Markdown: причина, исправление, результаты тестов и простой пример расчёта. Это нужно для проверки длинной речи. Никаких других файлов и действий.";
+  const prompt = `Это тестовое задание для проверки голоса. Работай только с total.js и total.test.js в текущем проекте. Сначала обязательно вызови companion_intro с кратким русским вступлением о начале проверки, чтобы протестировать этот инструмент. Делегируй субагенту ${reviewer ? "reviewer" : "tester"} через task чтение этих двух файлов и поиск причины провала теста без изменения файлов; попроси короткий ответ по-русски. Затем сам исправь подсчёт с учётом quantity, запусти node --test total.test.js через bash. Не устанавливай пакеты. В конце напиши связный русский ответ на 600–750 символов без кода и Markdown: причина, исправление, результаты тестов и простой пример расчёта. Это нужно для проверки длинной речи. Никаких других файлов и действий.`;
   const reply = await request(`/session/${session.id}/message`, {
     model: { providerID: "codexbridge", modelID: config.model.slice("codexbridge/".length) },
     agent: "build", parts: [{ type: "text", text: prompt }],
@@ -109,6 +112,7 @@ test('empty basket', () => assert.equal(total([]), 0));
   assert(!reply.info?.error, JSON.stringify(reply.info?.error));
   const history = await request(`/session/${session.id}/message`);
   const tools = history.flatMap(message => message.parts ?? []).filter(part => part.type === "tool");
+  report.tools = tools.map(part => ({ name: part.tool, status: part.state?.status }));
   assert(tools.some(part => part.tool === "task" && part.state?.status === "completed"), "Subagent task did not complete");
   assert(tools.some(part => part.tool === "companion_intro" && part.state?.status === "completed"), "Model-authored introduction was not exercised");
   assert(tools.some(part => part.tool === "bash" && part.state?.status === "completed"), "Model did not run tests");
@@ -147,6 +151,8 @@ test('empty basket', () => assert.equal(total([]), 0));
     report.recoveryPassed = true;
   }
   const events = await rows();
+  report.activities = [...new Set(events.filter(event => event.channel === "native-send" && event.type === "state").map(event => event.activity).filter(Boolean))];
+  for (const action of ["read", "delegate", "test"]) assert(report.activities.includes(action), `No native animation for ${action}`);
   report.statuses = [...new Set(events.filter(event => event.channel === "status").map(event => event.phase))];
   assert(report.statuses.includes("system") || report.statuses.includes("local"), "No observed playback status");
   const started = events.filter(isPlayback);
@@ -213,7 +219,7 @@ finally {
   }
   await exec("/usr/bin/defaults", ["delete", identifier]).catch(() => undefined);
   await mkdir(join(root, ".local"), { recursive: true });
-  const output = join(root, ".local", `opencode-speech-stream-${partial ? recovery ? "partial-recovery" : "partial" : recovery ? "recovery" : injected ? "fallback" : "natural"}.json`);
+  const output = join(root, ".local", `opencode-speech-stream-${reviewer ? "reviewer-" : ""}${partial ? recovery ? "partial-recovery" : "partial" : recovery ? "recovery" : injected ? "fallback" : "natural"}.json`);
   await writeFile(output, JSON.stringify(report, null, 2) + "\n");
   await rm(temporary, { recursive: true, force: true });
   const { events, ...summary } = report; console.log(JSON.stringify({ ...summary, output }));

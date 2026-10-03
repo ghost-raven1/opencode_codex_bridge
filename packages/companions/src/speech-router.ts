@@ -16,6 +16,7 @@ export interface SpeechGenerator extends Partial<StreamingSpeechGenerator> {
 interface Invocation { id: string; reason?: SpeechReason }
 interface Utterance {
   id: string; characterId: string; text: string; role: Role; voice: string;
+  captionId: string; captionOffset: number;
   invocation: Invocation; taskId?: string; playbackAt?: number;
   audio?: LocalSpeechAudio; stream?: SpeechStreamPlayback;
   systemRetried?: boolean; started?: boolean;
@@ -27,7 +28,7 @@ export interface SpeechActivity {
 }
 const directions: Record<Role, string> = {
   coordinator: "Warm and confident.", developer: "Bright, energetic and focused.",
-  researcher: "Gentle, thoughtful and measured.", reviewer: "Calm, firm and deliberate.",
+  researcher: "Gentle, thoughtful and measured.", reviewer: "Clear Russian speech, calm and focused, at a natural pace.",
 };
 
 /** Short sentence groups keep local synthesis responsive without losing the rest of an answer. */
@@ -76,11 +77,15 @@ export class SpeechRouter {
     if (this.closed) return;
     if (event.type !== "speak") { this.send(event); return; }
     if (!event.text) return;
-    this.captions.add(event.characterId);
-    this.send({ type: "caption", characterId: event.characterId, text: event.text });
-    if (this.closed || this.muted || this.suspended || this.config.speech === "off") return;
     const chunks = speechChunks(event.text);
-    if (this.queue.length + chunks.length > 32) {
+    const enabled = !this.muted && !this.suspended && this.config.speech !== "off";
+    const full = this.queue.length + chunks.length > 32;
+    const captionId = randomUUID();
+    this.captions.add(event.characterId);
+    this.send({ type: "caption", characterId: event.characterId, captionId, text: event.text,
+      animated: enabled && !full });
+    if (this.closed || !enabled) return;
+    if (full) {
       this.notice = "queue-full"; this.publishStatus();
       this.diagnostic?.("speech-cancel", { characterId: event.characterId, reason: "queue-full", pending: this.queue.length });
       this.log("Очередь озвучки заполнена; полный ответ остаётся в терминале."); return;
@@ -89,8 +94,12 @@ export class SpeechRouter {
     const voice = this.activity?.voiceFor(event.characterId, role) ?? event.voice ?? this.config.tts.voices[role];
     const invocation = this.invocation(event);
     this.notice = undefined;
-    this.queue.push(...chunks.map(text => ({ id: randomUUID(), characterId: event.characterId,
-      text, role, voice, invocation, taskId: event.taskId })));
+    let offset = 0;
+    this.queue.push(...chunks.map(text => {
+      const captionOffset = event.text!.indexOf(text, offset); offset = captionOffset + text.length;
+      return { id: randomUUID(), characterId: event.characterId, text, role, voice,
+        captionId, captionOffset, invocation, taskId: event.taskId };
+    }));
     this.notify(); this.pump();
   }
 
@@ -170,7 +179,7 @@ export class SpeechRouter {
     if (!this.active && next && (next.audio || next.stream || next.invocation.reason || this.config.tts.engine === "macos")) {
       this.clearWaiting(); this.queue.shift(); this.active = next; this.notify();
       if (next.invocation.reason || this.config.tts.engine === "macos") this.speakFallback(next);
-      else if (next.stream) { this.waitForAudio(next); next.stream.start(next.characterId, next.role, next.text); }
+      else if (next.stream) { this.waitForAudio(next); next.stream.start(next.characterId, next.role, next.text, next.captionId, next.captionOffset); }
       else this.play(next);
       if (this.closed || this.active !== next) return;
     }
@@ -254,13 +263,14 @@ export class SpeechRouter {
 
   private play(entry: Utterance): void {
     this.send({ type: "play-audio", characterId: entry.characterId, role: entry.role, text: entry.text,
-      audioId: entry.id, path: entry.audio!.path });
+      audioId: entry.id, path: entry.audio!.path, captionId: entry.captionId, captionOffset: entry.captionOffset });
     if (!this.closed && this.active === entry) this.watch(entry, (entry.audio!.duration + 10) * 1000, "playback-timeout");
   }
   private speakFallback(entry: Utterance): void {
     this.publishStatus();
     this.diagnostic?.("speech-fallback", { ...this.identity(entry), engine: "macos", reason: entry.invocation.reason });
     this.send({ type: "speak", characterId: entry.characterId, role: entry.role, text: entry.text, audioId: entry.id,
+      captionId: entry.captionId, captionOffset: entry.captionOffset,
       ...(entry.systemRetried ? { resetVoice: true } : {}) });
     if (!this.closed && this.active === entry) this.watch(entry, 15_000, "system-no-start");
   }

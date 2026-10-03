@@ -3,7 +3,7 @@ import AVFoundation
 /// The stream owns PCM buffers; the output reports credit only after speakers consumed them.
 @MainActor protocol NativeAudioOutput: AnyObject {
     var onConsumed: ((Int) -> Void)? { get set }
-    var onRendered: ((Double) -> Void)? { get set }
+    var onRendered: ((Double, Double) -> Void)? { get set }
     var onFailure: (() -> Void)? { get set }
     func prepare(format: AVAudioFormat) throws
     func schedule(_ buffer: AVAudioPCMBuffer, index: Int)
@@ -14,7 +14,7 @@ import AVFoundation
 /// One running device for the entire utterance, including short producer underruns.
 @MainActor final class NativeAudioEngine: NativeAudioOutput {
     var onConsumed: ((Int) -> Void)?
-    var onRendered: ((Double) -> Void)?
+    var onRendered: ((Double, Double) -> Void)?
     var onFailure: (() -> Void)?
     private let engine = AVAudioEngine()
     private let player = AVAudioPlayerNode()
@@ -33,7 +33,8 @@ import AVFoundation
                 guard let self, self.generation == generation, self.playing,
                       let time = self.player.lastRenderTime,
                       let position = self.player.playerTime(forNodeTime: time), position.sampleTime > 0 else { return }
-                self.deliveredRender = true; self.onRendered?(level)
+                self.deliveredRender = true
+                self.onRendered?(level, Double(position.sampleTime) / position.sampleRate)
             }
         }
         configurationObserver = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange,
@@ -51,7 +52,7 @@ import AVFoundation
             DispatchQueue.main.async {
                 guard let self, self.generation == generation, self.playing else { return }
                 // A very short final buffer can complete before a full metering tap arrives.
-                if !self.deliveredRender { self.deliveredRender = true; self.onRendered?(0) }
+                if !self.deliveredRender { self.deliveredRender = true; self.onRendered?(0, 0) }
                 guard self.generation == generation, self.playing else { return }
                 self.onConsumed?(index)
             }

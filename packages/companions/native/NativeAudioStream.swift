@@ -7,12 +7,15 @@ import AVFoundation
     var onStarted: (() -> Void)?
     var onBuffering: ((Bool, Double) -> Void)?
     var onLevel: ((Double) -> Void)?
+    var onProgress: ((Double, Double?, Double) -> Void)?
     var onFinished: ((String) -> Void)?
     private let output: NativeAudioOutput
     private var format: AVAudioFormat?
     private var durations: [Int: Double] = [:]
     private var nextIndex = 0, nextConsumed = 0
     private var ended = false, terminated = false, playing = false, rendered = false, forced = false
+    private var generatedSeconds = 0.0, consumedSeconds = 0.0, playedSeconds = 0.0
+    private var lastPosition: Double?
     private(set) var buffering = false
     var bufferedSeconds: Double { durations.values.reduce(0, +) }
 
@@ -21,7 +24,7 @@ import AVFoundation
     init(output: NativeAudioOutput) {
         self.output = output
         output.onConsumed = { [weak self] index in self?.consumed(index) }
-        output.onRendered = { [weak self] level in self?.rendered(level) }
+        output.onRendered = { [weak self] level, position in self?.rendered(level, position: position) }
         output.onFailure = { [weak self] in self?.finish("error") }
     }
 
@@ -48,7 +51,8 @@ import AVFoundation
             }
             try file.read(into: pcm)
             guard pcm.frameLength == file.length else { throw StreamFailure.invalidChunk }
-            durations[index] = actual; nextIndex += 1
+            if buffering { lastPosition = nil }
+            generatedSeconds += actual; durations[index] = actual; nextIndex += 1
             output.schedule(pcm, index: index)
             onAccepted?(index)
             guard !terminated else { return }
@@ -80,16 +84,23 @@ import AVFoundation
         try output.play()
     }
 
-    private func rendered(_ level: Double) {
+    private func rendered(_ level: Double, position: Double) {
         guard !terminated, playing, !durations.isEmpty else { return }
         if !rendered { rendered = true; onStarted?() }
         guard !terminated else { return }
         onLevel?(level)
+        if position.isFinite, position >= 0 {
+            let delta = max(0, position - (lastPosition ?? position))
+            lastPosition = position
+            playedSeconds = min(generatedSeconds, max(consumedSeconds, playedSeconds + delta))
+            onProgress?(playedSeconds, ended ? generatedSeconds : nil, level)
+        }
     }
 
     private func consumed(_ index: Int) {
         guard !terminated else { return }
-        guard index == nextConsumed, durations.removeValue(forKey: index) != nil else { finish("error"); return }
+        guard index == nextConsumed, let duration = durations.removeValue(forKey: index) else { finish("error"); return }
+        consumedSeconds += duration; playedSeconds = max(playedSeconds, consumedSeconds)
         nextConsumed += 1
         onConsumed?(index)
         guard !terminated else { return }
@@ -102,7 +113,7 @@ import AVFoundation
     private func setBuffering(_ value: Bool) {
         guard buffering != value else { return }
         buffering = value
-        if value { onLevel?(0) }
+        if value { lastPosition = nil; onLevel?(0) }
         onBuffering?(value, bufferedSeconds)
     }
 

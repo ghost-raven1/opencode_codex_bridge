@@ -11,13 +11,15 @@ struct Character {
     var name: String?
     var parentID: String?
     var invocationID: String?
+    var activity: String?
     init(id: String, column: Int, label: String, state: String, headColumn: Int? = nil, bodyColumn: Int? = nil,
-         rig: String? = nil, name: String? = nil, parentID: String? = nil, invocationID: String? = nil) {
+         rig: String? = nil, name: String? = nil, parentID: String? = nil, invocationID: String? = nil, activity: String? = nil) {
         self.id = id; self.column = min(max(column, 0), 3); self.label = label; self.state = state
         self.headColumn = min(max(headColumn ?? column, 0), 3)
         self.bodyColumn = min(max(bodyColumn ?? column, 0), 3)
         self.rig = rig
         self.parentID = parentID; self.invocationID = invocationID
+        self.activity = activity
         let cleanName = name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         self.name = cleanName.isEmpty ? nil : String(cleanName.prefix(10))
     }

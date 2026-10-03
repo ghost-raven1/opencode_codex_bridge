@@ -4,6 +4,7 @@ import { appearanceFor } from "./presets.js";
 import { detectRole, type TaskAssignment } from "./role-detection.js";
 import { readCodexSpeech } from "./codex-speech.js";
 import { stripSpeechCode } from "./speech-text.js";
+import { toolActivity, type ToolActivity } from "./tool-activity.js";
 
 export type State = "idle" | "thinking" | "working" | "success" | "error" | "waiting";
 export interface CompanionEvent {
@@ -18,6 +19,7 @@ export interface CompanionEvent {
   role?: Role;
   appearance?: ReturnType<typeof appearanceFor>;
   state?: State;
+  activity?: ToolActivity;
   text?: string;
 }
 interface Session {
@@ -30,7 +32,7 @@ interface Session {
   invalidated: Set<string>;
   assistantComplete: boolean;
   assistantFinish?: string;
-  activeTools: Set<string>;
+  activeTools: Map<string, ToolActivity>;
   idleRequested: boolean;
   pending: Set<string>;
   aborted: boolean;
@@ -94,7 +96,7 @@ export class CompanionDirector {
       entry = { role: "coordinator", state: "idle", parts: new Map(), spoken: new Set(), pending: new Set(),
         invalidated: new Set(), assistantComplete: false, aborted: false, taskParts: new Map(), visible: false,
         assigned: new Map(), compaction: false, continuation: false, runs: new Map(), users: new Set(),
-        activeTools: new Set(), idleRequested: false };
+        activeTools: new Map(), idleRequested: false };
       this.sessions.set(id, entry);
     }
     // Evict least recently active sessions, rather than active sessions created first.
@@ -158,6 +160,7 @@ export class CompanionDirector {
     session.state = state; session.visible = true;
     const appearance = appearanceFor(id, session.role, this.config.appearance, session.agent);
     this.output(id, { type: "state", role: session.role, state,
+      ...(state === "working" && session.activeTools.size ? { activity: [...session.activeTools.values()].at(-1) } : {}),
       appearance: { ...appearance, ...(session.runId ? { label: `CODEX · ${appearance.label}` } : {}) } });
   }
 
@@ -374,7 +377,10 @@ export class CompanionDirector {
       if (part.type === "tool" && (session.aborted || (messageId && messageId !== session.assistant))) return;
       if (part.type === "tool" && partId) {
         const status = object(part.state).status;
-        if (status === "running" || status === "pending") session.activeTools.add(partId);
+        if (status === "running" || status === "pending") {
+          const activity = toolActivity(string(part.tool), object(part.state).input);
+          if (session.activeTools.get(partId) !== activity) { session.activeTools.delete(partId); session.activeTools.set(partId, activity); }
+        }
         else if (status === "completed" || status === "error") session.activeTools.delete(partId);
       }
       if (part.type === "tool" && part.tool === "task") {
@@ -401,12 +407,15 @@ export class CompanionDirector {
         }
       } else if (!session.pending.size && session.state !== "error" && !session.aborted) {
         if (part.type === "tool") this.state(id, "working");
-        else if (part.type === "reasoning") this.state(id, "thinking");
+        else if (part.type === "reasoning") this.state(id, session.activeTools.size ? "working" : "thinking");
       }
       if (session.idleRequested) this.idle(id);
     } else if (type === "message.part.removed") {
       const partId = string(props.partID);
       session.activeTools.delete(partId);
+      if (session.visible && !session.aborted && !session.pending.size && !["success", "error"].includes(session.state)) {
+        this.state(id, session.activeTools.size ? "working" : "thinking");
+      }
       session.parts.delete(partId);
       if (session.taskParts.has(partId)) this.updateTaskPart(id, partId);
       for (const [runId, run] of session.runs) if (run.partId === partId) { this.remove(run.id); session.runs.delete(runId); }

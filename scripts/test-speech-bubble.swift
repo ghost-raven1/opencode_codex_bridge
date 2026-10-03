@@ -26,6 +26,15 @@ import AppKit
                 checked += 1
             }
         }
+        let complete = "Первая строка.\n👩🏽‍💻 日本語. Последняя строка."
+        bubble.update(complete, width: 148)
+        bubble.reveal(until: 6, word: NSRange(location: 0, length: 6), reduced: false)
+        precondition(bubble.diagnostics["revealedCharacters"] as? Int == 6)
+        precondition((bubble.documentView as? NSTextView)?.string == complete, "Animated reveal discarded copyable text")
+        bubble.update(complete, width: 316)
+        precondition(bubble.diagnostics["revealedCharacters"] as? Int == 6, "Resize reset speech progress")
+        bubble.reveal(until: nil, word: nil, reduced: true)
+        precondition(bubble.diagnostics["revealedCharacters"] as? Int == (complete as NSString).length)
         print("PASS \(checked) speech bubble layouts: wrapped text, Unicode, long words, resize and reachable last line")
     }
 }

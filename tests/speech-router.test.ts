@@ -15,6 +15,36 @@ function setup() {
 }
 
 describe("local role voices", () => {
+  it("shows the full new caption when the speech queue rejects an answer", () => {
+    const t = setup();
+    for (let i = 0; i < 32; i++) t.router.event({ type: "speak", characterId: "a", text: `Ответ ${i}.` });
+    t.router.event({ type: "speak", characterId: "a", text: "Ответ без места в очереди." });
+    expect(t.captions).toHaveBeenLastCalledWith(expect.objectContaining({ text: "Ответ без места в очереди.", animated: false }));
+    expect(t.synthesize).toHaveBeenCalledTimes(1);
+    expect(t.log).toHaveBeenCalledWith(expect.stringContaining("Очередь"));
+    t.router.dispose();
+  });
+  it("keeps one caption ID and exact offsets through repeated fragments and fallback", async () => {
+    const t = setup(), sentence = "Одинаковая 👩🏽‍💻 фраза. ", text = sentence.repeat(25).trim();
+    t.router.event({ type: "speak", characterId: "a", role: "reviewer", text });
+    const caption = t.captions.mock.calls[0]![0];
+    await t.finish(); const first = t.send.mock.calls[0]![0];
+    expect(first).toMatchObject({ captionId: caption.captionId, captionOffset: 0 });
+    expect(t.synthesize.mock.calls[0]![0]).toMatchObject({ voice: "Ono_Anna", instructions: expect.stringContaining("natural pace") });
+    t.router.receive({ type: "audio-started", id: first.audioId });
+    t.router.receive({ type: "audio-finished", id: first.audioId, phase: "end" });
+    await t.finish(1);
+    const second = t.send.mock.calls.find(([event]) => event.type === "play-audio" && event.audioId !== first.audioId)![0];
+    expect(second.captionId).toBe(caption.captionId);
+    expect(second.captionOffset).toBeGreaterThan(0);
+    expect(text.slice(second.captionOffset, second.captionOffset + second.text.length)).toBe(second.text);
+    t.router.receive({ type: "audio-finished", id: second.audioId, phase: "error" });
+    const fallback = t.send.mock.calls.at(-1)![0];
+    expect(fallback).toMatchObject({ type: "speak", captionId: caption.captionId, captionOffset: second.captionOffset });
+    t.router.event({ type: "speak", characterId: "a", text: "Новый ответ" });
+    expect(t.captions.mock.calls.at(-1)![0].captionId).not.toBe(caption.captionId);
+    t.router.dispose();
+  });
   it("retries a failed local playback once through macOS and ignores callbacks from the failed attempt", async () => {
     const t = setup();
     t.router.event({ type: "speak", characterId: "a", role: "researcher", text: "Проверяю источники." });
@@ -79,7 +109,8 @@ describe("local role voices", () => {
   it("publishes the full public caption before synthesis and keeps it after speech ends", async () => {
     const t = setup(), text = "Проверяю публичный ответ до готовности синтезатора. ".repeat(12).trim();
     t.router.event({ type: "speak", characterId: "a", text });
-    expect(t.captions).toHaveBeenCalledWith({ type: "caption", characterId: "a", text });
+    expect(t.captions).toHaveBeenCalledWith(expect.objectContaining({ type: "caption", characterId: "a", text,
+      captionId: expect.any(String), animated: true }));
     expect(t.captions.mock.invocationCallOrder[0]).toBeLessThan(t.synthesize.mock.invocationCallOrder[0]!);
     expect(t.send).not.toHaveBeenCalled();
     await t.finish();

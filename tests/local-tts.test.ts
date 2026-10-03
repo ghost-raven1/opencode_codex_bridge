@@ -105,7 +105,8 @@ describe("local speech worker channel", () => {
       router.event({ type: "speak", characterId: "agent", voice, text });
       await vi.waitFor(() => expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: "speak", characterId: "agent", text })));
       expect(send.mock.calls.some(([event]) => event.type === "play-audio")).toBe(false);
-      expect(send).toHaveBeenCalledWith({ type: "caption", characterId: "agent", text });
+      expect(send).toHaveBeenCalledWith(expect.objectContaining({ type: "caption", characterId: "agent", text,
+        captionId: expect.any(String), animated: true }));
       expect(await readdir(f.audioDirectory)).toEqual([]);
     } finally { router.dispose(); }
   });
