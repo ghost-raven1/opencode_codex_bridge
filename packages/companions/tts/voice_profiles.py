@@ -48,8 +48,11 @@ class VoiceModels:
                 ref_text=profile["refText"], lang_code=language, temperature=0.6,
                 max_tokens=max_tokens, verbose=False, **streaming)
         else:
+            # Suppress repeated acoustic tokens in the expressive Reviewer preset.
+            repetition_penalty = 1.2 if voice == "Ono_Anna" else 1.05
             results = model.generate_custom_voice(text=text, speaker=voice, language=language,
-                instruct=instructions, temperature=0.7, max_tokens=max_tokens, verbose=False, **streaming)
+                instruct=instructions, temperature=0.7, repetition_penalty=repetition_penalty,
+                max_tokens=max_tokens, verbose=False, **streaming)
         return results if stream else list(results), model.sample_rate
 
     def reset_stream(self):
