@@ -46,8 +46,10 @@ final class CharacterView: NSView {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func loadRigs(directory: URL) {
+        sprites.removeAll()
         rigs = LayeredRig.load(directory: directory)
         poseRigs = PoseRigLibrary(directory: directory)
+        poseAnimations = [:]; previousPostures = [:]
     }
 
     func contentHeight(width: CGFloat) -> CGFloat {
@@ -187,7 +189,7 @@ final class CharacterView: NSView {
 
     /// A mixed identity changes posture only when both its outfit and original head have that pose.
     func posture(for character: Character, at time: TimeInterval) -> PoseFrame {
-        var animation = poseAnimations[character.id] ?? PoseAnimation(seed: character.id)
+        var animation = poseAnimations[character.id] ?? PoseAnimation(seed: character.id, clips: poseRigs?.clips ?? .standard)
         let result = advancePosture(&animation, for: character, at: time)
         poseAnimations[character.id] = animation
         return result
@@ -204,14 +206,14 @@ final class CharacterView: NSView {
         var result = animation.advance(identity: identity,
             state: character.state, speaking: speaker == character.id || team.action(for: character.id, at: time) != nil,
             dancing: dancing, available: available, at: time, reduced: reduced,
-            activity: character.activity, beat: musicBeat, role: names.body)
+            activity: character.activity, beat: musicBeat, role: names.body, invocation: character.invocationID)
         if animation.requested != .standing {
             let key = animation.requested.rawValue
             if poseRigs?.rig("\(names.body)/\(key)") == nil || (names.head != nil && poseRigs?.rig("\(names.head!)/\(key)") == nil) {
                 available.remove(animation.requested)
                 result = animation.advance(identity: identity, state: character.state, speaking: speaker == character.id,
                     dancing: dancing, available: available, at: time, reduced: reduced,
-                    activity: character.activity, beat: musicBeat, role: names.body)
+                    activity: character.activity, beat: musicBeat, role: names.body, invocation: character.invocationID)
             }
         }
         return result
@@ -245,7 +247,6 @@ final class CharacterView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         // Transparent backing stores retain old pixels unless this frame replaces them.
         NSColor.clear.setFill(); dirtyRect.fill(using: .copy)
-        guard let atlas else { return }
         if let background = snapshotBackground {
             (background == "light" ? NSColor.white : NSColor(calibratedWhite: 0.06, alpha: 1)).setFill(); bounds.fill()
         }
@@ -269,7 +270,7 @@ final class CharacterView: NSView {
             var faceRows = FacialMotion.rows(state: displayed.state, speaking: speaking, open: time < mouthUntil,
                                              level: mouthLevel, time: time,
                                              blinkElapsed: !reduced && blink ? time - (ambient[character.id]?.blinkAt ?? time) : nil)
-            let factor = min(width / 256, 220.0 / 384)
+            let factor = min(width / SpriteGeometry.size.width, 220.0 / SpriteGeometry.size.height)
             let gesture = ambient[character.id]?.gestureStart
             let interaction = team.action(for: character.id, at: time)
             if !speaking, !reduced, let interaction, let expression = TeamMotion.face(interaction, id: character.id, at: time) { faceRows[0] = expression }
@@ -336,7 +337,7 @@ final class CharacterView: NSView {
                 transform.translateX(by: -pivot.x, yBy: -pivot.y); transform.concat()
                 head?.draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
                 NSGraphicsContext.restoreGraphicsState()
-            } else {
+            } else if let atlas {
                 sprites.frame(atlas, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius,
                     face: faceAtlas, faceColumn: displayed.headColumn, faceRows: faceRows)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)

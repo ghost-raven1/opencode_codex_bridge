@@ -3,23 +3,44 @@ import CoreImage
 
 /// Feather only alpha boundaries once per frame/scale; fully opaque artwork stays pixel sharp.
 final class SpriteCache {
+    private struct Key: Hashable {
+        let source: ObjectIdentifier
+        let columns: Int; let column: Int; let row: Int; let rows: Int; let radius: CGFloat
+        let face: ObjectIdentifier?; let faceColumn: Int; let faceRows: [Int]; let light: Int?
+    }
+    private struct Entry {
+        // Keep identities alive: NSImage addresses can otherwise be reused while their frames are cached.
+        let source: NSImage; let face: NSImage?; let rendered: NSImage; let bytes: Int
+        var accessed: UInt64
+    }
     private let context = CIContext(options: [.cacheIntermediates: false])
-    private var frames: [String: NSImage] = [:]
-    private var access: [String: UInt64] = [:]
+    private var frames: [Key: Entry] = [:]
     private var clock: UInt64 = 0
+    private let byteLimit: Int
+    private(set) var cachedBytes = 0
+    var cachedFrameCount: Int { frames.count }
+
+    init(byteLimit: Int = 64 * 1024 * 1024) { self.byteLimit = max(0, byteLimit) }
+
+    /// A new artwork library releases both prepared pixels and their original image identities.
+    func removeAll() {
+        frames.removeAll(); cachedBytes = 0; clock = 0; context.clearCaches()
+    }
 
     func frame(_ image: NSImage, column: Int, row: Int, rows: Int, radius: CGFloat, columns: Int = 4,
                face: NSImage? = nil, faceColumn: Int = 0, faceRows: [Int] = [], light: Int? = nil) -> NSImage? {
         let radius = (min(4, max(0.5, radius)) * 4).rounded() / 4
         let light = light.map { min(1, max(-1, $0)) }
-        let key = "\(ObjectIdentifier(image))-\(columns)-\(column)-\(row)-\(rows)-\(radius)-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)-\(light.map(String.init) ?? "none")"
-        clock += 1
-        if let cached = frames[key] { access[key] = clock; return cached }
+        let faceRows = face == nil ? [] : faceRows.filter { (0..<SpriteGeometry.faceRows).contains($0) }
+        let key = Key(source: ObjectIdentifier(image), columns: columns, column: column, row: row, rows: rows,
+            radius: radius, face: face.map(ObjectIdentifier.init), faceColumn: faceColumn, faceRows: faceRows, light: light)
+        clock &+= 1
+        if var cached = frames[key] { cached.accessed = clock; frames[key] = cached; return cached.rendered }
         guard let crop = crop(image, column: column, row: row, rows: rows, columns: columns) else { return nil }
         var original = CIImage(cgImage: crop)
         if let face {
-            for row in faceRows where row >= 0 && row < 18 {
-                if let patch = self.crop(face, column: faceColumn, row: row, rows: 18, columns: columns) {
+            for row in faceRows {
+                if let patch = self.crop(face, column: faceColumn, row: row, rows: SpriteGeometry.faceRows, columns: columns) {
                     original = CIImage(cgImage: patch).composited(over: original)
                 }
             }
@@ -43,10 +64,15 @@ final class SpriteCache {
         ]).cropped(to: original.extent)
         guard let cg = context.createCGImage(result, from: original.extent) else { return nil }
         let rendered = NSImage(cgImage: cg, size: NSSize(width: crop.width, height: crop.height))
-        if frames.count >= 512, let oldest = access.min(by: { $0.value < $1.value })?.key {
-            frames[oldest] = nil; access[oldest] = nil
+        let bytes = cg.bytesPerRow * cg.height
+        guard bytes <= byteLimit else { return rendered }
+        while frames.count >= 512 || cachedBytes > byteLimit - bytes {
+            guard let oldest = frames.min(by: { $0.value.accessed < $1.value.accessed })?.key,
+                  let removed = frames.removeValue(forKey: oldest) else { break }
+            cachedBytes -= removed.bytes
         }
-        frames[key] = rendered; access[key] = clock
+        frames[key] = Entry(source: image, face: face, rendered: rendered, bytes: bytes, accessed: clock)
+        cachedBytes += bytes
         return rendered
     }
 

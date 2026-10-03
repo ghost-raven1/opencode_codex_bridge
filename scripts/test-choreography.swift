@@ -15,6 +15,7 @@ import Foundation
                               confidence: 1, audibleAt: time, allowance: 1, measuredAt: time)
     }
     static func main() {
+        clipTiming()
         // Authored views remain opaque through all intermediate turns and a retargeted speech return.
         var work = PoseAnimation(seed: "work"), used = Set<CharacterPose>()
         for frame in 0..<2_880 {
@@ -116,5 +117,38 @@ import Foundation
             precondition(!pose.kind.isDance && pose.angle == 0 && pose.y == 0 && pose.scaleX == 1)
         }
         print("PASS drawn work views, tool selection, intermediate turns, continuous visibility, walking, seven beat-synced dance phrases, speech/stale/reduced controls")
+    }
+
+    /// Durations and beat counts must come from the manifest rather than duplicate Swift constants.
+    static func clipTiming() {
+        let json = """
+        {"work":{"selection":"activity","holdSeconds":[0.6,0.6],"turnSeconds":0.1,"settleSeconds":0.2},
+         "dance":{"selection":"measured-beat","beatsPerPose":1,"transitionSeconds":0.1,
+                   "poses":["dance-1","dance-2","dance-3","dance-4"]},
+         "walk":{"stepSeconds":0.2,"durationSeconds":0.6,"transitionSeconds":0.1,
+                  "poses":["walk-left","walk-right"],"phases":["contact","passing"],"facing":"right"}}
+        """
+        let clips = try! JSONDecoder().decode(ChoreographyClips.self, from: Data(json.utf8))
+        precondition(clips.isValid)
+        var work = PoseAnimation(seed: "custom", clips: clips)
+        _ = sample(&work, 0); _ = sample(&work, 0.4)
+        precondition(sample(&work, 0.7).kind == .workThreeQuarter)
+        _ = sample(&work, 1.0)
+        precondition(sample(&work, 1.21).kind == .workProfile, "Manifest work hold was ignored")
+        var turn = PoseAnimation(seed: "custom-turn", clips: clips)
+        for time in [0.0, 0.4, 0.51, 0.62] { _ = sample(&turn, time, activity: "build") }
+        precondition(sample(&turn, 0.9, activity: "build").kind == .workBackThreeQuarter, "Manifest turn duration was ignored")
+        var dance = PoseAnimation(seed: "custom-dance", clips: clips)
+        _ = sample(&dance, 0.05, beat: beat(0.05))
+        precondition(sample(&dance, 0.11, beat: beat(0.11)).kind == .dance1, "Manifest dance transition was ignored")
+        _ = sample(&dance, 0.62, beat: beat(0.62))
+        precondition(sample(&dance, 0.73, beat: beat(0.73)).kind == .dance3, "Manifest beatsPerPose was ignored")
+        var walk = PoseAnimation(seed: "custom-walk", clips: clips)
+        for time in [0.0, 0.4, 0.61] { _ = sample(&walk, time, activity: "delegate") }
+        precondition(sample(&walk, 0.72, activity: "delegate").kind == .walkRight, "Manifest walk step was ignored")
+        _ = sample(&walk, 1.05, activity: "delegate")
+        precondition(sample(&walk, 1.3, activity: "delegate").kind == .workThreeQuarter, "Manifest walking duration was ignored")
+        precondition(PoseChoreography.dance(beat: beat(0), at: 0, role: "code", available: available, beatsPerPose: 0) == nil)
+        print("PASS authored hold, intermediate-turn, settle, beat, walk-step and walk-duration settings")
     }
 }

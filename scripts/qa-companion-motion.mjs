@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { rendererSources } from "./lib/native-sources.mjs";
 
 // Offscreen AppKit QA only: no model request, speech, microphone or persistent app settings.
 if (process.platform !== "darwin") throw new Error("Companion motion QA requires macOS");
@@ -53,11 +54,10 @@ try {
     work = work.replace(from, to);
   }
   writeFileSync(join(temporary, "WorkMotion.swift"), work);
-  const sources = ["CharacterMotion", "LayeredMotion", "LayeredRig", "PoseAnimation", "PoseChoreography", "IdleMotion", "TeamMotion", "SpriteTransition",
-    "MusicRhythm", "MusicMotion", "ActionMotion", "CharacterBadgeView", "SpeechBubbleView", "SpriteCache", "SpriteDepth"];
+  const sources = rendererSources.filter(name => !["CharacterView.swift", "WorkMotion.swift"].includes(name));
   const binary = join(temporary, "qa-motion");
   const compiled = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),
-    "-framework", "AppKit", ...sources.map(name => join(native, name + ".swift")), join(temporary, "CharacterView.swift"),
+    "-framework", "AppKit", ...sources.map(name => join(native, name)), join(temporary, "CharacterView.swift"),
     join(temporary, "WorkMotion.swift"), join(root, "scripts/qa-companion-motion.swift"), "-o", binary], { stdio: "inherit" });
   assert.equal(compiled.status, 0, "Motion QA build failed");
   const rendered = spawnSync(binary, [assets, output], { stdio: "inherit" });

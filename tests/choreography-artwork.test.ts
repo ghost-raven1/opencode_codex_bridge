@@ -26,7 +26,9 @@ describe("authored layered choreography", () => {
       .filter(file => file.endsWith(".png")).map(file => "choreography/" + file);
     expect(actual.sort(), "Unused cutouts should not enter the distribution").toEqual([...files].sort());
     expect(manifest.clips.dance).toMatchObject({ beatsPerPose: 2, transitionSeconds: 0.22 });
-    expect(manifest.clips.walk).toMatchObject({ phases: ["contact", "passing"], facing: "right" });
+    expect(manifest.clips.work).toMatchObject({ holdSeconds: [8, 14], turnSeconds: 0.3, settleSeconds: 0.55 });
+    expect(manifest.clips.walk).toMatchObject({ stepSeconds: 0.65, durationSeconds: 2.6, transitionSeconds: 0.22,
+      phases: ["contact", "passing"], facing: "right" });
   });
 
   it("retains CODE's neckline when its head is replaced", () => {

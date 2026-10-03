@@ -183,6 +183,32 @@ import AppKit
         precondition(frontal.kind == .standing && frontal.opacity == 1,
                      "Role change froze a neutral-only head throughout the first spoken words")
         view.speaker = nil
+        // A fresh invocation on the same character starts its own posture schedule; metadata updates do not.
+        var nextTask = oldNarrator
+        view.snapshotTime = 10; nextTask.invocationID = "task-a"; view.replace([nextTask], animated: false)
+        _ = view.posture(for: nextTask, at: 10.4)
+        precondition(view.posture(for: nextTask, at: 11).kind == .workThreeQuarter)
+        view.snapshotTime = 11; view.update(nextTask)
+        precondition(view.posture(for: nextTask, at: 11).kind == .workThreeQuarter, "Repeated invocation metadata reset the posture")
+        nextTask.invocationID = "task-b"; view.update(nextTask)
+        precondition(view.posture(for: nextTask, at: 11).kind == .standing, "A new task inherited the previous task's working pose")
+        _ = view.posture(for: nextTask, at: 11.4)
+        precondition(view.posture(for: nextTask, at: 12).kind == .workThreeQuarter)
+        view.loadRigs(directory: directory)
+        precondition(view.posture(for: nextTask, at: 12).kind == .standing, "Artwork reload retained a stale pose schedule")
+        let clipsJSON = """
+        {"work":{"selection":"activity","holdSeconds":[0.6,0.6],"turnSeconds":0.3,"settleSeconds":0.55},
+         "dance":{"selection":"measured-beat","beatsPerPose":2,"transitionSeconds":0.22,"poses":["dance-1","dance-2","dance-3","dance-4"]},
+         "walk":{"stepSeconds":0.65,"durationSeconds":2.6,"poses":["walk-left","walk-right"],"phases":["contact","passing"],"facing":"right"}}
+        """
+        var timed = choreography
+        timed["clips"] = try JSONSerialization.jsonObject(with: Data(clipsJSON.utf8))
+        timed["characters"] = ["code/work-three-quarter": authored, "code/work-profile": authored]
+        try JSONSerialization.data(withJSONObject: timed).write(to: directory.appendingPathComponent("choreography.json"))
+        view.loadRigs(directory: directory); view.snapshotTime = 0; view.replace([oldNarrator], animated: false)
+        for time in [0.0, 0.4, 0.95, 1.0] { _ = view.posture(for: oldNarrator, at: time) }
+        precondition(view.posture(for: oldNarrator, at: 1.6).kind == .workProfile,
+                     "CharacterView ignored the authored work hold despite loading its pose library")
         print("PASS lazy pose loading: zero startup decodes, one decode per selected rig, cached failures")
         for (role, armID) in [("devops", "tool-arm"), ("tester", "controller-arms")] {
             var value = definition("layer.png")
@@ -218,5 +244,21 @@ import AppKit
             precondition(raw.forPose(rig: "code", standing: false).joints["prop"] == nil, "Another role inherited a specialist prop")
         }
         print("PASS specialist pose props track their original hand transforms; standing and other roles remain unchanged")
+        // A layered character must remain visible when the old full-body atlas is absent.
+        let coloured = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 256, pixelsHigh: 384,
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+            bytesPerRow: 0, bitsPerPixel: 0)!
+        memset(coloured.bitmapData!, 0, coloured.bytesPerRow * coloured.pixelsHigh)
+        let red = NSColor(deviceRed: 1, green: 0, blue: 0, alpha: 1)
+        for y in 80..<350 { for x in 40..<220 { coloured.setColor(red, atX: x, y: y) } }
+        try coloured.representation(using: .png, properties: [:])!.write(to: directory.appendingPathComponent("layer.png"))
+        view.loadRigs(directory: directory); view.atlas = nil; view.snapshotTime = 1000
+        view.replace([Character(id: "layered-only", column: 1, label: "CODE", state: "idle", rig: "code")], animated: false)
+        let capture = view.bitmapImageRepForCachingDisplay(in: view.bounds)!
+        view.cacheDisplay(in: view.bounds, to: capture)
+        let center = capture.colorAt(x: capture.pixelsWide / 2, y: capture.pixelsHigh / 2)!.usingColorSpace(.deviceRGB)!
+        precondition(center.redComponent > 0.45 && center.greenComponent < 0.2 && center.alphaComponent > 0.5,
+                     "Layered rendering still depends on the legacy full-body atlas")
+        print("PASS visible layered artwork without any legacy atlas")
     }
 }

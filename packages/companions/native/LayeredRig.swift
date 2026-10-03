@@ -14,6 +14,18 @@ struct RigManifest: Decodable {
     }
     struct Character: Decodable { let layers: [Layer]; let face: Face; let motion: Timing }
     let version: Int; let canvas: Canvas; let characters: [String: Character]
+    let coordinates: String?; let feetBaseline: Int?; let clips: ChoreographyClips?
+
+    static func read(directory: URL, name: String) -> RigManifest? {
+        guard let data = try? Data(contentsOf: directory.appendingPathComponent(name)),
+              let manifest = try? JSONDecoder().decode(Self.self, from: data),
+              manifest.version == 1, manifest.canvas.width == SpriteGeometry.width,
+              manifest.canvas.height == SpriteGeometry.height,
+              manifest.coordinates == nil || manifest.coordinates == "top-left",
+              manifest.feetBaseline == nil || manifest.feetBaseline == SpriteGeometry.feetBaseline,
+              manifest.clips?.isValid != false else { return nil }
+        return manifest
+    }
 }
 
 /// Cache loaded layer art; only affine transforms change while a character is animated.
@@ -31,26 +43,30 @@ final class LayeredRig {
 
     init?(definition: RigManifest.Character, directory: URL) {
         let interval = definition.motion.gestureIntervalSeconds
-        let face = definition.face.neutralOnly == true ? nil : NSImage(contentsOf: directory.appendingPathComponent(definition.face.file))
         guard definition.face.frames == Self.faceFrames,
-              definition.face.frameHeight == 384,
+              definition.face.frameHeight == SpriteGeometry.height,
+              SpriteGeometry.isAssetPath(definition.face.file),
               definition.motion.breathSeconds.isFinite, definition.motion.breathSeconds > 0,
               definition.motion.gestureSeconds.isFinite, definition.motion.gestureSeconds > 0,
               definition.motion.translationLimit.map({ $0.isFinite && (0...1.5).contains($0) }) ?? true,
               interval.count == 2, interval.allSatisfy({ $0.isFinite && $0 > 0 }), interval[0] <= interval[1],
-              definition.face.neutralOnly == true || face.map({ Self.hasPixels($0, width: 256, height: 384 * 18) }) == true,
               Set(definition.layers.map(\.id)).count == definition.layers.count,
               let body = definition.layers.first(where: { $0.id == "body" }), body.motion == "body", body.parent == nil,
               let head = definition.layers.first(where: { $0.id == "head" }), head.motion == "head", head.parent == "body" else { return nil }
+        let face = definition.face.neutralOnly == true ? nil : NSImage(contentsOf: directory.appendingPathComponent(definition.face.file))
+        guard definition.face.neutralOnly == true || face.map({ Self.hasPixels($0, width: SpriteGeometry.width,
+            height: SpriteGeometry.height * SpriteGeometry.faceRows) }) == true else { return nil }
         var loaded: [(RigManifest.Layer, NSImage)] = []
         for layer in definition.layers {
             guard layer.pivot.count == 2, layer.pivot.allSatisfy({ $0.isFinite }),
-                  (0...256).contains(layer.pivot[0]), (0...384).contains(layer.pivot[1]),
+                  (0...Double(SpriteGeometry.width)).contains(layer.pivot[0]),
+                  (0...Double(SpriteGeometry.height)).contains(layer.pivot[1]),
                   layer.amplitudeDegrees.isFinite, layer.amplitudeDegrees >= 0,
                   ["body", "head", "arm", "hair", "prop"].contains(layer.motion),
                   layer.id == "body" || layer.parent == "body" || layer.parent == "head",
+                  SpriteGeometry.isAssetPath(layer.file),
                   let image = NSImage(contentsOf: directory.appendingPathComponent(layer.file)),
-                  Self.hasPixels(image, width: 256, height: 384) else { return nil }
+                  Self.hasPixels(image, width: SpriteGeometry.width, height: SpriteGeometry.height) else { return nil }
             loaded.append((layer, image))
         }
         let bodyImage = loaded.first { $0.0.id == "body" }!.1
@@ -75,10 +91,7 @@ final class LayeredRig {
     }
 
     static func definitions(directory: URL, manifest name: String) -> [String: RigManifest.Character] {
-        guard let data = try? Data(contentsOf: directory.appendingPathComponent(name)),
-              let manifest = try? JSONDecoder().decode(RigManifest.self, from: data),
-              manifest.version == 1, manifest.canvas.width == 256, manifest.canvas.height == 384 else { return [:] }
-        return manifest.characters
+        RigManifest.read(directory: directory, name: name)?.characters ?? [:]
     }
 
     func draw(in target: NSRect, pose: LayerPose, time: Double, gestureElapsed: Double?, reduced: Bool,
@@ -113,7 +126,8 @@ final class LayeredRig {
                     NSGraphicsContext.saveGraphicsState()
                     owner.transform(for: caster, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
                         reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[caster.id], depth: depth).concat()
-                    shadow.draw(in: destination.offsetBy(dx: target.width * 3 / 256, dy: -target.height * 3 / 384),
+                    shadow.draw(in: destination.offsetBy(dx: target.width * 3 / SpriteGeometry.size.width,
+                                dy: -target.height * 3 / SpriteGeometry.size.height),
                                 from: .zero, operation: .sourceOver, fraction: opacity)
                     NSGraphicsContext.restoreGraphicsState()
                 }
@@ -125,8 +139,8 @@ final class LayeredRig {
 
     /// Mixed identities share the outfit's neck, while keeping the other face and hair proportions.
     func alignedHeadTarget(from source: LayeredRig, target: NSRect) -> NSRect {
-        target.offsetBy(dx: (head.pivot[0] - source.head.pivot[0]) * target.width / 256,
-                        dy: (source.head.pivot[1] - head.pivot[1]) * target.height / 384)
+        target.offsetBy(dx: (head.pivot[0] - source.head.pivot[0]) * target.width / SpriteGeometry.size.width,
+                        dy: (source.head.pivot[1] - head.pivot[1]) * target.height / SpriteGeometry.size.height)
     }
 
     /// A child first rotates around its own joint, then follows its parent's head transform.
@@ -174,10 +188,11 @@ final class LayeredRig {
     }
 
     private static func affine(pivot: [Double], target: NSRect, angle: CGFloat, x: CGFloat = 0, y: CGFloat = 0) -> NSAffineTransform {
-        let point = NSPoint(x: target.minX + pivot[0] * target.width / 256,
-                           y: target.minY + (384 - pivot[1]) * target.height / 384)
+        let point = NSPoint(x: target.minX + pivot[0] * target.width / SpriteGeometry.size.width,
+                           y: target.minY + (Double(SpriteGeometry.height) - pivot[1]) * target.height / SpriteGeometry.size.height)
         let transform = NSAffineTransform()
-        transform.translateX(by: point.x + x * target.width / 256, yBy: point.y + y * target.height / 384)
+        transform.translateX(by: point.x + x * target.width / SpriteGeometry.size.width,
+                             yBy: point.y + y * target.height / SpriteGeometry.size.height)
         transform.rotate(byDegrees: angle)
         transform.translateX(by: -point.x, yBy: -point.y)
         return transform
@@ -191,11 +206,14 @@ final class PoseRigLibrary {
     private var loaded: [String: LayeredRig] = [:]
     private var failed = Set<String>()
     private(set) var loadCount = 0
+    let clips: ChoreographyClips
 
     init(directory: URL) {
         self.directory = directory
+        let choreography = RigManifest.read(directory: directory, name: "choreography.json")
+        clips = choreography?.clips ?? .standard
         definitions = LayeredRig.definitions(directory: directory, manifest: "poses.json")
-            .merging(LayeredRig.definitions(directory: directory, manifest: "choreography.json")) { _, authored in authored }
+            .merging(choreography?.characters ?? [:]) { _, authored in authored }
     }
 
     func contains(_ name: String) -> Bool { definitions[name] != nil && !failed.contains(name) }

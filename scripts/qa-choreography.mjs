@@ -5,18 +5,19 @@ import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { rendererSources } from "./lib/native-sources.mjs";
 
 // Exercise the production AppKit renderer without changing settings or capturing microphone audio.
 const root = fileURLToPath(new URL("../", import.meta.url)), native = join(root, "packages/companions/native");
 const output = join(root, ".local/choreography-native-qa"), temporary = mkdtempSync(join(tmpdir(), "choreography-qa-"));
 const expansion = join(root, "packages/companions/assets/expansion");
-const sources = ["CharacterMotion", "LayeredMotion", "LayeredRig", "PoseAnimation", "PoseChoreography", "IdleMotion",
-  "TeamMotion", "SpriteTransition", "MusicRhythm", "MusicMotion", "WorkMotion", "ActionMotion", "CharacterBadgeView",
-  "SpeechBubbleView", "SpriteCache", "SpriteDepth"];
+const sources = rendererSources.filter(name => name !== "CharacterView.swift");
 function rendererHash() {
   const hash = createHash("sha256");
-  for (const name of ["CharacterView", ...sources]) hash.update(name).update(readFileSync(join(native, name + ".swift")));
-  for (const name of ["qa-choreography.mjs", "qa-choreography.swift"]) hash.update(name).update(readFileSync(join(root, "scripts", name)));
+  for (const name of rendererSources) hash.update(name).update(readFileSync(join(native, name)));
+  for (const name of ["qa-choreography.mjs", "qa-choreography.swift", "lib/native-sources.mjs"]) {
+    hash.update(name).update(readFileSync(join(root, "scripts", name)));
+  }
   return hash.digest("hex");
 }
 function artworkHash() {
@@ -41,7 +42,7 @@ try {
   writeFileSync(join(temporary, "CharacterView.swift"), view);
   const binary = join(temporary, "qa-choreography");
   const compiled = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),
-    "-framework", "AppKit", ...sources.map(name => join(native, name + ".swift")), join(temporary, "CharacterView.swift"),
+    "-framework", "AppKit", ...sources.map(name => join(native, name)), join(temporary, "CharacterView.swift"),
     join(root, "scripts/qa-choreography.swift"), "-o", binary], { stdio: "inherit" });
   assert.equal(compiled.status, 0, "Native choreography QA compilation failed");
   const rendered = spawnSync(binary, [join(root, "packages/companions/assets"), output], { stdio: "inherit" });

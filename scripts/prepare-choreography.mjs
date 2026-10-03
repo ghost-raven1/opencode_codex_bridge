@@ -38,7 +38,7 @@ for (const role of roles) {
 const clips = {
   work: { selection: "activity", holdSeconds: [8, 14], turnSeconds: 0.3, settleSeconds: 0.55 },
   dance: { selection: "measured-beat", beatsPerPose: 2, transitionSeconds: 0.22, poses: ["dance-1", "dance-2", "dance-3", "dance-4"] },
-  walk: { stepSeconds: 0.65, durationSeconds: 2.6, poses: ["walk-left", "walk-right"],
+  walk: { stepSeconds: 0.65, durationSeconds: 2.6, transitionSeconds: 0.22, poses: ["walk-left", "walk-right"],
     phases: ["contact", "passing"], facing: "right" },
 };
 writeFileSync(join(directory, "choreography.json"), JSON.stringify({

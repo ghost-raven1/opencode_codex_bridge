@@ -26,7 +26,9 @@ struct PoseFrame {
 /// Slow per-character posture changes share the existing render clock and never create timers.
 struct PoseAnimation {
     private let seed: UInt64
+    private let clips: ChoreographyClips
     private var identity = ""
+    private var invocation: String?
     private var mode = ""
     private var nextChange = Double.infinity
     private var cycle: UInt64 = 0
@@ -38,24 +40,26 @@ struct PoseAnimation {
     private var pending: CharacterPose?
     private var activity: String?
     private var continuous = false
-    private var duration = 0.8
+    private var duration = AnimationTiming.legacyTransition
     private var walkUntil = -Double.infinity
     private var walkStarted = 0.0
     private var firstStep: CharacterPose = .walkLeft
 
-    init(seed: String) {
+    init(seed: String, clips: ChoreographyClips = .standard) {
         self.seed = seed.utf8.reduce(UInt64(14695981039346656037)) { ($0 ^ UInt64($1)) &* 1099511628211 }
+        self.clips = clips.isValid ? clips : .standard
     }
 
     var requested: CharacterPose { target }
 
     mutating func advance(identity: String, state: String, speaking: Bool, dancing: Bool,
                           available: Set<CharacterPose>, at time: Double, reduced: Bool,
-                          activity: String? = nil, beat: MusicBeatState? = nil, role: String = "lead") -> PoseFrame {
+                          activity: String? = nil, beat: MusicBeatState? = nil, role: String = "lead",
+                          invocation: String? = nil) -> PoseFrame {
         guard time.isFinite else { return PoseFrame() }
         let nextMode = ["thinking", "working"].contains(state) ? "work" : ["success", "idle"].contains(state) ? "rest" : "blocked"
-        if self.identity != identity {
-            self.identity = identity; mode = ""; cycle = 0
+        if self.identity != identity || self.invocation != invocation {
+            self.identity = identity; self.invocation = invocation; mode = ""; cycle = 0
             target = .standing; previous = .standing; changedAt = -.infinity; initialOpacity = 1; initialFrame = PoseFrame()
             pending = nil; self.activity = nil; walkUntil = -.infinity
         }
@@ -63,35 +67,36 @@ struct PoseAnimation {
         var desired = target
         if mode != nextMode {
             mode = nextMode
-            nextChange = time + (mode == "rest" ? 3 : rich ? 1.2 : interval())
+            nextChange = time + (mode == "rest" ? AnimationTiming.restDelay : rich ? AnimationTiming.workEntryDelay : interval())
             pending = nil
             if mode != "rest" || target == .reclining { desired = .standing }
         }
         if rich, self.activity != activity {
             self.activity = activity
-            if mode == "work" { nextChange = min(nextChange, max(time + 0.4, changedAt + 3)) }
+            if mode == "work" { nextChange = min(nextChange, max(time + AnimationTiming.activityDelay, changedAt + AnimationTiming.activityHold)) }
         }
-        let dance = !speaking && !reduced ? PoseChoreography.dance(beat: beat, at: time, role: role, available: available) : nil
+        let dance = !speaking && !reduced ? PoseChoreography.dance(beat: beat, at: time, role: role,
+            available: available, beatsPerPose: clips.dance.beatsPerPose) : nil
         if let dance {
             desired = dance; pending = nil; nextChange = time + interval(rich: true)
         } else if dancing || mode == "blocked" {
             desired = .standing
             pending = nil
-            nextChange = time + (rich ? 1.2 : interval())
+            nextChange = time + (rich ? AnimationTiming.workEntryDelay : interval())
         } else if speaking {
             if rich { desired = .standing; pending = nil }
             if desired == .reclining { desired = .standing }
             // Finish the current sentence before changing posture.
-            nextChange = max(nextChange, time + (mode == "rest" ? 3 : 1))
+            nextChange = max(nextChange, time + (mode == "rest" ? AnimationTiming.restDelay : 1))
         } else if let endpoint = pending, time >= changedAt + duration {
             desired = PoseChoreography.turn(from: target, to: endpoint, available: available)
             if desired == endpoint { pending = nil }
         } else if target.isDance {
-            desired = .standing; pending = nil; nextChange = time + 1.2
+            desired = .standing; pending = nil; nextChange = time + AnimationTiming.workEntryDelay
         } else if target.isWalk {
             if time >= walkUntil { desired = available.contains(.workThreeQuarter) ? .workThreeQuarter : .standing }
             else if !reduced, available.contains(.walkLeft), available.contains(.walkRight) {
-                desired = Int((time - walkStarted) / 0.65) % 2 == 0 ? firstStep : firstStep == .walkLeft ? .walkRight : .walkLeft
+                desired = Int((time - walkStarted) / clips.walk.stepSeconds) % 2 == 0 ? firstStep : firstStep == .walkLeft ? .walkRight : .walkLeft
             }
         } else if time >= nextChange {
             if mode == "work" {
@@ -108,17 +113,19 @@ struct PoseAnimation {
         if desired != target {
             let displayed = frame(at: time, reduced: reduced)
             previous = displayed.kind; initialOpacity = displayed.opacity; initialFrame = displayed
-            if desired.isWalk && !target.isWalk { walkStarted = time; walkUntil = time + 2.6; firstStep = desired }
+            if desired.isWalk && !target.isWalk { walkStarted = time; walkUntil = time + clips.walk.durationSeconds; firstStep = desired }
             target = desired; changedAt = time
             continuous = rich
-            duration = target.isDance || previous.isDance || target.isWalk ? 0.22 : pending != nil ? 0.3 : rich ? 0.55 : 0.8
+            duration = target.isDance || previous.isDance ? clips.dance.transitionSeconds
+                : target.isWalk ? clips.walkTransition : pending != nil ? clips.work.turnSeconds
+                : rich ? clips.work.settleSeconds : AnimationTiming.legacyTransition
         }
         return frame(at: time, reduced: reduced)
     }
 
     /// Keep authored turns visible; legacy poses retain their original single-silhouette fade.
     func frame(at time: Double, reduced: Bool) -> PoseFrame {
-        let t = min(1, max(0, (time - changedAt) / (reduced ? 0.15 : duration)))
+        let t = min(1, max(0, (time - changedAt) / (reduced ? AnimationTiming.reducedTransition : duration)))
         if t >= 1 { return PoseFrame(kind: target) }
         let initial = reduced ? PoseFrame() : initialFrame
         let smooth: (Double) -> Double = { $0 * $0 * (3 - 2 * $0) }
@@ -152,6 +159,8 @@ struct PoseAnimation {
 
     private func interval(rich: Bool = false) -> Double {
         let value = (seed &+ cycle &* 0x9E3779B97F4A7C15) &* 0xBF58476D1CE4E5B9
-        return rich ? 8 + Double(value % 6_001) / 1000 : 30 + Double(value % 20_001) / 1000
+        let hold = clips.work.hold
+        return rich ? hold.lowerBound + (hold.upperBound - hold.lowerBound) * Double(value % 6_001) / 6_000
+                    : 30 + Double(value % 20_001) / 1000
     }
 }

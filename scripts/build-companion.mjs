@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync, symlinkSync, rmSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { rendererSources } from "./lib/native-sources.mjs";
 
 if (process.platform !== "darwin") throw new Error("Native companion build requires macOS and Xcode Command Line Tools");
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -56,7 +57,7 @@ writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UT
 const result = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", `${root}.local/swift-cache`,
   "-target", `${process.arch === "arm64" ? "arm64" : "x86_64"}-apple-macosx13.0`,
   "-framework", "AppKit", "-framework", "AVFoundation", "-framework", "Speech", "-framework", "SoundAnalysis",
-  ...["CharacterView.swift", "SpriteTransition.swift", "IdleMotion.swift", "TeamMotion.swift", "CharacterMotion.swift", "LayeredMotion.swift", "LayeredRig.swift", "WorkMotion.swift", "ActionMotion.swift", "PoseAnimation.swift", "PoseChoreography.swift", "CharacterBadgeView.swift", "CaptionState.swift", "SpeechReveal.swift", "CaptionIntegration.swift", "SpriteCache.swift", "SpriteDepth.swift", "SpeechBubbleView.swift", "DraftMenu.swift", "WindowState.swift", "ScaleControl.swift", "NativeAudioEngine.swift", "NativeAudioStream.swift", "NativeSpeech.swift", "NativeSpeechStatus.swift", "NativeSpeechCommands.swift", "NativeWindow.swift", "VoiceCommands.swift", "MicrophoneTap.swift", "SpeechCapture.swift", "WakeWord.swift", "NativeDictation.swift", "WakeControl.swift", "VoiceIntegration.swift", "MusicRhythm.swift", "MusicMotion.swift", "MusicAnalysis.swift", "MusicCapture.swift", "MusicControl.swift", "MusicIntegration.swift", "main.swift"].map(name => `${native}/${name}`),
+  ...[...rendererSources, "CaptionState.swift", "SpeechReveal.swift", "CaptionIntegration.swift", "DraftMenu.swift", "WindowState.swift", "ScaleControl.swift", "NativeAudioEngine.swift", "NativeAudioStream.swift", "NativeSpeech.swift", "NativeSpeechStatus.swift", "NativeSpeechCommands.swift", "NativeWindow.swift", "VoiceCommands.swift", "MicrophoneTap.swift", "SpeechCapture.swift", "WakeWord.swift", "NativeDictation.swift", "WakeControl.swift", "VoiceIntegration.swift", "MusicAnalysis.swift", "MusicCapture.swift", "MusicControl.swift", "MusicIntegration.swift", "main.swift"].map(name => `${native}/${name}`),
   "-o", `${bundle}/Contents/MacOS/Companions`], { cwd: root, stdio: "inherit" });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const signed = spawnSync("codesign", ["--force", "--sign", "-", "--identifier", "dev.codexbridge.companions", bundle], { cwd: root, stdio: "inherit" });

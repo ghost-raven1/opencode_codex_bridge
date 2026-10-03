@@ -34,7 +34,7 @@ struct Motion {
     var start: TimeInterval
     var previous: Character?
     var initialOpacity: Double? = nil
-    func duration(reduced: Bool) -> Double { reduced ? 0.15 : kind == "enter" ? (initialOpacity == nil ? 1.65 : 0.45) : kind == "turn" ? 1.4 : 0.9 }
+    func duration(reduced: Bool) -> Double { reduced ? AnimationTiming.reducedTransition : kind == "enter" ? (initialOpacity == nil ? 1.65 : 0.45) : kind == "turn" ? 1.4 : 0.9 }
     func progress(_ now: TimeInterval, reduced: Bool) -> Double { min(1, max(0, (now - start) / duration(reduced: reduced))) }
 }
 

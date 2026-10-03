@@ -67,6 +67,7 @@ import AppKit
     }
 
     static func main() {
+        cacheOwnership()
         validateSplitSurface()
         var body = Array(repeating: UInt8(0), count: 32 * 32 * 4), head = body
         for y in 6..<29 { for x in 4..<27 {
@@ -149,5 +150,57 @@ import AppKit
             }
         }
         print("PASS rounded surface light, preserved alpha/ink, soft cached cast/contact shadows, pivot-safe perspective and Reduce Motion")
+    }
+
+    /// Keeping input identities alive prevents recycled NSImage addresses from returning another sprite.
+    static func cacheOwnership() {
+        // Recreate the concrete failure: inputs leave the autorelease pool while their outputs stay cached.
+        let recycled = SpriteCache()
+        for index in 0..<64 {
+            autoreleasepool {
+                let value: UInt8 = index % 2 == 0 ? 40 : 190
+                let source = image(Array(repeating: [value, value, value, 255], count: 256).flatMap { $0 }, width: 16, height: 16)
+                let frame = recycled.frame(source, column: 0, row: 0, rows: 1, radius: 1, columns: 1)!
+                var rect = NSRect(origin: .zero, size: frame.size)
+                let bitmap = NSBitmapImageRep(cgImage: frame.cgImage(forProposedRect: &rect, context: nil, hints: nil)!)
+                let colour = bitmap.colorAt(x: 8, y: 8)!.usingColorSpace(.deviceRGB)!.redComponent * 255
+                precondition(abs(colour - Double(value)) < 3, "A recycled NSImage address returned another sprite")
+            }
+        }
+        let cache = SpriteCache(byteLimit: 3 * 16 * 16 * 4)
+        weak var original: NSImage?
+        var rendered: NSImage?
+        autoreleasepool {
+            let source = image(Array(repeating: [UInt8(80), 80, 80, 255], count: 256).flatMap { $0 }, width: 16, height: 16)
+            original = source
+            rendered = cache.frame(source, column: 0, row: 0, rows: 1, radius: 1, columns: 1)
+        }
+        precondition(original != nil && rendered != nil, "Cached input identity was released and can be reused")
+        let first = original!, hot = image(Array(repeating: [UInt8(190), 190, 190, 255], count: 256).flatMap { $0 }, width: 16, height: 16)
+        let hotFrame = cache.frame(hot, column: 0, row: 0, rows: 1, radius: 1, columns: 1)!
+        let third = image(Array(repeating: [UInt8(40), 40, 40, 255], count: 256).flatMap { $0 }, width: 16, height: 16)
+        _ = cache.frame(third, column: 0, row: 0, rows: 1, radius: 1, columns: 1)
+        precondition(cache.frame(hot, column: 0, row: 0, rows: 1, radius: 1, columns: 1) === hotFrame)
+        let fourth = image(Array(repeating: [UInt8(110), 110, 110, 255], count: 256).flatMap { $0 }, width: 16, height: 16)
+        _ = cache.frame(fourth, column: 0, row: 0, rows: 1, radius: 1, columns: 1)
+        precondition(cache.cachedBytes <= 3 * 16 * 16 * 4 && cache.cachedFrameCount == 3, "Pixel budget was exceeded")
+        precondition(cache.frame(hot, column: 0, row: 0, rows: 1, radius: 1, columns: 1) === hotFrame, "LRU evicted a recently used sprite")
+        precondition(cache.frame(first, column: 0, row: 0, rows: 1, radius: 1, columns: 1) !== rendered, "LRU retained its oldest sprite")
+        cache.removeAll()
+        precondition(cache.cachedBytes == 0 && cache.cachedFrameCount == 0)
+        let noCache = SpriteCache(byteLimit: 0)
+        precondition(noCache.frame(first, column: 0, row: 0, rows: 1, radius: 1, columns: 1) != nil && noCache.cachedFrameCount == 0,
+                     "A frame larger than the budget was dropped instead of rendered")
+        let releaseCache = SpriteCache()
+        weak var released: NSImage?
+        autoreleasepool {
+            let source = image(Array(repeating: [UInt8(90), 90, 90, 255], count: 256).flatMap { $0 }, width: 16, height: 16)
+            released = source
+            _ = releaseCache.frame(source, column: 0, row: 0, rows: 1, radius: 1, columns: 1)
+        }
+        precondition(released != nil)
+        releaseCache.removeAll()
+        precondition(released == nil, "Reload kept obsolete image identities alive")
+        print("PASS cache input ownership, pixel budget, LRU, oversized render and reload release")
     }
 }

@@ -12971,6 +12971,7 @@
     "walk": {
       "stepSeconds": 0.65,
       "durationSeconds": 2.6,
+      "transitionSeconds": 0.22,
       "poses": [
         "walk-left",
         "walk-right"

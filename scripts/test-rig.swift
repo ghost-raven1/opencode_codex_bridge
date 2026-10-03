@@ -109,6 +109,7 @@ import AppKit
         var character: [String: Any] = ["layers": layers,
             "face": ["file": "face.png", "frameHeight": 384, "frames": frames],
             "motion": ["breathSeconds": 4.8, "gestureSeconds": 4.0, "gestureIntervalSeconds": [9.0, 13.0]]]
+        try manifestContract(directory, character: character)
         func write(_ character: [String: Any], width: Int = 256) throws {
             let json: [String: Any] = ["version": 1, "canvas": ["width": width, "height": 384], "characters": ["test": character]]
             try JSONSerialization.data(withJSONObject: json).write(to: directory.appendingPathComponent("manifest.json"))
@@ -218,5 +219,59 @@ import AppKit
             print("PASS shipped layered rig dimensions and manifest: \(loaded.keys.sorted().joined(separator: ", "))")
         }
         print("PASS rig canvas/face dimensions, valid hierarchy, parent transforms, >60 arm/hair positions, reduced motion, joint limits, gesture timing and malformed/missing fallback")
+    }
+
+    /// Validate the real authored metadata, then exercise bad revisions without decoding any images.
+    static func manifestContract(_ directory: URL, character: [String: Any]) throws {
+        guard CommandLine.arguments.count > 1 else { return }
+        let shipped = URL(fileURLWithPath: CommandLine.arguments[1])
+        let data = try Data(contentsOf: shipped.appendingPathComponent("choreography.json"))
+        let raw = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        precondition(RigManifest.read(directory: shipped, name: "choreography.json")?.clips == .standard,
+                     "Native compatibility defaults drifted from authored clips")
+        var clips = raw["clips"] as! [String: Any]
+        var work = clips["work"] as! [String: Any]; work["holdSeconds"] = [0.6, 0.6]; clips["work"] = work
+        var manifest: [String: Any] = ["version": 1, "canvas": ["width": 256, "height": 384],
+            "coordinates": "top-left", "feetBaseline": 368, "characters": ["code/work-three-quarter": character], "clips": clips]
+        func save(_ value: [String: Any]) throws {
+            try JSONSerialization.data(withJSONObject: value).write(to: directory.appendingPathComponent("choreography.json"))
+        }
+        try save(manifest)
+        let custom = PoseRigLibrary(directory: directory)
+        precondition(custom.clips.work.hold == 0.6...0.6 && custom.loadCount == 0 && custom.contains("code/work-three-quarter"))
+        for field in ["turnSeconds", "settleSeconds"] {
+            var bad = clips, brokenWork = work; brokenWork[field] = 0; bad["work"] = brokenWork
+            manifest["clips"] = bad; try save(manifest)
+            precondition(RigManifest.read(directory: directory, name: "choreography.json") == nil)
+        }
+        var reversed = work; reversed["holdSeconds"] = [14, 8]
+        var bad = clips; bad["work"] = reversed; manifest["clips"] = bad; try save(manifest)
+        precondition(PoseRigLibrary(directory: directory).clips == .standard &&
+                     !PoseRigLibrary(directory: directory).contains("code/work-three-quarter"), "Invalid clips entered the pose library")
+        var dance = clips["dance"] as! [String: Any]; dance["beatsPerPose"] = 0
+        bad = clips; bad["dance"] = dance; manifest["clips"] = bad; try save(manifest)
+        precondition(RigManifest.read(directory: directory, name: "choreography.json") == nil)
+        var walk = clips["walk"] as! [String: Any]; walk["stepSeconds"] = 1e-300
+        bad = clips; bad["walk"] = walk; manifest["clips"] = bad; try save(manifest)
+        precondition(RigManifest.read(directory: directory, name: "choreography.json") == nil, "Walking step overflow was accepted")
+        manifest["clips"] = clips
+        for (key, wrong) in [("coordinates", "bottom-left" as Any), ("feetBaseline", 383 as Any)] {
+            var changed = manifest; changed[key] = wrong; try save(changed)
+            precondition(RigManifest.read(directory: directory, name: "choreography.json") == nil)
+        }
+        // Before walk.transitionSeconds was explicit it inherited the dance transition; retain that format.
+        walk = clips["walk"] as! [String: Any]; walk["transitionSeconds"] = nil
+        bad = clips; bad["walk"] = walk; manifest["clips"] = bad; try save(manifest)
+        precondition(PoseRigLibrary(directory: directory).clips.walkTransition == 0.22)
+        manifest["clips"] = nil; try save(manifest)
+        precondition(PoseRigLibrary(directory: directory).clips == .standard)
+        for path in ["../layer.png", "/layer.png", "./layer.png", "a//layer.png", "a\\layer.png", ""] {
+            var wrong = character, layers = character["layers"] as! [[String: Any]]
+            layers[0]["file"] = path; wrong["layers"] = layers
+            let definition = try JSONDecoder().decode(RigManifest.Character.self, from: JSONSerialization.data(withJSONObject: wrong))
+            precondition(LayeredRig(definition: definition, directory: directory) == nil, "Noncanonical asset path was accepted: \(path)")
+        }
+        try FileManager.default.removeItem(at: directory.appendingPathComponent("choreography.json"))
+        print("PASS shipped clip contract, lazy custom timings, invalid metadata and legacy fallback, canonical asset paths")
     }
 }
