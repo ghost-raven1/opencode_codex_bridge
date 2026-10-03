@@ -21,6 +21,9 @@ final class LayeredRig {
     private let layers: [(RigManifest.Layer, NSImage)]
     private let face: NSImage
     private let head: RigManifest.Layer
+    private let body: RigManifest.Layer
+    private let bodyMask: CGImage
+    private let shadows: [String: NSImage]
     var gestureInterval: ClosedRange<Double> { definition.motion.gestureIntervalSeconds[0]...definition.motion.gestureIntervalSeconds[1] }
 
     init?(definition: RigManifest.Character, directory: URL) {
@@ -46,12 +49,15 @@ final class LayeredRig {
                   Self.hasPixels(image, width: 256, height: 384) else { return nil }
             loaded.append((layer, image))
         }
-        let occluders = loaded.filter { ["head", "arm", "prop"].contains($0.0.motion) }.map { $0.1 }
-        loaded = loaded.map { layer, image in
-            let lit = layer.motion == "head" ? image : SpriteDepth.volume(image)
-            return (layer, layer.id == "body" ? SpriteDepth.body(lit, under: occluders) : lit)
-        }
+        let bodyImage = loaded.first { $0.0.id == "body" }!.1
+        var rect = NSRect(origin: .zero, size: bodyImage.size)
+        guard let bodyMask = bodyImage.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return nil }
+        self.shadows = Dictionary(uniqueKeysWithValues: loaded.compactMap { layer, image in
+            guard ["head", "arm", "prop"].contains(layer.motion), let shadow = SpriteDepth.shadow(image) else { return nil }
+            return (layer.id, shadow)
+        })
         self.definition = definition; self.layers = loaded; self.face = face; self.head = head
+        self.body = body; self.bodyMask = bodyMask
     }
 
     private static func hasPixels(_ image: NSImage, width: Int, height: Int) -> Bool {
@@ -73,23 +79,44 @@ final class LayeredRig {
 
     func draw(in target: NSRect, pose: LayerPose, time: Double, gestureElapsed: Double?, reduced: Bool,
               opacity: Double, radius: CGFloat, faceRows: [Int], sprites: SpriteCache,
-              beatArm: Double = 0, beatHair: Double = 0, work: WorkPose = WorkPose(), headRig: LayeredRig? = nil) {
+              beatArm: Double = 0, beatHair: Double = 0, work: WorkPose = WorkPose(), headRig: LayeredRig? = nil,
+              depth: DepthPose = DepthPose()) {
+        let depth = reduced ? DepthPose() : depth
         let bodyLayers = headRig == nil ? layers : layers.filter { $0.0.motion != "head" && $0.0.parent != "head" }
         let mixedLayers = headRig?.layers.filter { $0.0.motion == "head" || $0.0.parent == "head" } ?? []
         // A transferred ponytail stays behind the chosen outfit and held objects.
         let back = mixedLayers.filter { $0.0.id == "hair-back" }.map { (headRig!, $0.0, $0.1) }
         let front = mixedLayers.filter { $0.0.id != "hair-back" }.map { (headRig!, $0.0, $0.1) }
         let entries = back + bodyLayers.map { (self, $0.0, $0.1) } + front
+        NSGraphicsContext.saveGraphicsState()
+        SpriteDepth.projection(pivot: body.pivot, target: target, turn: depth.turn).concat()
         for (source, layer, image) in entries {
             let destination = source === self ? target : alignedHeadTarget(from: source, target: target)
             let rendered = sprites.frame(image, column: 0, row: 0, rows: 1, radius: radius, columns: 1,
-                face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" ? faceRows : [])
+                face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" ? faceRows : [],
+                light: depth.light(head: layer.motion == "head" || layer.parent == "head"))
             NSGraphicsContext.saveGraphicsState()
             source.transform(for: layer, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
-                reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[layer.id]).concat()
+                reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[layer.id], depth: depth).concat()
             rendered?.draw(in: destination, from: .zero, operation: .sourceOver, fraction: opacity)
             NSGraphicsContext.restoreGraphicsState()
+            if layer.id == "body" {
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current?.cgContext.clip(to: target, mask: bodyMask)
+                for (owner, caster, _) in entries {
+                    guard let shadow = owner.shadows[caster.id] else { continue }
+                    let destination = owner === self ? target : alignedHeadTarget(from: owner, target: target)
+                    NSGraphicsContext.saveGraphicsState()
+                    owner.transform(for: caster, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
+                        reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[caster.id], depth: depth).concat()
+                    shadow.draw(in: destination.offsetBy(dx: target.width * 3 / 256, dy: -target.height * 3 / 384),
+                                from: .zero, operation: .sourceOver, fraction: opacity)
+                    NSGraphicsContext.restoreGraphicsState()
+                }
+                NSGraphicsContext.restoreGraphicsState()
+            }
         }
+        NSGraphicsContext.restoreGraphicsState()
     }
 
     /// Mixed identities share the outfit's neck, while keeping the other face and hair proportions.
@@ -101,7 +128,7 @@ final class LayeredRig {
     /// A child first rotates around its own joint, then follows its parent's head transform.
     func transform(for layer: RigManifest.Layer, target: NSRect, pose: LayerPose, time: Double,
                    gestureElapsed: Double?, reduced: Bool, beatArm: Double = 0, beatHair: Double = 0,
-                   work: WorkJoint? = nil) -> NSAffineTransform {
+                   work: WorkJoint? = nil, depth: DepthPose = DepthPose()) -> NSAffineTransform {
         var angle = Self.angle(layer: layer, time: time, gestureElapsed: gestureElapsed,
                                duration: definition.motion.gestureSeconds, reduced: reduced)
         if !reduced {
@@ -114,6 +141,12 @@ final class LayeredRig {
         if !reduced && (layer.motion == "head" || layer.parent == "head") {
             let angle = min(head.amplitudeDegrees, max(-head.amplitudeDegrees, pose.headAngle))
             transform.append(Self.affine(pivot: head.pivot, target: target, angle: angle, x: pose.headX, y: pose.headY) as AffineTransform)
+            transform.append(SpriteDepth.projection(pivot: head.pivot, target: target, turn: depth.headTurn, foreground: true) as AffineTransform)
+        } else if !reduced && ["arm", "prop"].contains(layer.motion) {
+            let anchor = layer.motion == "arm" ? layer : definition.layers.filter { $0.motion == "arm" }.min {
+                hypot($0.pivot[0] - layer.pivot[0], $0.pivot[1] - layer.pivot[1]) < hypot($1.pivot[0] - layer.pivot[0], $1.pivot[1] - layer.pivot[1])
+            } ?? layer
+            transform.append(SpriteDepth.projection(pivot: anchor.pivot, target: target, turn: depth.turn * 0.6, foreground: true) as AffineTransform)
         }
         return transform
     }

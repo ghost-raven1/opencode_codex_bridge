@@ -5,12 +5,16 @@ import CoreImage
 final class SpriteCache {
     private let context = CIContext(options: [.cacheIntermediates: false])
     private var frames: [String: NSImage] = [:]
+    private var access: [String: UInt64] = [:]
+    private var clock: UInt64 = 0
 
     func frame(_ image: NSImage, column: Int, row: Int, rows: Int, radius: CGFloat, columns: Int = 4,
-               face: NSImage? = nil, faceColumn: Int = 0, faceRows: [Int] = []) -> NSImage? {
+               face: NSImage? = nil, faceColumn: Int = 0, faceRows: [Int] = [], light: Int? = nil) -> NSImage? {
         let radius = (min(4, max(0.5, radius)) * 4).rounded() / 4
-        let key = "\(ObjectIdentifier(image))-\(columns)-\(column)-\(row)-\(rows)-\(radius)-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)"
-        if let cached = frames[key] { return cached }
+        let light = light.map { min(1, max(-1, $0)) }
+        let key = "\(ObjectIdentifier(image))-\(columns)-\(column)-\(row)-\(rows)-\(radius)-\(face.map { String(describing: ObjectIdentifier($0)) } ?? "")-\(faceColumn)-\(faceRows)-\(light.map(String.init) ?? "none")"
+        clock += 1
+        if let cached = frames[key] { access[key] = clock; return cached }
         guard let crop = crop(image, column: column, row: row, rows: rows, columns: columns) else { return nil }
         var original = CIImage(cgImage: crop)
         if let face {
@@ -19,6 +23,12 @@ final class SpriteCache {
                     original = CIImage(cgImage: patch).composited(over: original)
                 }
             }
+        }
+        // Light the composed portrait; a mouth/eyelid patch must never sit above its lighting.
+        if let light, let composed = context.createCGImage(original, from: original.extent) {
+            let lit = SpriteDepth.volume(NSImage(cgImage: composed, size: NSSize(width: crop.width, height: crop.height)), light: light)
+            var rect = NSRect(origin: .zero, size: lit.size)
+            if let pixels = lit.cgImage(forProposedRect: &rect, context: nil, hints: nil) { original = CIImage(cgImage: pixels) }
         }
         // White RGB equals alpha. Colour detail inside an opaque sprite cannot enter this mask.
         let zero = CIVector(x: 0, y: 0, z: 0, w: 0)
@@ -33,8 +43,10 @@ final class SpriteCache {
         ]).cropped(to: original.extent)
         guard let cg = context.createCGImage(result, from: original.extent) else { return nil }
         let rendered = NSImage(cgImage: cg, size: NSSize(width: crop.width, height: crop.height))
-        if frames.count >= 512 { frames.removeAll(keepingCapacity: true) }
-        frames[key] = rendered
+        if frames.count >= 512, let oldest = access.min(by: { $0.value < $1.value })?.key {
+            frames[oldest] = nil; access[oldest] = nil
+        }
+        frames[key] = rendered; access[key] = clock
         return rendered
     }
 

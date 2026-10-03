@@ -16,6 +16,51 @@ import AppKit
          "pivot": pivot, "amplitudeDegrees": amplitude]
     }
     static func near(_ a: NSPoint, _ b: NSPoint) { precondition(hypot(a.x - b.x, a.y - b.y) < 0.0001, "Unexpected joint transform: \(a) vs \(b)") }
+    /// Moving a hand moves its shadow; lighting cannot paint outside the receiver silhouette.
+    static func movingShadow(_ directory: URL) throws {
+        func patch(_ file: String, rect: NSRect?, color: NSColor, rows: Int = 1) throws {
+            let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 256, pixelsHigh: 384 * rows,
+                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                bytesPerRow: 0, bitsPerPixel: 0)!
+            bitmap.bitmapData!.initialize(repeating: 0, count: bitmap.bytesPerRow * bitmap.pixelsHigh)
+            if let rect { for y in Int(rect.minY)..<Int(rect.maxY) { for x in Int(rect.minX)..<Int(rect.maxX) { bitmap.setColor(color, atX: x, y: y) } } }
+            try bitmap.representation(using: .png, properties: [:])!.write(to: directory.appendingPathComponent(file))
+        }
+        try patch("receiver.png", rect: NSRect(x: 40, y: 80, width: 170, height: 250), color: NSColor(deviceRed: 0.78, green: 0.78, blue: 0.78, alpha: 1))
+        try patch("caster.png", rect: NSRect(x: 90, y: 160, width: 26, height: 30), color: NSColor(deviceRed: 1, green: 0, blue: 0, alpha: 1))
+        try patch("empty.png", rect: nil, color: .clear)
+        try patch("empty-face.png", rect: nil, color: .clear, rows: 18)
+        var body = layer("body", nil, "body", [128, 368], 0); body["file"] = "receiver.png"
+        var head = layer("head", "body", "head", [128, 120], 0); head["file"] = "empty.png"
+        var arm = layer("arm", "body", "arm", [100, 150], 3); arm["file"] = "caster.png"
+        let value: [String: Any] = ["layers": [body, arm, head],
+            "face": ["file": "empty-face.png", "frameHeight": 384, "frames": frames],
+            "motion": ["breathSeconds": 4.8, "gestureSeconds": 3.6, "gestureIntervalSeconds": [8, 15]]]
+        let definition = try JSONDecoder().decode(RigManifest.Character.self, from: JSONSerialization.data(withJSONObject: value))
+        let rig = LayeredRig(definition: definition, directory: directory)!, cache = SpriteCache()
+        func render(_ x: Double) -> NSBitmapImageRep {
+            let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 256, pixelsHigh: 384,
+                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                bytesPerRow: 0, bitsPerPixel: 0)!
+            bitmap.bitmapData!.initialize(repeating: 0, count: bitmap.bytesPerRow * 384)
+            NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
+            rig.draw(in: NSRect(x: 0, y: 0, width: 256, height: 384), pose: LayerPose(), time: 0,
+                gestureElapsed: nil, reduced: false, opacity: 1, radius: 1, faceRows: [], sprites: cache,
+                work: WorkPose(joints: ["arm": WorkJoint(x: x)]))
+            NSGraphicsContext.restoreGraphicsState(); return bitmap
+        }
+        let left = render(-1.5), right = render(1.5)
+        var moved = 0
+        for y in 0..<384 { for x in 0..<256 {
+            let a = left.colorAt(x: x, y: y)!.usingColorSpace(.deviceRGB)!, b = right.colorAt(x: x, y: y)!.usingColorSpace(.deviceRGB)!
+            if x < 40 || x >= 210 || y < 80 || y >= 330 {
+                precondition(abs(a.alphaComponent - b.alphaComponent) < 0.0001, "Cast shadow leaked outside the body")
+            }
+            if abs(a.redComponent - a.greenComponent) < 0.001, abs(b.redComponent - b.greenComponent) < 0.001,
+               abs(a.redComponent - b.redComponent) > 0.012 { moved += 1 }
+        } }
+        precondition(moved > 8, "The hand moved but its shadow remained painted on the body")
+    }
     /// A transferred ponytail must remain behind the selected outfit at their overlap.
     static func mixedHairOrder(_ directory: URL) throws {
         func patch(_ file: String, _ rect: NSRect, _ color: NSColor) throws {
@@ -58,6 +103,7 @@ import AppKit
         try image(directory.appendingPathComponent("layer.png"))
         try image(directory.appendingPathComponent("face.png"), height: 384 * 18)
         try mixedHairOrder(directory)
+        try movingShadow(directory)
         let layers = [layer("body", nil, "body", [128, 368], 0), layer("arm", "body", "arm", [80, 160], 3),
                       layer("hair", "head", "hair", [105, 90], 2), layer("head", "body", "head", [128, 120], 1.5)]
         var character: [String: Any] = ["layers": layers,

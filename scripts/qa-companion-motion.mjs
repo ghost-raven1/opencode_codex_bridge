@@ -28,6 +28,7 @@ try {
     var auditPose: CharacterPose?
     var auditGesture: Double?
     var auditVariant: Int?
+    var auditDepth: DepthPose?
     var auditReduced = false
     var auditActions: [TeamAction] { team.actions }
     func auditResetTeam() { team.reset() }`],
@@ -35,6 +36,7 @@ try {
     ["let gesture = ambient[character.id]?.gestureStart", "let gesture = auditGesture.map { time - $0 } ?? ambient[character.id]?.gestureStart"],
     ["let posture = displayPosture(for: character, at: time)", "let posture = auditPose.map { PoseFrame(kind: $0) } ?? displayPosture(for: character, at: time)"],
     ["variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed", "variant: auditVariant ?? ((ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed)"],
+    ["let depth = SpriteDepth.pose(", "let depth = auditDepth ?? SpriteDepth.pose("],
   ]) {
     assert(view.includes(from), `Missing motion QA hook: ${from}`);
     view = view.replace(from, to);

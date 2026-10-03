@@ -258,6 +258,8 @@ final class CharacterView: NSView {
             pose.headX += work.headX; pose.headY += work.headY; pose.headAngle += work.headAngle
             let effect = motion.map { SpriteTransition.frame(kind: $0.kind, progress: progress, reduced: reduced, initialOpacity: $0.initialOpacity) } ?? TransitionFrame()
             pose.headY += effect.nod
+            let depth = SpriteDepth.pose(time: time, seed: character.motionSeed, headX: pose.headX,
+                                         headAngle: pose.headAngle, reduced: reduced)
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
                                 width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
             target = target.insetBy(dx: target.width * (1 - effect.scaleX) / 2, dy: 0)
@@ -266,7 +268,7 @@ final class CharacterView: NSView {
             let opacity = posture.opacity * effect.opacity
             centers[character.id] = NSPoint(x: target.midX, y: target.minY + target.height * 0.48); colors[character.id] = accent
             if let motion, motion.initialOpacity == nil { SpriteTransition.drawBehind(target, kind: motion.kind, progress: progress, accent: accent, reduced: reduced) }
-            SpriteDepth.drawContact(in: target, opacity: opacity)
+            SpriteDepth.drawContact(in: target, opacity: opacity, turn: depth.turn)
             let scale = frame.width / max(1, bounds.width)
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
             NSGraphicsContext.saveGraphicsState(); MusicMotion.apply(dance, target: target)
@@ -276,7 +278,7 @@ final class CharacterView: NSView {
                 rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,
                     gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
                     opacity: opacity, radius: radius, faceRows: faceRows, sprites: sprites,
-                    beatArm: dance.arm, beatHair: dance.hair, work: work, headRig: mixedHead)
+                    beatArm: dance.arm, beatHair: dance.hair, work: work, headRig: mixedHead, depth: depth)
             } else if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
                 sprites.frame(sourceBody, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)

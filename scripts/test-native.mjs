@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const temporary = mkdtempSync(join(tmpdir(), "codexbridge-native-tests-"));
 try {
   for (const [name, sources, test] of [
-    ["depth", ["SpriteDepth.swift"], "test-sprite-depth.swift"],
+    ["depth", ["SpriteDepth.swift", "SpriteCache.swift"], "test-sprite-depth.swift"],
     ["bubble", ["SpeechBubbleView.swift"], "test-speech-bubble.swift"],
     ["transitions", ["SpriteTransition.swift"], "test-sprite-transitions.swift"],
     ["team", ["TeamMotion.swift", "CharacterMotion.swift", "WorkMotion.swift"], "test-team-motion.swift"],

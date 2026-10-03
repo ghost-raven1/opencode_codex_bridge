@@ -27,7 +27,7 @@ enum MotionAudit { static var variant: Int?; static var progress: Double? }
         func setup(_ entries: [Character], at time: Double = 1000, animated: Bool = false) {
             MotionAudit.variant = nil; MotionAudit.progress = nil
             view.auditGesture = nil; view.auditVariant = nil; view.auditReduced = false
-            view.auditPose = .standing; view.speaker = nil
+            view.auditPose = .standing; view.auditDepth = nil; view.speaker = nil
             view.auditResetTeam()
             panel.setContentSize(NSSize(width: CGFloat(entries.count) * 168, height: 330))
             view.setFrameSize(panel.contentView!.frame.size); view.setBoundsSize(NSSize(width: CGFloat(entries.count) * 168, height: 330))
@@ -100,6 +100,20 @@ enum MotionAudit { static var variant: Int?; static var progress: Double? }
             view.auditPose = pose; view.auditReduced = true; view.snapshotTime = 1002
             try save("depth-\(pose.rawValue)-\(background)-\(size)", background: background, scale: size)
         } } }
+        // Perspective extremes must preserve all joints in every authored posture and mixed face.
+        for background in ["light", "dark"] { for pose in CharacterPose.allCases {
+            setup(entries); view.auditPose = pose; view.snapshotTime = 1002
+            for (index, turn) in [-0.65, -0.32, 0, 0.32, 0.65].enumerated() {
+                view.auditDepth = DepthPose(turn: turn, headTurn: turn)
+                try save("volume-\(pose.rawValue)-\(index)-\(background)", background: background)
+            }
+            for offset in [1, 2] {
+                setup((0..<4).map { Character(id: "mixed-\($0)", column: $0, label: "MIXED", state: "working",
+                    headColumn: ($0 + offset) % 4, bodyColumn: $0, name: names[$0]) })
+                view.auditPose = pose; view.auditDepth = DepthPose(turn: 0.65, headTurn: 0.7); view.snapshotTime = 1002
+                try save("volume-mixed-\(pose.rawValue)-\(offset)-\(background)", background: background)
+            }
+        } }
         // Actual linked events, reciprocal gestures, serial handoff/result and speaking mouth.
         for (pair, roles) in [["lead", "code"], ["code", "tester"], ["research", "review"], ["designer", "devops"]].enumerated() {
             for kind in [TeamActionKind.greeting, .handoff, .result, .support] {
@@ -129,7 +143,7 @@ enum MotionAudit { static var variant: Int?; static var progress: Double? }
             view.snapshotTime = 1000.075; try save("reduced-\(kind)", allowEmpty: kind == "turn")
         }
         let report: [String: Any] = ["passed": true, "snapshots": snapshots, "roles": roles,
-            "clips": ["work": 28, "idle": 28, "teamKinds": 4], "audio": false, "microphone": false]
+            "clips": ["work": 28, "idle": 28, "teamKinds": 4], "depthViews": 42, "audio": false, "microphone": false]
         try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]).write(to: output.appendingPathComponent("report.json"))
         print("PASS \(snapshots.count) native animation frames: seven roles, 28 work/28 idle clips, paired team actions, three poses, Retina scaling and reduced motion")
     }
