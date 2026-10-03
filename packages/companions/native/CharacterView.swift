@@ -187,32 +187,47 @@ final class CharacterView: NSView {
 
     /// A mixed identity changes posture only when both its outfit and original head have that pose.
     func posture(for character: Character, at time: TimeInterval) -> PoseFrame {
+        var animation = poseAnimations[character.id] ?? PoseAnimation(seed: character.id)
+        let result = advancePosture(&animation, for: character, at: time)
+        poseAnimations[character.id] = animation
+        return result
+    }
+
+    private func advancePosture(_ animation: inout PoseAnimation, for character: Character, at time: TimeInterval) -> PoseFrame {
         let names = rigNames(for: character)
         var available = Set(CharacterPose.allCases.filter { pose in
             pose != .standing && poseRigs?.contains("\(names.body)/\(pose.rawValue)") == true &&
                 (names.head == nil || poseRigs?.contains("\(names.head!)/\(pose.rawValue)") == true)
         })
-        var animation = poseAnimations[character.id] ?? PoseAnimation(seed: character.id)
         let dancing = MusicMotion.pose(beat: musicBeat, time: time, column: character.column, rig: character.rig, reduced: reduced).strength > 0
         let identity = "\(names.body):\(names.head ?? names.body):\(character.name ?? "")"
         var result = animation.advance(identity: identity,
             state: character.state, speaking: speaker == character.id || team.action(for: character.id, at: time) != nil,
-            dancing: dancing, available: available, at: time, reduced: reduced)
+            dancing: dancing, available: available, at: time, reduced: reduced,
+            activity: character.activity, beat: musicBeat, role: names.body)
         if animation.requested != .standing {
             let key = animation.requested.rawValue
             if poseRigs?.rig("\(names.body)/\(key)") == nil || (names.head != nil && poseRigs?.rig("\(names.head!)/\(key)") == nil) {
                 available.remove(animation.requested)
                 result = animation.advance(identity: identity, state: character.state, speaking: speaker == character.id,
-                    dancing: dancing, available: available, at: time, reduced: reduced)
+                    dancing: dancing, available: available, at: time, reduced: reduced,
+                    activity: character.activity, beat: musicBeat, role: names.body)
             }
         }
-        poseAnimations[character.id] = animation
         return result
     }
 
     func displayPosture(for character: Character, at time: TimeInterval) -> PoseFrame {
         if let motion = motions[character.id], motion.kind == "turn", motion.progress(time, reduced: reduced) < 0.5,
-           let previous = previousPostures[character.id] { return previous.frame(at: time, reduced: reduced) }
+           var previous = previousPostures[character.id] {
+            // The outgoing role still needs its frontal mouth while the appearance changes.
+            if speaker == character.id, let outgoing = motion.previous {
+                let result = advancePosture(&previous, for: outgoing, at: time)
+                previousPostures[character.id] = previous
+                return result
+            }
+            return previous.frame(at: time, reduced: reduced)
+        }
         return posture(for: character, at: time)
     }
 
@@ -268,7 +283,8 @@ final class CharacterView: NSView {
             var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
                 gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
                 speaking: speaking, reduced: reduced, seed: character.motionSeed)
-            let dance = MusicMotion.pose(beat: musicBeat, time: time, column: displayed.column, rig: displayed.rig, reduced: reduced)
+            let dance = speaking ? MusicPose() : MusicMotion.pose(beat: musicBeat, time: time,
+                column: displayed.column, rig: displayed.rig, reduced: reduced)
             pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
             let idle = IdleMotion.pose(rig: rigName, state: displayed.state, time: time, gestureElapsed: gesture.map { time - $0 },
                 variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed, seed: character.motionSeed, reduced: reduced)
@@ -279,6 +295,7 @@ final class CharacterView: NSView {
                 work = work.blending(reaction, weight: pow(sin(interaction.progress(at: time) * .pi), 2) * (speaking ? 0.35 : 1))
             }
             work = work.scaled(1 - dance.strength).forPose(rig: rigName, standing: posture.kind == .standing)
+            if posture.kind.isDrawn { work = work.forDrawnPose(rig: rigName) }
             pose.headX += work.headX; pose.headY += work.headY; pose.headAngle += work.headAngle
             let effect = motion.map { SpriteTransition.frame(kind: $0.kind, progress: progress, reduced: reduced, initialOpacity: $0.initialOpacity) } ?? TransitionFrame()
             pose.headY += effect.nod
@@ -287,6 +304,7 @@ final class CharacterView: NSView {
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
                                 width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
             target = target.insetBy(dx: target.width * (1 - effect.scaleX) / 2, dy: 0)
+            target = target.insetBy(dx: target.width * (1 - posture.scaleX) / 2, dy: 0)
             target.origin.y += (posture.y + effect.y) * factor
             target.size.height *= posture.scaleY * effect.scaleY
             let opacity = posture.opacity * effect.opacity

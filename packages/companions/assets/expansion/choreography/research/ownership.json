@@ -1,0 +1,293 @@
+{
+  "coordinateSpace": "256x384 authored registration, top-left origin",
+  "samples": [
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        150,
+        98
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-profile",
+      "point": [
+        135,
+        99
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-back-three-quarter",
+      "point": [
+        121,
+        100
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-seated",
+      "point": [
+        179,
+        160
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "dance-1",
+      "point": [
+        126,
+        112
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "dance-2",
+      "point": [
+        144,
+        138
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "dance-4",
+      "point": [
+        151,
+        122
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-right-three-quarter",
+      "point": [
+        120,
+        97
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-right-profile",
+      "point": [
+        115,
+        106
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-back",
+      "point": [
+        124,
+        108
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "walk-left",
+      "point": [
+        134,
+        99
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "walk-right",
+      "point": [
+        130,
+        101
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-kneeling",
+      "point": [
+        140,
+        190
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-leaning",
+      "point": [
+        133,
+        129
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "work-desk",
+      "point": [
+        127,
+        158
+      ],
+      "owner": "body",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "garment at neckline"
+    },
+    {
+      "pose": "dance-3",
+      "point": [
+        86,
+        116
+      ],
+      "owner": "head",
+      "exclude": [
+        "arm-left"
+      ],
+      "landmark": "green hair beside raised sleeve"
+    },
+    {
+      "pose": "work-leaning",
+      "point": [
+        155,
+        128
+      ],
+      "owner": "arm-right",
+      "exclude": [
+        "head"
+      ],
+      "landmark": "hand supporting chin"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        125,
+        93
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "bob strands below chin"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        123,
+        98
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "lower bob tips"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        127,
+        97
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "inner bob tip"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        134,
+        95
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "bob edge beside high collar"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        135,
+        95
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "last bob pixel beside collar"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        132,
+        93
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "face chin edge above high collar"
+    },
+    {
+      "pose": "work-three-quarter",
+      "point": [
+        133,
+        93
+      ],
+      "owner": "head",
+      "exclude": [
+        "body"
+      ],
+      "landmark": "face chin edge beside bob"
+    }
+  ]
+}

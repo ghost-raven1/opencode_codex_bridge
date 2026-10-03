@@ -1,0 +1,1802 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 256,
+    "height": 384
+  },
+  "coordinates": "top-left",
+  "feetBaseline": 368,
+  "characters": {
+    "research/work-three-quarter": {
+      "name": "RESEARCH work-three-quarter",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          60,
+          0,
+          285,
+          558
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 62.59,
+        "offsetY": 23.28000000000003,
+        "sourceFeet": 556,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-three-quarter/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-three-quarter/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            97,
+            153
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-three-quarter/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            153,
+            159
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-three-quarter/prop.png",
+          "parent": "body",
+          "pivot": [
+            126,
+            137
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-three-quarter/head.png",
+          "parent": "body",
+          "pivot": [
+            138,
+            92
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-profile": {
+      "name": "RESEARCH work-profile",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-left-profile-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.235,
+        "scaleY": 0.235,
+        "offsetX": 14.260000000000005,
+        "offsetY": 19.965000000000032,
+        "sourceFeet": 1481,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-profile/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-profile/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            121,
+            146
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-profile/prop.png",
+          "parent": "body",
+          "pivot": [
+            108,
+            128
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-profile/head.png",
+          "parent": "body",
+          "pivot": [
+            136,
+            94
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-back-three-quarter": {
+      "name": "RESEARCH work-back-three-quarter",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          777,
+          0,
+          1005,
+          558
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 56.08,
+        "offsetY": 22.660000000000025,
+        "sourceFeet": 557,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-back-three-quarter/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-back-three-quarter/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            166,
+            151
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.3
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-back-three-quarter/prop.png",
+          "parent": "body",
+          "pivot": [
+            171,
+            130
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-back-three-quarter/head.png",
+          "parent": "body",
+          "pivot": [
+            117,
+            95
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-seated": {
+      "name": "RESEARCH work-seated",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          1065,
+          0,
+          1429,
+          558
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 25.08,
+        "offsetY": 27.0,
+        "sourceFeet": 550,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            118,
+            212
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.3
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            181,
+            218
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.3
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            125,
+            191
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-seated/head.png",
+          "parent": "body",
+          "pivot": [
+            174,
+            152
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/dance-1": {
+      "name": "RESEARCH dance-1",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          65,
+          558,
+          290,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 57.010000000000005,
+        "offsetY": 43.120000000000005,
+        "sourceFeet": 524,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/dance-1/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/dance-1/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            96,
+            130
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/dance-1/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            151,
+            132
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/dance-1/head.png",
+          "parent": "body",
+          "pivot": [
+            127,
+            105
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/dance-2": {
+      "name": "RESEARCH dance-2",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          297,
+          550,
+          730,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.5672371638141809,
+        "scaleY": 0.5672371638141809,
+        "offsetX": 7.178484107579479,
+        "offsetY": 67.36430317848414,
+        "sourceFeet": 530,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/dance-2/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/dance-2/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            108,
+            143
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.4
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/dance-2/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            147,
+            157
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.4
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/dance-2/head.png",
+          "parent": "body",
+          "pivot": [
+            145,
+            132
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/dance-3": {
+      "name": "RESEARCH dance-3",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          775,
+          558,
+          1095,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 31.28,
+        "offsetY": 43.74000000000001,
+        "sourceFeet": 523,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/dance-3/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/dance-3/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            87,
+            128
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.4
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/dance-3/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            149,
+            143
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.4
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/dance-3/head.png",
+          "parent": "body",
+          "pivot": [
+            134,
+            123
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/dance-4": {
+      "name": "RESEARCH dance-4",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research.png",
+        "crop": [
+          1120,
+          558,
+          1429,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 39.03,
+        "offsetY": 45.60000000000002,
+        "sourceFeet": 520,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/dance-4/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/dance-4/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            113,
+            132
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.6
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/dance-4/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            166,
+            139
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.6
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/dance-4/head.png",
+          "parent": "body",
+          "pivot": [
+            149,
+            114
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-right-three-quarter": {
+      "name": "RESEARCH work-right-three-quarter",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-right-three-quarter-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.24,
+        "scaleY": 0.24,
+        "offsetX": -8.919999999999987,
+        "offsetY": 15.920000000000016,
+        "sourceFeet": 1467,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-right-three-quarter/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-right-three-quarter/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            118,
+            148
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-right-three-quarter/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            168,
+            151
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-right-three-quarter/prop.png",
+          "parent": "body",
+          "pivot": [
+            165,
+            132
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-right-three-quarter/head.png",
+          "parent": "body",
+          "pivot": [
+            125,
+            92
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-right-profile": {
+      "name": "RESEARCH work-right-profile",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-extra.png",
+        "crop": [
+          439,
+          0,
+          666,
+          557
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 60.11,
+        "offsetY": 24.519999999999982,
+        "sourceFeet": 554,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-right-profile/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-right-profile/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            138,
+            160
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-right-profile/prop.png",
+          "parent": "body",
+          "pivot": [
+            161,
+            139
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-right-profile/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            100
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-back": {
+      "name": "RESEARCH work-back",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-extra.png",
+        "crop": [
+          799,
+          0,
+          1002,
+          557
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 64.75999999999999,
+        "offsetY": 23.28000000000003,
+        "sourceFeet": 556,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-back/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-back/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            95,
+            153
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-back/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            169,
+            163
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-back/prop.png",
+          "parent": "body",
+          "pivot": [
+            173,
+            141
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.6
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-back/head.png",
+          "parent": "body",
+          "pivot": [
+            129,
+            101
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/walk-left": {
+      "name": "RESEARCH walk-left",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-walk-contact-matched-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.24,
+        "scaleY": 0.24,
+        "offsetX": 1.7600000000000051,
+        "offsetY": 24.80000000000001,
+        "sourceFeet": 1430,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/walk-left/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/walk-left/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            131,
+            156
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/walk-left/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            168,
+            191
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.4
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/walk-left/prop.png",
+          "parent": "body",
+          "pivot": [
+            141,
+            148
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/walk-left/head.png",
+          "parent": "body",
+          "pivot": [
+            136,
+            93
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/walk-right": {
+      "name": "RESEARCH walk-right",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-walk-passing-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.24,
+        "scaleY": 0.24,
+        "offsetX": 8.960000000000008,
+        "offsetY": 21.920000000000016,
+        "sourceFeet": 1442,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/walk-right/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/walk-right/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            140,
+            150
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/walk-right/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            171,
+            187
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.4
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/walk-right/prop.png",
+          "parent": "body",
+          "pivot": [
+            148,
+            144
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/walk-right/head.png",
+          "parent": "body",
+          "pivot": [
+            138,
+            93
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-kneeling": {
+      "name": "RESEARCH work-kneeling",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-extra.png",
+        "crop": [
+          394,
+          557,
+          694,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 36.55,
+        "offsetY": 66.06,
+        "sourceFeet": 487,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-kneeling/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-kneeling/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            123,
+            241
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-kneeling/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            176,
+            247
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.2
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-kneeling/prop.png",
+          "parent": "body",
+          "pivot": [
+            166,
+            224
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-kneeling/head.png",
+          "parent": "body",
+          "pivot": [
+            138,
+            184
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-leaning": {
+      "name": "RESEARCH work-leaning",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-extra.png",
+        "crop": [
+          747,
+          557,
+          1044,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 35.31,
+        "offsetY": 55.51999999999998,
+        "sourceFeet": 504,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-leaning/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-leaning/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            112,
+            175
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-leaning/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            160,
+            151
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-leaning/prop.png",
+          "parent": "body",
+          "pivot": [
+            168,
+            171
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-leaning/head.png",
+          "parent": "body",
+          "pivot": [
+            144,
+            122
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "research/work-desk": {
+      "name": "RESEARCH work-desk",
+      "roleHint": "research",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/research-extra.png",
+        "crop": [
+          1084,
+          557,
+          1430,
+          1100
+        ],
+        "flipped": false,
+        "scaleX": 0.62,
+        "scaleY": 0.62,
+        "offsetX": 23.53,
+        "offsetY": 55.51999999999998,
+        "sourceFeet": 504,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/research/work-desk/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/research/work-desk/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            96,
+            205
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/research/work-desk/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            136,
+            193
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/research/work-desk/prop.png",
+          "parent": "body",
+          "pivot": [
+            148,
+            194
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "head",
+          "file": "choreography/research/work-desk/head.png",
+          "parent": "body",
+          "pivot": [
+            130,
+            148
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/research/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    }
+  },
+  "runtimeFiles": [
+    "choreography/research/work-three-quarter/body.png",
+    "choreography/research/work-three-quarter/arm-left.png",
+    "choreography/research/work-three-quarter/arm-right.png",
+    "choreography/research/work-three-quarter/prop.png",
+    "choreography/research/work-three-quarter/head.png",
+    "choreography/research/facial.png",
+    "choreography/research/work-profile/body.png",
+    "choreography/research/work-profile/arm-right.png",
+    "choreography/research/work-profile/prop.png",
+    "choreography/research/work-profile/head.png",
+    "choreography/research/work-back-three-quarter/body.png",
+    "choreography/research/work-back-three-quarter/arm-right.png",
+    "choreography/research/work-back-three-quarter/prop.png",
+    "choreography/research/work-back-three-quarter/head.png",
+    "choreography/research/work-seated/body.png",
+    "choreography/research/work-seated/arm-left.png",
+    "choreography/research/work-seated/arm-right.png",
+    "choreography/research/work-seated/prop.png",
+    "choreography/research/work-seated/head.png",
+    "choreography/research/dance-1/body.png",
+    "choreography/research/dance-1/arm-left.png",
+    "choreography/research/dance-1/arm-right.png",
+    "choreography/research/dance-1/head.png",
+    "choreography/research/dance-2/body.png",
+    "choreography/research/dance-2/arm-left.png",
+    "choreography/research/dance-2/arm-right.png",
+    "choreography/research/dance-2/head.png",
+    "choreography/research/dance-3/body.png",
+    "choreography/research/dance-3/arm-left.png",
+    "choreography/research/dance-3/arm-right.png",
+    "choreography/research/dance-3/head.png",
+    "choreography/research/dance-4/body.png",
+    "choreography/research/dance-4/arm-left.png",
+    "choreography/research/dance-4/arm-right.png",
+    "choreography/research/dance-4/head.png",
+    "choreography/research/work-right-three-quarter/body.png",
+    "choreography/research/work-right-three-quarter/arm-left.png",
+    "choreography/research/work-right-three-quarter/arm-right.png",
+    "choreography/research/work-right-three-quarter/prop.png",
+    "choreography/research/work-right-three-quarter/head.png",
+    "choreography/research/work-right-profile/body.png",
+    "choreography/research/work-right-profile/arm-right.png",
+    "choreography/research/work-right-profile/prop.png",
+    "choreography/research/work-right-profile/head.png",
+    "choreography/research/work-back/body.png",
+    "choreography/research/work-back/arm-left.png",
+    "choreography/research/work-back/arm-right.png",
+    "choreography/research/work-back/prop.png",
+    "choreography/research/work-back/head.png",
+    "choreography/research/walk-left/body.png",
+    "choreography/research/walk-left/arm-left.png",
+    "choreography/research/walk-left/arm-right.png",
+    "choreography/research/walk-left/prop.png",
+    "choreography/research/walk-left/head.png",
+    "choreography/research/walk-right/body.png",
+    "choreography/research/walk-right/arm-left.png",
+    "choreography/research/walk-right/arm-right.png",
+    "choreography/research/walk-right/prop.png",
+    "choreography/research/walk-right/head.png",
+    "choreography/research/work-kneeling/body.png",
+    "choreography/research/work-kneeling/arm-left.png",
+    "choreography/research/work-kneeling/arm-right.png",
+    "choreography/research/work-kneeling/prop.png",
+    "choreography/research/work-kneeling/head.png",
+    "choreography/research/work-leaning/body.png",
+    "choreography/research/work-leaning/arm-left.png",
+    "choreography/research/work-leaning/arm-right.png",
+    "choreography/research/work-leaning/prop.png",
+    "choreography/research/work-leaning/head.png",
+    "choreography/research/work-desk/body.png",
+    "choreography/research/work-desk/arm-left.png",
+    "choreography/research/work-desk/arm-right.png",
+    "choreography/research/work-desk/prop.png",
+    "choreography/research/work-desk/head.png"
+  ]
+}

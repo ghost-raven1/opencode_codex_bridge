@@ -1,0 +1,2222 @@
+{
+  "version": 1,
+  "canvas": {
+    "width": 256,
+    "height": 384
+  },
+  "coordinates": "top-left",
+  "feetBaseline": 368,
+  "characters": {
+    "designer/work-three-quarter": {
+      "name": "DESIGNER work-three-quarter",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          10,
+          10,
+          313,
+          766
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 60.27499999999999,
+        "offsetY": 31.399999999999977,
+        "sourceFeet": 748,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-three-quarter/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-three-quarter/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            84,
+            132
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-three-quarter/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            118,
+            156
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-three-quarter/prop.png",
+          "parent": "body",
+          "pivot": [
+            91,
+            146
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.6
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-three-quarter/braid.png",
+          "parent": "head",
+          "pivot": [
+            110,
+            104
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.6
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-three-quarter/apron.png",
+          "parent": "body",
+          "pivot": [
+            112,
+            171
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-three-quarter/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            99
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-profile": {
+      "name": "DESIGNER work-profile",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          258,
+          10,
+          485,
+          766
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 77.15,
+        "offsetY": 32.30000000000001,
+        "sourceFeet": 746,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-profile/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-profile/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            111,
+            132
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-profile/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            126,
+            152
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-profile/prop.png",
+          "parent": "body",
+          "pivot": [
+            105,
+            133
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-profile/braid.png",
+          "parent": "head",
+          "pivot": [
+            128,
+            108
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.6
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-profile/apron.png",
+          "parent": "body",
+          "pivot": [
+            133,
+            163
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-profile/head.png",
+          "parent": "body",
+          "pivot": [
+            138,
+            99
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-back-three-quarter": {
+      "name": "DESIGNER work-back-three-quarter",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          498,
+          10,
+          754,
+          766
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 70.85,
+        "offsetY": 31.849999999999966,
+        "sourceFeet": 747,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-back-three-quarter/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-back-three-quarter/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            96,
+            133
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-back-three-quarter/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            111,
+            124
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-back-three-quarter/prop.png",
+          "parent": "body",
+          "pivot": [
+            87,
+            122
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-back-three-quarter/braid.png",
+          "parent": "head",
+          "pivot": [
+            141,
+            103
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.7
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-back-three-quarter/apron.png",
+          "parent": "body",
+          "pivot": [
+            127,
+            164
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-back-three-quarter/head.png",
+          "parent": "body",
+          "pivot": [
+            135,
+            97
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-seated": {
+      "name": "DESIGNER work-seated",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          754,
+          80,
+          1022,
+          766
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 68.375,
+        "offsetY": 76.39999999999998,
+        "sourceFeet": 648,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-seated/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-seated/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            101,
+            192
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-seated/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            147,
+            210
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-seated/prop.png",
+          "parent": "body",
+          "pivot": [
+            114,
+            202
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-seated/braid.png",
+          "parent": "head",
+          "pivot": [
+            123,
+            148
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-seated/apron.png",
+          "parent": "body",
+          "pivot": [
+            134,
+            215
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-seated/head.png",
+          "parent": "body",
+          "pivot": [
+            137,
+            142
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/dance-1": {
+      "name": "DESIGNER dance-1",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          6,
+          790,
+          265,
+          1500
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 70.4,
+        "offsetY": 55.69999999999999,
+        "sourceFeet": 694,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/dance-1/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/dance-1/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            97,
+            141
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/dance-1/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            148,
+            144
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/dance-1/braid.png",
+          "parent": "head",
+          "pivot": [
+            117,
+            121
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.75
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/dance-1/apron.png",
+          "parent": "body",
+          "pivot": [
+            115,
+            170
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/dance-1/head.png",
+          "parent": "body",
+          "pivot": [
+            134,
+            118
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/dance-2": {
+      "name": "DESIGNER dance-2",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          230,
+          780,
+          580,
+          1500
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 49.474999999999994,
+        "offsetY": 48.5,
+        "sourceFeet": 710,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/dance-2/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/dance-2/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            83,
+            117
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/dance-2/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            139,
+            143
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/dance-2/braid.png",
+          "parent": "head",
+          "pivot": [
+            114,
+            119
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.8
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/dance-2/apron.png",
+          "parent": "body",
+          "pivot": [
+            112,
+            168
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/dance-2/head.png",
+          "parent": "body",
+          "pivot": [
+            128,
+            111
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/dance-3": {
+      "name": "DESIGNER dance-3",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          498,
+          765,
+          797,
+          1500
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 60.95,
+        "offsetY": 51.19999999999999,
+        "sourceFeet": 704,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/dance-3/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/dance-3/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            147,
+            84
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/dance-3/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            154,
+            176
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/dance-3/braid.png",
+          "parent": "head",
+          "pivot": [
+            123,
+            130
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.9
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/dance-3/apron.png",
+          "parent": "body",
+          "pivot": [
+            151,
+            179
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/dance-3/head.png",
+          "parent": "body",
+          "pivot": [
+            139,
+            122
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/dance-4": {
+      "name": "DESIGNER dance-4",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer.png",
+        "crop": [
+          778,
+          778,
+          1024,
+          1500
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 72.875,
+        "offsetY": 51.64999999999998,
+        "sourceFeet": 703,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/dance-4/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/dance-4/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            108,
+            132
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/dance-4/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            147,
+            116
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 2.2
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/dance-4/braid.png",
+          "parent": "head",
+          "pivot": [
+            120,
+            123
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.8
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/dance-4/apron.png",
+          "parent": "body",
+          "pivot": [
+            138,
+            166
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/dance-4/head.png",
+          "parent": "body",
+          "pivot": [
+            125,
+            116
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-right-three-quarter": {
+      "name": "DESIGNER work-right-three-quarter",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-right-three-quarter-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.22,
+        "scaleY": 0.22,
+        "offsetX": 4.25,
+        "offsetY": 37.339999999999975,
+        "sourceFeet": 1503,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-right-three-quarter/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-right-three-quarter/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            115,
+            150
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-right-three-quarter/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            157,
+            154
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-right-three-quarter/prop.png",
+          "parent": "body",
+          "pivot": [
+            155,
+            145
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-right-three-quarter/braid.png",
+          "parent": "head",
+          "pivot": [
+            107,
+            101
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.55
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-right-three-quarter/apron.png",
+          "parent": "body",
+          "pivot": [
+            125,
+            163
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-right-three-quarter/head.png",
+          "parent": "body",
+          "pivot": [
+            118,
+            100
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-right-profile": {
+      "name": "DESIGNER work-right-profile",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-extra.png",
+        "crop": [
+          293,
+          25,
+          516,
+          765
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 78.725,
+        "offsetY": 47.599999999999966,
+        "sourceFeet": 712,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-right-profile/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-right-profile/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            146,
+            163
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-right-profile/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            152,
+            168
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-right-profile/prop.png",
+          "parent": "body",
+          "pivot": [
+            160,
+            151
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-right-profile/braid.png",
+          "parent": "head",
+          "pivot": [
+            123,
+            115
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.55
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-right-profile/apron.png",
+          "parent": "body",
+          "pivot": [
+            133,
+            176
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-right-profile/head.png",
+          "parent": "body",
+          "pivot": [
+            125,
+            117
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-back": {
+      "name": "DESIGNER work-back",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-extra.png",
+        "crop": [
+          524,
+          20,
+          739,
+          765
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 80.3,
+        "offsetY": 45.349999999999966,
+        "sourceFeet": 717,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-back/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-back/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            102,
+            144
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-back/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            133,
+            159
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-back/prop.png",
+          "parent": "body",
+          "pivot": [
+            98,
+            135
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-back/braid.png",
+          "parent": "head",
+          "pivot": [
+            141,
+            113
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.6
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-back/apron.png",
+          "parent": "body",
+          "pivot": [
+            123,
+            173
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-back/head.png",
+          "parent": "body",
+          "pivot": [
+            132,
+            113
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/walk-left": {
+      "name": "DESIGNER walk-left",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-walk-contact-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.205,
+        "scaleY": 0.205,
+        "offsetX": 21.2975,
+        "offsetY": 62.55000000000001,
+        "sourceFeet": 1490,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/walk-left/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/walk-left/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            104,
+            171
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/walk-left/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            158,
+            181
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.4
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/walk-left/prop.png",
+          "parent": "body",
+          "pivot": [
+            122,
+            163
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/walk-left/braid.png",
+          "parent": "head",
+          "pivot": [
+            119,
+            118
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.6
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/walk-left/apron.png",
+          "parent": "body",
+          "pivot": [
+            130,
+            182
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.25
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/walk-left/head.png",
+          "parent": "body",
+          "pivot": [
+            133,
+            118
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/walk-right": {
+      "name": "DESIGNER walk-right",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-walk-passing-original.png",
+        "crop": [
+          0,
+          0,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.225,
+        "scaleY": 0.225,
+        "offsetX": 8.637500000000003,
+        "offsetY": 47.599999999999966,
+        "sourceFeet": 1424,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/walk-right/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/walk-right/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            91,
+            178
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1.3
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/walk-right/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            153,
+            168
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/walk-right/prop.png",
+          "parent": "body",
+          "pivot": [
+            146,
+            154
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/walk-right/braid.png",
+          "parent": "head",
+          "pivot": [
+            113,
+            112
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.55
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/walk-right/apron.png",
+          "parent": "body",
+          "pivot": [
+            133,
+            168
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.35
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/walk-right/head.png",
+          "parent": "body",
+          "pivot": [
+            121,
+            111
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-kneeling": {
+      "name": "DESIGNER work-kneeling",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-extra.png",
+        "crop": [
+          258,
+          896,
+          510,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 69.275,
+        "offsetY": 121.4,
+        "sourceFeet": 548,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-kneeling/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-kneeling/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            94,
+            238
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-kneeling/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            135,
+            254
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-kneeling/prop.png",
+          "parent": "body",
+          "pivot": [
+            111,
+            243
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-kneeling/braid.png",
+          "parent": "head",
+          "pivot": [
+            119,
+            199
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-kneeling/apron.png",
+          "parent": "body",
+          "pivot": [
+            132,
+            267
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-kneeling/head.png",
+          "parent": "body",
+          "pivot": [
+            136,
+            193
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-leaning": {
+      "name": "DESIGNER work-leaning",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-extra.png",
+        "crop": [
+          510,
+          785,
+          770,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 70.175,
+        "offsetY": 57.05000000000001,
+        "sourceFeet": 691,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-leaning/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-leaning/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            120,
+            168
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-leaning/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            154,
+            145
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-leaning/prop.png",
+          "parent": "body",
+          "pivot": [
+            149,
+            165
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-leaning/braid.png",
+          "parent": "head",
+          "pivot": [
+            125,
+            119
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.55
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-leaning/apron.png",
+          "parent": "body",
+          "pivot": [
+            125,
+            179
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-leaning/head.png",
+          "parent": "body",
+          "pivot": [
+            145,
+            121
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    },
+    "designer/work-desk": {
+      "name": "DESIGNER work-desk",
+      "roleHint": "designer",
+      "registration": {
+        "kind": "uniform",
+        "source": "source/choreography-v1/designer-extra.png",
+        "crop": [
+          767,
+          845,
+          1024,
+          1536
+        ],
+        "flipped": false,
+        "scaleX": 0.45,
+        "scaleY": 0.45,
+        "offsetX": 69.94999999999999,
+        "offsetY": 84.05000000000001,
+        "sourceFeet": 631,
+        "targetFeet": 368
+      },
+      "layers": [
+        {
+          "id": "body",
+          "file": "choreography/designer/work-desk/body.png",
+          "parent": null,
+          "pivot": [
+            128,
+            368
+          ],
+          "motion": "body",
+          "amplitudeDegrees": 0
+        },
+        {
+          "id": "arm-left",
+          "file": "choreography/designer/work-desk/arm-left.png",
+          "parent": "body",
+          "pivot": [
+            102,
+            190
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "arm-right",
+          "file": "choreography/designer/work-desk/arm-right.png",
+          "parent": "body",
+          "pivot": [
+            147,
+            205
+          ],
+          "motion": "arm",
+          "amplitudeDegrees": 1
+        },
+        {
+          "id": "prop",
+          "file": "choreography/designer/work-desk/prop.png",
+          "parent": "body",
+          "pivot": [
+            113,
+            195
+          ],
+          "motion": "prop",
+          "amplitudeDegrees": 0.4
+        },
+        {
+          "id": "braid",
+          "file": "choreography/designer/work-desk/braid.png",
+          "parent": "head",
+          "pivot": [
+            122,
+            151
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.5
+        },
+        {
+          "id": "apron",
+          "file": "choreography/designer/work-desk/apron.png",
+          "parent": "body",
+          "pivot": [
+            141,
+            216
+          ],
+          "motion": "hair",
+          "amplitudeDegrees": 0.3
+        },
+        {
+          "id": "head",
+          "file": "choreography/designer/work-desk/head.png",
+          "parent": "body",
+          "pivot": [
+            140,
+            143
+          ],
+          "motion": "head",
+          "amplitudeDegrees": 1.0
+        }
+      ],
+      "face": {
+        "file": "choreography/designer/facial.png",
+        "frameHeight": 384,
+        "frames": [
+          "close",
+          "slightly-open",
+          "A",
+          "O",
+          "E",
+          "I",
+          "U",
+          "smile-speaking",
+          "open",
+          "quarter",
+          "half",
+          "three-quarter",
+          "closed",
+          "reopen",
+          "smile",
+          "concern",
+          "focus",
+          "surprise"
+        ],
+        "neutralOnly": true
+      },
+      "motion": {
+        "breathSeconds": 4.9,
+        "gestureSeconds": 3.8,
+        "gestureIntervalSeconds": [
+          8,
+          15
+        ]
+      },
+      "facialAnimation": "none-preserve-authored-view"
+    }
+  },
+  "runtimeFiles": [
+    "choreography/designer/work-three-quarter/body.png",
+    "choreography/designer/work-three-quarter/arm-left.png",
+    "choreography/designer/work-three-quarter/arm-right.png",
+    "choreography/designer/work-three-quarter/prop.png",
+    "choreography/designer/work-three-quarter/braid.png",
+    "choreography/designer/work-three-quarter/apron.png",
+    "choreography/designer/work-three-quarter/head.png",
+    "choreography/designer/facial.png",
+    "choreography/designer/work-profile/body.png",
+    "choreography/designer/work-profile/arm-left.png",
+    "choreography/designer/work-profile/arm-right.png",
+    "choreography/designer/work-profile/prop.png",
+    "choreography/designer/work-profile/braid.png",
+    "choreography/designer/work-profile/apron.png",
+    "choreography/designer/work-profile/head.png",
+    "choreography/designer/work-back-three-quarter/body.png",
+    "choreography/designer/work-back-three-quarter/arm-left.png",
+    "choreography/designer/work-back-three-quarter/arm-right.png",
+    "choreography/designer/work-back-three-quarter/prop.png",
+    "choreography/designer/work-back-three-quarter/braid.png",
+    "choreography/designer/work-back-three-quarter/apron.png",
+    "choreography/designer/work-back-three-quarter/head.png",
+    "choreography/designer/work-seated/body.png",
+    "choreography/designer/work-seated/arm-left.png",
+    "choreography/designer/work-seated/arm-right.png",
+    "choreography/designer/work-seated/prop.png",
+    "choreography/designer/work-seated/braid.png",
+    "choreography/designer/work-seated/apron.png",
+    "choreography/designer/work-seated/head.png",
+    "choreography/designer/dance-1/body.png",
+    "choreography/designer/dance-1/arm-left.png",
+    "choreography/designer/dance-1/arm-right.png",
+    "choreography/designer/dance-1/braid.png",
+    "choreography/designer/dance-1/apron.png",
+    "choreography/designer/dance-1/head.png",
+    "choreography/designer/dance-2/body.png",
+    "choreography/designer/dance-2/arm-left.png",
+    "choreography/designer/dance-2/arm-right.png",
+    "choreography/designer/dance-2/braid.png",
+    "choreography/designer/dance-2/apron.png",
+    "choreography/designer/dance-2/head.png",
+    "choreography/designer/dance-3/body.png",
+    "choreography/designer/dance-3/arm-left.png",
+    "choreography/designer/dance-3/arm-right.png",
+    "choreography/designer/dance-3/braid.png",
+    "choreography/designer/dance-3/apron.png",
+    "choreography/designer/dance-3/head.png",
+    "choreography/designer/dance-4/body.png",
+    "choreography/designer/dance-4/arm-left.png",
+    "choreography/designer/dance-4/arm-right.png",
+    "choreography/designer/dance-4/braid.png",
+    "choreography/designer/dance-4/apron.png",
+    "choreography/designer/dance-4/head.png",
+    "choreography/designer/work-right-three-quarter/body.png",
+    "choreography/designer/work-right-three-quarter/arm-left.png",
+    "choreography/designer/work-right-three-quarter/arm-right.png",
+    "choreography/designer/work-right-three-quarter/prop.png",
+    "choreography/designer/work-right-three-quarter/braid.png",
+    "choreography/designer/work-right-three-quarter/apron.png",
+    "choreography/designer/work-right-three-quarter/head.png",
+    "choreography/designer/work-right-profile/body.png",
+    "choreography/designer/work-right-profile/arm-left.png",
+    "choreography/designer/work-right-profile/arm-right.png",
+    "choreography/designer/work-right-profile/prop.png",
+    "choreography/designer/work-right-profile/braid.png",
+    "choreography/designer/work-right-profile/apron.png",
+    "choreography/designer/work-right-profile/head.png",
+    "choreography/designer/work-back/body.png",
+    "choreography/designer/work-back/arm-left.png",
+    "choreography/designer/work-back/arm-right.png",
+    "choreography/designer/work-back/prop.png",
+    "choreography/designer/work-back/braid.png",
+    "choreography/designer/work-back/apron.png",
+    "choreography/designer/work-back/head.png",
+    "choreography/designer/walk-left/body.png",
+    "choreography/designer/walk-left/arm-left.png",
+    "choreography/designer/walk-left/arm-right.png",
+    "choreography/designer/walk-left/prop.png",
+    "choreography/designer/walk-left/braid.png",
+    "choreography/designer/walk-left/apron.png",
+    "choreography/designer/walk-left/head.png",
+    "choreography/designer/walk-right/body.png",
+    "choreography/designer/walk-right/arm-left.png",
+    "choreography/designer/walk-right/arm-right.png",
+    "choreography/designer/walk-right/prop.png",
+    "choreography/designer/walk-right/braid.png",
+    "choreography/designer/walk-right/apron.png",
+    "choreography/designer/walk-right/head.png",
+    "choreography/designer/work-kneeling/body.png",
+    "choreography/designer/work-kneeling/arm-left.png",
+    "choreography/designer/work-kneeling/arm-right.png",
+    "choreography/designer/work-kneeling/prop.png",
+    "choreography/designer/work-kneeling/braid.png",
+    "choreography/designer/work-kneeling/apron.png",
+    "choreography/designer/work-kneeling/head.png",
+    "choreography/designer/work-leaning/body.png",
+    "choreography/designer/work-leaning/arm-left.png",
+    "choreography/designer/work-leaning/arm-right.png",
+    "choreography/designer/work-leaning/prop.png",
+    "choreography/designer/work-leaning/braid.png",
+    "choreography/designer/work-leaning/apron.png",
+    "choreography/designer/work-leaning/head.png",
+    "choreography/designer/work-desk/body.png",
+    "choreography/designer/work-desk/arm-left.png",
+    "choreography/designer/work-desk/arm-right.png",
+    "choreography/designer/work-desk/prop.png",
+    "choreography/designer/work-desk/braid.png",
+    "choreography/designer/work-desk/apron.png",
+    "choreography/designer/work-desk/head.png"
+  ]
+}

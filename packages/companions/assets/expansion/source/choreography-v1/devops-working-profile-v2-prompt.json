@@ -1,0 +1,9 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Use case: precise-object-edit\nAsset type: three-view DEVOPS sprite sheet, transparent alpha.\nEdit target image1 (devops-working-v2.png); image2 (devops-v2.png) is identity/anatomy reference.\nChange ONLY the MIDDLE full-body figure into a completely unambiguous LEFT SIDE PROFILE, exact 90-degree view: face/nose/chin silhouette points screen-left, only one eye visible, far eye and far front chest panel not visible, torso and hip visibly seen from the side rather than front three-quarter, far shoulder partially hidden behind near shoulder. She works with the orange multimeter at chest height using both gloved hands. Preserve the same tall adult body proportions, head scale, total standing height and hair/boot baseline as the other two figures; preserve navy jumpsuit, cyan piping, orange collar headphones, work boots, cyan forelock and blue undercut. Do NOT shrink or enlarge her. Keep full hands, leads and boots with blank margins.\nKeep LEFT and RIGHT figures pixel-for-pixel unchanged in appearance and pose. Keep exact transparent background, no text/grid/checkerboard/shadows. Only3 figures. No mirrored face; no extra limbs.",
+  "references": [
+    "devops-working-v2.png",
+    "../devops-v2.png"
+  ],
+  "transparent_background": true
+}

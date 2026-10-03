@@ -14,7 +14,60 @@ import AppKit
         let cg = image.cgImage(forProposedRect: &rect, context: nil, hints: nil)!
         return Array(cg.dataProvider!.data! as Data)
     }
+
+    /// A continuous garment branches into two legs and merges again, without changing its colour.
+    static func splitSilhouette() -> [UInt8] {
+        var bytes = Array(repeating: UInt8(0), count: 64 * 80 * 4)
+        for y in 6..<74 { for x in 6..<58 {
+            if (28..<50).contains(y) && (25..<36).contains(x) { continue }
+            let offset = (y * 64 + x) * 4
+            let alpha: UInt8 = x == 6 || x == 57 ? 128 : 255
+            for channel in 0..<3 { bytes[offset + channel] = alpha == 255 ? 180 : 90 }
+            bytes[offset + 3] = alpha
+        } }
+        return bytes
+    }
+
+    /// Compare lighting across rows where source colour and alpha stay identical through the fork.
+    static func largestRowStep(_ bytes: [UInt8]) -> Int {
+        var largest = 0
+        for y in 16..<66 { for x in Array(8..<23) + Array(39..<56) {
+            largest = max(largest, abs(Int(bytes[(y * 64 + x) * 4]) - Int(bytes[((y - 1) * 64 + x) * 4])))
+        } }
+        return largest
+    }
+
+    static func validateSplitSurface() {
+        let bytes = splitSilhouette(), source = image(bytes, width: 64, height: 80)
+        var largest = 0
+        for light in [-1, 0, 1] {
+            let shaded = pixels(SpriteDepth.volume(source, light: light))
+            let step = largestRowStep(shaded)
+            largest = max(largest, step)
+            precondition(step <= 6, "Alpha split/merge created a horizontal lighting step: \(step)")
+            for offset in stride(from: 0, to: bytes.count, by: 4) {
+                precondition(shaded[offset + 3] == bytes[offset + 3], "Smoothing the light changed alpha")
+                if bytes[offset + 3] == 0 {
+                    precondition(shaded[offset] == 0 && shaded[offset + 1] == 0 && shaded[offset + 2] == 0,
+                        "Light escaped the silhouette")
+                }
+            }
+            // The fix must retain the volume gradient, rather than disable lighting at the branch.
+            precondition(Int(shaded[(22 * 64 + 10) * 4]) - Int(shaded[(22 * 64 + 54) * 4]) > 20,
+                "Split-safe light flattened the sprite")
+        }
+        var ink = bytes
+        for y in 18..<22 { for channel in 0..<3 { ink[(y * 64 + 20) * 4 + channel] = 0 } }
+        let detailed = pixels(SpriteDepth.volume(image(ink, width: 64, height: 80)))
+        for y in 18..<22 { for channel in 0..<3 {
+            precondition(detailed[(y * 64 + 20) * 4 + channel] == 0, "Gain smoothing blurred authored ink")
+            precondition(detailed[(y * 64 + 19) * 4 + channel] > 160, "Ink bled into its neighbouring pixel")
+        } }
+        print("PASS alpha split/merge surface, maximum adjacent-row lighting step \(largest)/255; crisp ink and alpha unchanged")
+    }
+
     static func main() {
+        validateSplitSurface()
         var body = Array(repeating: UInt8(0), count: 32 * 32 * 4), head = body
         for y in 6..<29 { for x in 4..<27 {
             let offset = (y * 32 + x) * 4

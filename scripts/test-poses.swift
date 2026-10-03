@@ -163,6 +163,26 @@ import AppKit
         view.remove(mixed.id, immediately: true); view.snapshotTime = 100; view.tick()
         precondition(view.characters.isEmpty, "Pose selection resurrected an empty view")
         view.update(mixed); precondition(view.posture(for: mixed, at: 100).kind == .standing, "Removed character kept a previous pose")
+        // A role transition must advance its outgoing neutral-only posture when narration begins.
+        var authored = definition("layer.png")
+        var neutralFace = authored["face"] as! [String: Any]; neutralFace["neutralOnly"] = true; authored["face"] = neutralFace
+        let choreography: [String: Any] = ["version": 1, "canvas": ["width": 256, "height": 384],
+            "characters": ["code/work-three-quarter": authored]]
+        try JSONSerialization.data(withJSONObject: choreography).write(to: directory.appendingPathComponent("choreography.json"))
+        view.loadRigs(directory: directory); view.snapshotTime = 0
+        let oldNarrator = Character(id: "narrator", column: 1, label: "CODE", state: "working", rig: "code", activity: "read")
+        view.replace([oldNarrator], animated: false)
+        for time in [0.0, 0.4, 1.0] { _ = view.posture(for: oldNarrator, at: time) }
+        precondition(view.posture(for: oldNarrator, at: 1.2).kind == .workThreeQuarter)
+        let newNarrator = Character(id: oldNarrator.id, column: 2, label: "RESEARCH", state: "working", rig: "research", activity: "read")
+        view.snapshotTime = 1.2; view.update(newNarrator); view.speaker = newNarrator.id
+        let returning = view.displayPosture(for: newNarrator, at: 1.2)
+        precondition(returning.kind == .workThreeQuarter && returning.opacity == 1,
+                     "Narration snapped the outgoing authored silhouette")
+        let frontal = view.displayPosture(for: newNarrator, at: 1.8)
+        precondition(frontal.kind == .standing && frontal.opacity == 1,
+                     "Role change froze a neutral-only head throughout the first spoken words")
+        view.speaker = nil
         print("PASS lazy pose loading: zero startup decodes, one decode per selected rig, cached failures")
         for (role, armID) in [("devops", "tool-arm"), ("tester", "controller-arms")] {
             var value = definition("layer.png")
@@ -176,6 +196,13 @@ import AppKit
             var animation = WorkAnimation(seed: role); animation.update(active: true, at: 0)
             let raw = animation.pose(rig: role, at: 1000.123, reduced: false)
             let held = raw.forPose(rig: role, standing: false)
+            let drawn = raw.forDrawnPose(rig: role)
+            let driver = raw.joints[armID]!
+            precondition(drawn.joints["arm-right"]!.angle == driver.angle && drawn.joints["arm-right"]!.y == driver.y,
+                         "\(role) authored view lost its actual tool gesture")
+            if role == "tester" {
+                precondition(drawn.joints["arm-left"]!.angle == driver.angle, "Drawn controller hands lost their coupling")
+            }
             let box = NSRect(x: 0, y: 0, width: 256, height: 384), point = NSPoint(x: 120, y: 220)
             func moved(_ layerID: String, _ work: WorkPose) -> NSPoint {
                 let layer = rig.definition.layers.first { $0.id == layerID }!

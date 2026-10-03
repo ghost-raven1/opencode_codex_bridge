@@ -28,6 +28,18 @@ struct WorkPose {
         return result
     }
 
+    /// Newly drawn views use measured left/right hands while retaining each role's tool gesture.
+    func forDrawnPose(rig: String) -> WorkPose {
+        var result = self
+        if rig == "devops" {
+            if let driver = joints["tool-arm"] { result.joints["arm-right"] = driver }
+            if let support = joints["hip-arm"] { result.joints["arm-left"] = support }
+        } else if rig == "tester", let coupled = joints["controller-arms"] {
+            result.joints["arm-left"] = coupled; result.joints["arm-right"] = coupled
+        }
+        return result
+    }
+
     /// Crossfade gestures over the ongoing work loop without adding joint amplitudes.
     func blending(_ other: WorkPose, weight: CGFloat) -> WorkPose {
         var result = scaled(1 - weight)

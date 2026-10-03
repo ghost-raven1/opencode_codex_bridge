@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -17,7 +17,8 @@ const output = resolve(process.argv[2] ?? join(root, ".local/animation-qa"));
 const assets = join(root, "packages/companions/assets");
 const temporary = mkdtempSync(join(tmpdir(), "codexbridge-motion-qa-"));
 mkdirSync(output, { recursive: true });
-const files = ["manifest.json", "poses.json"].flatMap(name => Object.values(JSON.parse(readFileSync(join(assets, "expansion", name), "utf8")).characters)
+const files = ["manifest.json", "poses.json", "choreography.json"].filter(name => existsSync(join(assets, "expansion", name)))
+  .flatMap(name => Object.values(JSON.parse(readFileSync(join(assets, "expansion", name), "utf8")).characters)
   .flatMap(rig => [...rig.layers.map(layer => layer.file), rig.face.file]));
 const sha = file => createHash("sha256").update(readFileSync(join(assets, "expansion", file))).digest("hex");
 const before = Object.fromEntries([...new Set(files)].map(file => [file, sha(file)]));
@@ -52,7 +53,7 @@ try {
     work = work.replace(from, to);
   }
   writeFileSync(join(temporary, "WorkMotion.swift"), work);
-  const sources = ["CharacterMotion", "LayeredMotion", "LayeredRig", "PoseAnimation", "IdleMotion", "TeamMotion", "SpriteTransition",
+  const sources = ["CharacterMotion", "LayeredMotion", "LayeredRig", "PoseAnimation", "PoseChoreography", "IdleMotion", "TeamMotion", "SpriteTransition",
     "MusicRhythm", "MusicMotion", "ActionMotion", "CharacterBadgeView", "SpeechBubbleView", "SpriteCache", "SpriteDepth"];
   const binary = join(temporary, "qa-motion");
   const compiled = spawnSync("swiftc", ["-O", "-swift-version", "5", "-module-cache-path", join(root, ".local/swift-cache"),

@@ -1,0 +1,9 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: stylized-concept.\nAsset type: ONE true RIGHT-FACING side-profile work sprite, transparent full body.\nDraw exactly the same adult REVIEW woman from image1, who is also the rightmost woman in image2. She must face IMAGE-RIGHT in a true 90-degree SIDE PROFILE. Her nose and chin form a clean visible profile projecting towards the RIGHT BORDER. Only ONE orange eye visible, no front-facing second eye. Chest, hips, legs and boot toes also point IMAGE-RIGHT. We see the character's LEFT side from a flat profile camera. She looks at a tablet held toward the RIGHT, writes on it with stylus. This is an actual newly drawn opposite camera angle, not a reflection.\nPreserve silver chin-length asymmetrical bob hair, amber-orange eye, orange earring, black fitted ribbed cropped high-neck top, black cropped technical jacket with orange straps/trim and round arm emblem, grey-black cargo trousers, orange belt accents, heavy black combat boots with orange laces. Confident sharp adult professional. Exact adult proportions, no chibi. Painterly pixel sprite texture and dimensional face/clothing shading, dark clean contour.\nComposition: ONE full-body silhouette entirely inside the frame with generous 40px transparent margins around hair, fingers, tablet and boot soles.\nTRUE RGBA TRANSPARENCY, no background gradients, no floor, no cast shadows, no checkerboard, labels, letters, watermark. Essential: NO LEFT-FACING FIGURE. Nose points RIGHT.\nImage1 exact character identity/outfit reference. Image2 established identity/style reference.",
+  "transparent_background": true,
+  "references": [
+    "review-more-v1.png",
+    "../core-v2.png"
+  ]
+}

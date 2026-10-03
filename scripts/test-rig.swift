@@ -169,6 +169,21 @@ import AppKit
         precondition((109...113).contains(ambient.gestureAt))
         ambient.advance(114, gestureInterval: rig.gestureInterval)
         precondition(ambient.gestureStart == 114 && (123...127).contains(ambient.gestureAt))
+        // Drawn views keep narrow cutout seams and skip unused neutral facial atlases.
+        var authored = character
+        authored["face"] = ["file": "intentionally-unused.png", "frameHeight": 384, "frames": frames, "neutralOnly": true]
+        authored["motion"] = ["breathSeconds": 4.8, "gestureSeconds": 4.0, "gestureIntervalSeconds": [9, 13],
+                              "translationLimit": 0.75, "projectedJoints": false]
+        try write(authored)
+        let cutout = LayeredRig.load(directory: directory)["test"]!
+        let quietHead = cutout.transform(for: head, target: target, pose: LayerPose(headX: 99, headY: -99),
+            time: 0, gestureElapsed: nil, reduced: false, depth: DepthPose(turn: 0.7, headTurn: 0.7))
+        near(quietHead.transform(point), NSPoint(x: point.x + 0.375, y: point.y - 0.375))
+        let quietArm = cutout.transform(for: arm, target: target, pose: LayerPose(), time: 0, gestureElapsed: nil,
+            reduced: false, work: WorkJoint(x: 99, y: -99), depth: DepthPose(turn: 0.7))
+        near(quietArm.transform(point), NSPoint(x: point.x + 0.375, y: point.y - 0.375))
+        authored["motion"] = ["breathSeconds": 4.8, "gestureSeconds": 4.0, "gestureIntervalSeconds": [9, 13], "translationLimit": -1]
+        try write(authored); precondition(LayeredRig.load(directory: directory).isEmpty)
         try write(character, width: 255); precondition(LayeredRig.load(directory: directory).isEmpty)
         try write(character)
         try image(directory.appendingPathComponent("face.png"), height: 384 * 17)

@@ -34,7 +34,9 @@
     "setup:snip": "node scripts/install-snip.mjs",
     "smoke:companions": "node scripts/smoke-companions.mjs",
     "test:native": "node scripts/test-native.mjs",
-    "qa:motion": "node scripts/qa-companion-motion.mjs"
+    "qa:motion": "node scripts/qa-companion-motion.mjs",
+    "assets:choreography": "node scripts/prepare-choreography.mjs",
+    "qa:choreography": "node scripts/qa-choreography.mjs"
   },
   "devDependencies": {
     "@types/node": "22.18.6",

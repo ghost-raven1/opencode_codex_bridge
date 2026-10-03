@@ -7,8 +7,11 @@ struct RigManifest: Decodable {
         let id: String; let file: String; let parent: String?; let pivot: [Double]
         let motion: String; let amplitudeDegrees: Double
     }
-    struct Face: Decodable { let file: String; let frameHeight: Int; let frames: [String] }
-    struct Timing: Decodable { let breathSeconds: Double; let gestureSeconds: Double; let gestureIntervalSeconds: [Double] }
+    struct Face: Decodable { let file: String; let frameHeight: Int; let frames: [String]; let neutralOnly: Bool? }
+    struct Timing: Decodable {
+        let breathSeconds: Double; let gestureSeconds: Double; let gestureIntervalSeconds: [Double]
+        let translationLimit: Double?; let projectedJoints: Bool?
+    }
     struct Character: Decodable { let layers: [Layer]; let face: Face; let motion: Timing }
     let version: Int; let canvas: Canvas; let characters: [String: Character]
 }
@@ -19,7 +22,7 @@ final class LayeredRig {
                              "open", "quarter", "half", "three-quarter", "closed", "reopen", "smile", "concern", "focus", "surprise"]
     let definition: RigManifest.Character
     private let layers: [(RigManifest.Layer, NSImage)]
-    private let face: NSImage
+    private let face: NSImage?
     private let head: RigManifest.Layer
     private let body: RigManifest.Layer
     private let bodyMask: CGImage
@@ -28,13 +31,14 @@ final class LayeredRig {
 
     init?(definition: RigManifest.Character, directory: URL) {
         let interval = definition.motion.gestureIntervalSeconds
+        let face = definition.face.neutralOnly == true ? nil : NSImage(contentsOf: directory.appendingPathComponent(definition.face.file))
         guard definition.face.frames == Self.faceFrames,
               definition.face.frameHeight == 384,
               definition.motion.breathSeconds.isFinite, definition.motion.breathSeconds > 0,
               definition.motion.gestureSeconds.isFinite, definition.motion.gestureSeconds > 0,
+              definition.motion.translationLimit.map({ $0.isFinite && (0...1.5).contains($0) }) ?? true,
               interval.count == 2, interval.allSatisfy({ $0.isFinite && $0 > 0 }), interval[0] <= interval[1],
-              let face = NSImage(contentsOf: directory.appendingPathComponent(definition.face.file)),
-              Self.hasPixels(face, width: 256, height: 384 * 18),
+              definition.face.neutralOnly == true || face.map({ Self.hasPixels($0, width: 256, height: 384 * 18) }) == true,
               Set(definition.layers.map(\.id)).count == definition.layers.count,
               let body = definition.layers.first(where: { $0.id == "body" }), body.motion == "body", body.parent == nil,
               let head = definition.layers.first(where: { $0.id == "head" }), head.motion == "head", head.parent == "body" else { return nil }
@@ -93,7 +97,7 @@ final class LayeredRig {
         for (source, layer, image) in entries {
             let destination = source === self ? target : alignedHeadTarget(from: source, target: target)
             let rendered = sprites.frame(image, column: 0, row: 0, rows: 1, radius: radius, columns: 1,
-                face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" ? faceRows : [],
+                face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" && source.face != nil ? faceRows : [],
                 light: depth.light(head: layer.motion == "head" || layer.parent == "head"))
             NSGraphicsContext.saveGraphicsState()
             source.transform(for: layer, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
@@ -136,13 +140,18 @@ final class LayeredRig {
             let beat = layer.motion == "arm" ? beatArm * direction : layer.motion == "hair" ? beatHair : 0
             angle = min(layer.amplitudeDegrees, max(-layer.amplitudeDegrees, angle + beat * layer.amplitudeDegrees + (work?.angle ?? 0)))
         }
-        let x = reduced ? 0 : min(1.5, max(-1.5, work?.x ?? 0)), y = reduced ? 0 : min(1.5, max(-1.5, work?.y ?? 0))
+        let limit = CGFloat(definition.motion.translationLimit ?? 1.5)
+        let x = reduced ? 0 : min(limit, max(-limit, work?.x ?? 0)), y = reduced ? 0 : min(limit, max(-limit, work?.y ?? 0))
         let transform = Self.affine(pivot: layer.pivot, target: target, angle: angle, x: x, y: y)
         if !reduced && (layer.motion == "head" || layer.parent == "head") {
             let angle = min(head.amplitudeDegrees, max(-head.amplitudeDegrees, pose.headAngle))
-            transform.append(Self.affine(pivot: head.pivot, target: target, angle: angle, x: pose.headX, y: pose.headY) as AffineTransform)
-            transform.append(SpriteDepth.projection(pivot: head.pivot, target: target, turn: depth.headTurn, foreground: true) as AffineTransform)
-        } else if !reduced && ["arm", "prop"].contains(layer.motion) {
+            let x = definition.motion.translationLimit.map { min(CGFloat($0), max(-CGFloat($0), pose.headX)) } ?? pose.headX
+            let y = definition.motion.translationLimit.map { min(CGFloat($0), max(-CGFloat($0), pose.headY)) } ?? pose.headY
+            transform.append(Self.affine(pivot: head.pivot, target: target, angle: angle, x: x, y: y) as AffineTransform)
+            if definition.motion.projectedJoints != false {
+                transform.append(SpriteDepth.projection(pivot: head.pivot, target: target, turn: depth.headTurn, foreground: true) as AffineTransform)
+            }
+        } else if !reduced && definition.motion.projectedJoints != false && ["arm", "prop"].contains(layer.motion) {
             let anchor = layer.motion == "arm" ? layer : definition.layers.filter { $0.motion == "arm" }.min {
                 hypot($0.pivot[0] - layer.pivot[0], $0.pivot[1] - layer.pivot[1]) < hypot($1.pivot[0] - layer.pivot[0], $1.pivot[1] - layer.pivot[1])
             } ?? layer
@@ -186,6 +195,7 @@ final class PoseRigLibrary {
     init(directory: URL) {
         self.directory = directory
         definitions = LayeredRig.definitions(directory: directory, manifest: "poses.json")
+            .merging(LayeredRig.definitions(directory: directory, manifest: "choreography.json")) { _, authored in authored }
     }
 
     func contains(_ name: String) -> Bool { definitions[name] != nil && !failed.contains(name) }

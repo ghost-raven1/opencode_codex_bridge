@@ -47,9 +47,49 @@ enum SpriteDepth {
         }
     }
 
-    /// A rounded surface normal follows each alpha span; ink and authored highlights stay readable.
+    private struct SurfaceLight {
+        var shade: Double = 0
+        var highlight: Double = 0
+    }
+
+    /// Blend only light parameters across rows; split/merged alpha spans must not leave horizontal bands.
+    private static func smoothLight(_ source: [SurfaceLight], pixels: Pixels) -> [SurfaceLight] {
+        var field = source
+        let radius = 4
+        // Two fixed nine-row passes form a soft, seventeen-row transition. Sliding
+        // alpha-weighted sums keep this linear in the image size and exclude empty pixels.
+        for _ in 0..<2 {
+            var filtered = Array(repeating: SurfaceLight(), count: field.count)
+            for x in 0..<pixels.width {
+                var weight = 0.0, shade = 0.0, highlight = 0.0
+                for y in 0..<min(radius + 1, pixels.height) {
+                    let index = y * pixels.width + x, alpha = Double(pixels.bytes[index * 4 + 3])
+                    weight += alpha; shade += field[index].shade * alpha; highlight += field[index].highlight * alpha
+                }
+                for y in 0..<pixels.height {
+                    let index = y * pixels.width + x
+                    if pixels.bytes[index * 4 + 3] > 0 && weight > 0 {
+                        filtered[index] = SurfaceLight(shade: shade / weight, highlight: highlight / weight)
+                    }
+                    if y >= radius {
+                        let index = (y - radius) * pixels.width + x, alpha = Double(pixels.bytes[index * 4 + 3])
+                        weight -= alpha; shade -= field[index].shade * alpha; highlight -= field[index].highlight * alpha
+                    }
+                    if y + radius + 1 < pixels.height {
+                        let index = (y + radius + 1) * pixels.width + x, alpha = Double(pixels.bytes[index * 4 + 3])
+                        weight += alpha; shade += field[index].shade * alpha; highlight += field[index].highlight * alpha
+                    }
+                }
+            }
+            field = filtered
+        }
+        return field
+    }
+
+    /// Cache rounded light with a continuous gain map; authored RGB pixels and alpha are never blurred.
     static func volume(_ source: NSImage, light: Int = 0) -> NSImage {
         guard var pixels = Pixels(source) else { return source }
+        var field = Array(repeating: SurfaceLight(), count: pixels.width * pixels.height)
         for y in 0..<pixels.height {
             var x = 0
             while x < pixels.width {
@@ -59,7 +99,6 @@ enum SpriteDepth {
                 let length = x - start
                 guard length >= 5 else { continue }
                 for column in start..<x {
-                    let offset = (y * pixels.width + column) * 4, alpha = Double(pixels.bytes[offset + 3])
                     let u = Double(column - start) / Double(length - 1)
                     let v = Double(y) / Double(max(1, pixels.height - 1))
                     let theta = (u - 0.5) * .pi * 0.8
@@ -67,12 +106,18 @@ enum SpriteDepth {
                     let shade = max(0, 0.88 - diffuse) * 0.30 + 0.035 * v
                     let rim = column - start < 2 ? 0.025 : 0.0
                     let highlight = max(0, diffuse - 0.60) * 0.25 + rim
-                    for channel in 0..<3 {
-                        let value = Double(pixels.bytes[offset + channel])
-                        pixels.bytes[offset + channel] = UInt8(min(alpha, max(0,
-                            value * (1 - shade) + (alpha - value) * highlight * sqrt(value / alpha))).rounded())
-                    }
+                    field[y * pixels.width + column] = SurfaceLight(shade: shade, highlight: highlight)
                 }
+            }
+        }
+        field = smoothLight(field, pixels: pixels)
+        for index in field.indices {
+            let offset = index * 4, alpha = Double(pixels.bytes[offset + 3])
+            guard alpha > 0 else { continue }
+            for channel in 0..<3 {
+                let value = Double(pixels.bytes[offset + channel])
+                pixels.bytes[offset + channel] = UInt8(min(alpha, max(0,
+                    value * (1 - field[index].shade) + (alpha - value) * field[index].highlight * sqrt(value / alpha))).rounded())
             }
         }
         return pixels.image ?? source

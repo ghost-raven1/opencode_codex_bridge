@@ -1,0 +1,9 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: stylized-concept. Asset type: final two-frame walking animation sheet for a layered desktop companion.\nCharacter is the exact adult LEAD woman from image1, also the leftmost adult woman in image2. Preserve auburn short bob with cream fringe, green eyes and small headset, fitted dark teal button blouse, white cropped work jacket with small orange patch, grey cargo trousers and white/charcoal/orange chunky sneakers. Keep established attractive adult face/body proportions, not chibi, painterly pixel sprite texture and dimensional highlights/shadows.\nDraw exactly TWO full-body walking keyframes in two equal columns by ONE row. BOTH characters face and walk toward IMAGE-RIGHT in the same right three-quarter camera angle. Keep head direction, torso direction and foot/toe direction toward the RIGHT in BOTH cells; no reversal between frames. Both have the same head size and same outfit perspective.\nLEFT cell: left LEG steps forward toward image-right, right leg trails behind, opposite arm swings forward.\nRIGHT cell: right LEG steps forward toward image-right, left leg trails behind; arms alternate accordingly.\nTablet tucked into one arm throughout both steps; the other arm swings freely. Draw the actual opposite walking phase, NOT a duplicate or mirror. Use a clearly readable alternating forward/back leg silhouette. Preserve head size and foot baseline across the two frames.\nExactly two complete silhouettes with at least40px transparent margin in every slot. True RGBA transparency outside silhouettes, no backgrounds, gradients, cast shadows, floor, grid, labels, text or watermark. No missing fingers/boot soles. Both NOSE and BODY face RIGHT.",
+  "transparent_background": true,
+  "references": [
+    "lead-more-v1.png",
+    "../core-v2.png"
+  ]
+}

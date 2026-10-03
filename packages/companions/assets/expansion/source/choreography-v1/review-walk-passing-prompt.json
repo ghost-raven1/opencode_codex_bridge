@@ -1,0 +1,9 @@
+{
+  "tool": "image_gen.imagegen",
+  "transparent_background": true,
+  "referenced_images": [
+    "review-walk-phases-v2.png"
+  ],
+  "prompt": "Use case: precise-object-edit. Edit target: image1 TWO walking frames of the same adult REVIEW woman.\nKeep the ENTIRE LEFT CELL unchanged, including exact head, outfit, arms, torso and wide walking stride. Keep the RIGHT CELL head, torso, hands, outfit and camera direction unchanged.\nCHANGE ONLY THE LEGS AND FEET OF THE RIGHT CELL to a clearly different WALKING PASSING POSE: the support leg is nearly straight beneath the hip, foot planted on the same ground baseline; the other knee is bent around60degrees and swings forward toward IMAGE-RIGHT, its foot lifted clearly25cm off the ground near the other calf. The two feet are close beneath the torso instead of far apart. This is the intermediate passing/up phase between wide-stride walk contacts. It must look distinctly different from the wide extended stride in the left cell. No repeated wide stance in the right cell.\nBoth figures continue facing IMAGE-RIGHT, same exact face/camera/outfit and physical head scale. Do not mirror or reverse either body. Adult proportional anatomy, same established identity, clean painterly pixel sprite shading.\nTrue transparent RGBA outside silhouettes, generous40px margin around every silhouette, no backgrounds, floor, cast shadows, gradients, checkerboard, titles, labels or text. Keep all boots and bent knee fully inside each slot.",
+  "generated_source": "exec-399b2a00-0fb4-4d36-9450-1f39056bdec6.png"
+}
