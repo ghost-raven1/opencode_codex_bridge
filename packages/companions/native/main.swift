@@ -281,7 +281,8 @@ var exitStatus: Int32 = 0
             let character = Character(id: id, column: min(max(appearance["column"] as? Int ?? 0, 0), 3),
                 label: appearance["label"] as? String ?? "LEAD", state: value["state"] as? String ?? "idle",
                 headColumn: appearance["headColumn"] as? Int, bodyColumn: appearance["bodyColumn"] as? Int,
-                rig: appearance["rig"] as? String, name: value["name"] as? String)
+                rig: appearance["rig"] as? String, name: value["name"] as? String,
+                parentID: value["parentCharacterId"] as? String, invocationID: value["invocationId"] as? String)
             if let index = realCharacters.firstIndex(where: { $0.id == id }) { realCharacters[index] = character }
             else { realCharacters.append(character) }
             if demonstration { demonstration = false; view.replace(Array(realCharacters.prefix(maxVisible))) }
@@ -352,7 +353,7 @@ var exitStatus: Int32 = 0
     }
 
     func emitWindowStatus() {
-        emit(["type": "window", "hidden": windowState.hidden, "visible": panel.isVisible,
+        emit(["type": "window", "teamActions": view.teamActionKinds, "hidden": windowState.hidden, "visible": panel.isVisible,
               "scale": scaleControl.value, "effectiveScale": scaleControl.effective,
               "width": panel.frame.width, "height": panel.frame.height,
               "contentWidth": view.frame.width, "contentHeight": view.frame.height,

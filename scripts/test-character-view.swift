@@ -47,7 +47,11 @@ import AppKit
         let thinking = Character(id: "agent", column: 1, label: "CODE", state: "thinking")
         view.snapshotTime = 1000; view.update(working)
         view.snapshotTime = 1003; view.remove(working.id)
-        view.snapshotTime = 1003.1; view.update(thinking)
+        view.snapshotTime = 1003.4; view.tick()
+        let leavingBadge = view.subviews.compactMap { $0 as? CharacterBadgeView }.first!
+        let faded = leavingBadge.alphaValue
+        view.update(thinking)
+        precondition(abs(leavingBadge.alphaValue - faded) < 0.0001, "Resuming work reset the departure opacity")
         view.snapshotTime = 1005; view.tick()
         precondition(view.characters.count == 1, "New work did not cancel departure")
         view.snapshotTime = 1010; view.replace([thinking], animated: false)
@@ -83,6 +87,19 @@ import AppKit
                                        audibleAt: 2001, allowance: 1, measuredAt: 2001)
         view.snapshotTime = 2001; view.tick()
         precondition(view.characters.isEmpty, "Music retained a finished character beyond its departure")
+        view.snapshotTime = 3000
+        let parent = Character(id: "parent", column: 0, label: "LEAD", state: "working", invocationID: "parent-task")
+        var child = Character(id: "child", column: 1, label: "CODE", state: "working", parentID: "parent", invocationID: "child-task")
+        view.replace([parent], animated: false); view.update(child)
+        precondition(view.teamActionKinds == ["handoff"])
+        view.replace([Character(id: "demo-a", column: 2, label: "DEMO", state: "idle"),
+                      Character(id: "demo-b", column: 3, label: "DEMO", state: "idle")])
+        view.replace([parent, child])
+        precondition(view.teamActionKinds.isEmpty, "Returning from demo replayed a real task's handoff")
+        child.invocationID = "next-child-task"; view.update(child)
+        precondition(view.teamActionKinds == ["handoff"], "A new delegated task failed to animate")
+        view.remove(parent.id, immediately: true); view.remove(child.id, immediately: true)
+        precondition(view.teamActionKinds.isEmpty)
         print("PASS key-capable panel, cancelled departure, stable badge controls across 1000 updates, music cannot create/resurrect characters and cleanup")
     }
 }

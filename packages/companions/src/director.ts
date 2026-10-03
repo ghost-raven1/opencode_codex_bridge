@@ -11,6 +11,7 @@ export interface CompanionEvent {
   characterId: string;
   taskId?: string;
   invocationId?: string;
+  parentCharacterId?: string;
   name?: string;
   runId?: string;
   voice?: string;
@@ -112,6 +113,7 @@ export class CompanionDirector {
       return;
     }
     const previousAgent = session.agent;
+    const previousParent = session.parentID;
     if (task.agent) session.agent = task.agent;
     if (task.parentID) session.parentID = task.parentID;
     if (task.parentID && !task.messageID) {
@@ -122,7 +124,7 @@ export class CompanionDirector {
     session.task = task.task.slice(0, 16000);
     session.taskMessageID = task.messageID ?? session.lastUser;
     const role = this.taskRole(session);
-    const changed = role !== session.role || previousAgent !== session.agent; session.role = role;
+    const changed = role !== session.role || previousAgent !== session.agent || previousParent !== session.parentID; session.role = role;
     if (task.parentID && !session.visible) this.state(id, "working");
     else if (changed && session.visible) this.state(id, session.state);
   }
@@ -146,6 +148,7 @@ export class CompanionDirector {
     if (!session) return;
     this.emit({ characterId: id, ...(session.taskId ? { taskId: session.taskId } : {}),
       ...((event.type === "state" || event.type === "speak") && session.invocationId ? { invocationId: session.invocationId } : {}),
+      ...(event.type === "state" && session.parentID ? { parentCharacterId: session.parentID } : {}),
       ...(session.runId ? { runId: session.runId } : {}), ...event });
   }
 
@@ -321,9 +324,10 @@ export class CompanionDirector {
       return;
     }
     if (sessionEvent) {
+      const previousParent = session.parentID;
       if (typeof info.parentID === "string") session.parentID = info.parentID;
       const role = this.taskRole(session);
-      if (role !== session.role) { session.role = role; if (session.visible) this.state(id, session.state); }
+      if (role !== session.role || previousParent !== session.parentID) { session.role = role; if (session.visible) this.state(id, session.state); }
     } else if (type === "message.updated") {
       const messageId = string(info.id);
       if (!messageId) return;

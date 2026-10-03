@@ -7,6 +7,9 @@ enum CharacterPose: String, CaseIterable {
 struct PoseFrame {
     var kind: CharacterPose = .standing
     var opacity: Double = 1
+    var scaleY: Double = 1
+    var y: Double = 0
+    var angle: Double = 0
 }
 
 /// Slow per-character posture changes share the existing render clock and never create timers.
@@ -20,6 +23,7 @@ struct PoseAnimation {
     private var previous: CharacterPose = .standing
     private var changedAt = -Double.infinity
     private var initialOpacity = 1.0
+    private var initialFrame = PoseFrame()
 
     init(seed: String) {
         self.seed = seed.utf8.reduce(UInt64(14695981039346656037)) { ($0 ^ UInt64($1)) &* 1099511628211 }
@@ -33,7 +37,7 @@ struct PoseAnimation {
         let nextMode = ["thinking", "working"].contains(state) ? "work" : ["success", "idle"].contains(state) ? "rest" : "blocked"
         if self.identity != identity {
             self.identity = identity; mode = ""; cycle = 0
-            target = .standing; previous = .standing; changedAt = -.infinity; initialOpacity = 1
+            target = .standing; previous = .standing; changedAt = -.infinity; initialOpacity = 1; initialFrame = PoseFrame()
         }
         var desired = target
         if mode != nextMode {
@@ -57,7 +61,7 @@ struct PoseAnimation {
         if desired != .standing && !available.contains(desired) { desired = .standing }
         if desired != target {
             let displayed = frame(at: time, reduced: reduced)
-            previous = displayed.kind; initialOpacity = displayed.opacity
+            previous = displayed.kind; initialOpacity = displayed.opacity; initialFrame = displayed
             target = desired; changedAt = time
         }
         return frame(at: time, reduced: reduced)
@@ -67,10 +71,23 @@ struct PoseAnimation {
     func frame(at time: Double, reduced: Bool) -> PoseFrame {
         let t = min(1, max(0, (time - changedAt) / (reduced ? 0.15 : 0.8)))
         if t >= 1 { return PoseFrame(kind: target) }
+        let initial = reduced ? PoseFrame() : initialFrame
         let smooth: (Double) -> Double = { $0 * $0 * (3 - 2 * $0) }
-        if previous == target { return PoseFrame(kind: target, opacity: initialOpacity + (1 - initialOpacity) * smooth(t)) }
-        if t < 0.5 { return PoseFrame(kind: previous, opacity: initialOpacity * (1 - smooth(t * 2))) }
-        return PoseFrame(kind: target, opacity: smooth((t - 0.5) * 2))
+        if previous == target {
+            let blend = smooth(t)
+            return PoseFrame(kind: target, opacity: initialOpacity + (1 - initialOpacity) * blend,
+                scaleY: initial.scaleY + (1 - initial.scaleY) * blend,
+                y: initial.y * (1 - blend), angle: initial.angle * (1 - blend))
+        }
+        let dip = reduced ? 0 : sin(t * .pi)
+        if t < 0.5 {
+            return PoseFrame(kind: previous, opacity: initialOpacity * (1 - smooth(t * 2)),
+                             scaleY: 1 - dip * 0.025 + (initial.scaleY - 1) * (1 - smooth(t * 2)),
+                             y: -dip * 3 + initial.y * (1 - smooth(t * 2)),
+                             angle: dip * 0.6 + initial.angle * (1 - smooth(t * 2)))
+        }
+        return PoseFrame(kind: target, opacity: smooth((t - 0.5) * 2),
+                         scaleY: 1 - dip * 0.025, y: -dip * 3, angle: -dip * 0.6)
     }
 
     private func interval() -> Double {

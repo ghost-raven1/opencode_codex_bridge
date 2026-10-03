@@ -47,7 +47,7 @@ describe("companion audit regressions", () => {
       .toMatchObject({ taskId: expectedTask, state: "success", role: "reviewer" });
     vi.advanceTimersByTime(20_000);
     expect(t.events.some(event => event.characterId === "child" && event.type === "remove")).toBe(false);
-    t.lifecycle.speechActivity(new Set()); vi.advanceTimersByTime(10_000);
+    t.lifecycle.speechActivity(new Set()); vi.advanceTimersByTime(30_000);
     expect(t.events.at(-1)).toMatchObject({ characterId: "child", type: "remove", taskId: expectedTask });
   });
 

@@ -28,7 +28,7 @@ describe("speech diagnostic instrumentation", () => {
     resolve({ path: "/private/SECRET.wav", duration: 1, sampleRate: 24000 }); await vi.advanceTimersByTimeAsync(0);
     expect(diagnostic).toHaveBeenCalledWith("synthesis-discard", expect.objectContaining({ reason: "stale-audio" }));
     expect(remove).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(10_000);
+    await vi.advanceTimersByTimeAsync(30_000);
     expect(diagnostic).toHaveBeenCalledWith("lifecycle-remove", expect.objectContaining({ reason: "retired", taskId: "task" }));
     expect(JSON.stringify(diagnostic.mock.calls)).not.toContain("SECRET");
   });

@@ -38,6 +38,21 @@ import AppKit
         let far = (25 * 32 + 20) * 4
         precondition(Array(shaded[far..<far + 4]) == Array(body[far..<far + 4]), "Opaque interior detail outside the shadow changed")
         precondition(pixels(SpriteDepth.body(source, under: [])) == body, "Missing occluder changes artwork")
+        let lit = pixels(SpriteDepth.volume(source))
+        var changedLighting = 0
+        for offset in stride(from: 0, to: body.count, by: 4) {
+            precondition(lit[offset + 3] == body[offset + 3], "Volume added a halo or removed edge pixels")
+            for channel in 0..<3 {
+                let value = Double(body[offset + channel]), alpha = Double(body[offset + 3])
+                precondition(Double(lit[offset + channel]) >= value * 0.92 - 1, "Volume muddied pixel details")
+                precondition(Double(lit[offset + channel]) <= value + (alpha - value) * 0.05 + 1, "Volume overexposed the highlight")
+                precondition(lit[offset + channel] <= lit[offset + 3], "Invalid premultiplied edge")
+                if lit[offset + channel] != body[offset + channel] { changedLighting += 1 }
+            }
+        }
+        precondition(changedLighting > 400, "Volume never shaded the surface")
+        let left = (20 * 32 + 6) * 4, right = (20 * 32 + 25) * 4
+        precondition(lit[left] > lit[right], "Surface does not follow the top-left light")
         let contact = SpriteDepth.contact!, again = SpriteDepth.contact!
         precondition(contact === again, "Contact image is recreated per draw")
         let ground = pixels(contact)

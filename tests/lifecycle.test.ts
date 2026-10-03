@@ -11,12 +11,12 @@ function setup() {
 }
 afterEach(() => vi.useRealTimers());
 describe("companion residency", () => {
-  it("starts empty; waits for task and all queued speech, then retires after ten seconds", () => {
+  it("starts empty; waits for task and all queued speech, then retires after thirty seconds", () => {
     const t = setup(); expect(t.send).not.toHaveBeenCalled();
     t.state("a"); t.life.speechActivity(new Set(["a"]), "a"); t.state("a", "success");
     vi.advanceTimersByTime(30_000);
     expect(t.send.mock.calls.some(([e]) => e.type === "remove")).toBe(false);
-    t.life.speechActivity(new Set()); vi.advanceTimersByTime(9_999);
+    t.life.speechActivity(new Set()); vi.advanceTimersByTime(29_999);
     expect(t.send.mock.calls.some(([e]) => e.type === "remove")).toBe(false);
     vi.advanceTimersByTime(1);
     expect(t.send).toHaveBeenLastCalledWith(expect.objectContaining({ type: "remove", characterId: "a" }));
@@ -28,7 +28,7 @@ describe("companion residency", () => {
   });
   it("permission wait persists and new work cancels a scheduled departure", () => {
     const t = setup(); t.state("a", "waiting"); vi.advanceTimersByTime(60_000);
-    t.state("a", "success"); vi.advanceTimersByTime(9_000); t.state("a", "working", "next"); vi.advanceTimersByTime(30_000);
+    t.state("a", "success"); vi.advanceTimersByTime(29_000); t.state("a", "working", "next"); vi.advanceTimersByTime(30_000);
     expect(t.send.mock.calls.some(([e]) => e.type === "remove")).toBe(false); t.life.dispose();
   });
   it("allocates four distinct voices even for four developers and protects the speaker on overflow", () => {

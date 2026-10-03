@@ -93,7 +93,7 @@ async function captureVisuals() {
       rig: ["lead", "code", "research", "review"][column], label } }));
   entries.forEach(entry => host.send(entry));
   for (const background of ["light", "dark"]) await snapshot("entrance", background, 0.15);
-  await new Promise(resolve => setTimeout(resolve, 1250));
+  await new Promise(resolve => setTimeout(resolve, 1750));
   const longCaption = "Рабочее дерево чистое. Проверю последний коммит с авторизацией и связанный код моста; замечания дам с привязкой к строкам.\n\n".repeat(14);
   for (const background of ["light", "dark"]) await snapshot("long-caption", background, 0, longCaption);
   for (const state of ["idle", "thinking", "working", "waiting", "success", "error"]) {
@@ -107,20 +107,20 @@ async function captureVisuals() {
   for (const background of ["light", "dark"]) await snapshot("mixed", background);
   entries.forEach(entry => host.send({ type: "remove", characterId: entry.characterId }));
   for (const background of ["light", "dark"]) await snapshot("leave", background, 0.15);
-  await new Promise(resolve => setTimeout(resolve, 450));
+  await new Promise(resolve => setTimeout(resolve, 950));
   await windowState("visual cleanup stops rendering", event => event.count === 0 && !event.rendering);
   const specialists = ["designer", "devops", "tester"].map((rig, column) => ({ type: "state",
     characterId: `rig-${rig}`, name: ["Хару", "Наори", "Коэми"][column], state: "idle", appearance: { column, headColumn: column,
       bodyColumn: column, rig, label: rig.toUpperCase() } }));
   specialists.forEach(entry => host.send(entry));
   for (const background of ["light", "dark"]) await snapshot("rig-entrance", background, 0.15);
-  await new Promise(resolve => setTimeout(resolve, 1250));
+  await new Promise(resolve => setTimeout(resolve, 1750));
   for (const state of ["idle", "thinking", "working", "waiting", "success", "error"]) {
     specialists.forEach(entry => host.send({ ...entry, state }));
     for (const background of ["light", "dark"]) await snapshot(`rig-${state}`, background);
   }
   specialists.forEach(entry => host.send({ type: "remove", characterId: entry.characterId }));
-  await new Promise(resolve => setTimeout(resolve, 450));
+  await new Promise(resolve => setTimeout(resolve, 950));
   await windowState("specialist cleanup stops rendering", event => event.count === 0 && !event.rendering);
   console.log(`PASS visual artifacts: ${snapshots.length} PNGs at scale ${scale}`);
 }
@@ -167,11 +167,11 @@ try {
   host.send({ type: "remove", characterId: realCharacter.characterId });
   await new Promise(resolve => setTimeout(resolve, 50));
   host.send(realCharacter);
-  await new Promise(resolve => setTimeout(resolve, 1250));
+  await new Promise(resolve => setTimeout(resolve, 1750));
   await windowState("new activity cancels departure", event => containsReal(event) && event.columns?.[0] === 1 && event.visible);
   if (reduced) await windowState("reduce motion uses the reduced renderer", event => event.reducedMotion === true);
   host.send({ type: "remove", characterId: realCharacter.characterId });
-  await new Promise(resolve => setTimeout(resolve, 450));
+  await new Promise(resolve => setTimeout(resolve, 950));
   await windowState("last removal stops rendering", event => event.count === 0 && event.characters?.length === 0 &&
     event.visible === false && event.rendering === false);
   if (visual) await captureVisuals();

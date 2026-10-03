@@ -53,7 +53,7 @@ export default async () => {
     "chat.message": async (input, output) => director.assignTask(input.sessionID,
       { task: "Проверь длительную работу", messageID: output.message.id }),
     tool: { hold_companion: tool({ description: "Local lifecycle test", args: {}, execute: async () => {
-      record({ type: "tool-start" }); await new Promise(resolve => setTimeout(resolve, 12500));
+      record({ type: "tool-start" }); await new Promise(resolve => setTimeout(resolve, 32500));
       record({ type: "tool-end" }); return "DONE";
     } }) },
   };
@@ -96,16 +96,16 @@ export default async () => {
     agent: "build", parts: [{ type: "text", text: "Run hold_companion once, then reply DONE." }] });
   assert(!reply.info?.error, JSON.stringify(reply.info?.error));
   const events = async () => (await readFile(trace, "utf8")).trim().split("\n").map(line => JSON.parse(line));
-  const deadline = Date.now() + 12500;
+  const deadline = Date.now() + 32500;
   let rows = await events();
   while (!rows.some(event => event.type === "remove") && Date.now() < deadline) { await delay(100); rows = await events(); }
   const start = rows.find(event => event.type === "tool-start"), end = rows.find(event => event.type === "tool-end");
   const success = rows.find(event => event.type === "state" && event.state === "success");
   const removal = rows.find(event => event.type === "remove");
   assert(rows.some(event => event.type === "injected-idle"), "Idle regression was not exercised");
-  assert(start && end && end.at - start.at >= 12000, "Long tool did not finish");
+  assert(start && end && end.at - start.at >= 32000, "Long tool did not finish");
   assert(success && success.at >= end.at, "Task reported success before its tool completed");
-  assert(removal && removal.at - success.at >= 9900, "Character left before final completion + ten seconds");
+  assert(removal && removal.at - success.at >= 29900, "Character left before final completion + thirty seconds");
   const report = { passed: true, toolMs: end.at - start.at, lingerMs: removal.at - success.at, events: rows };
   await mkdir(join(root, ".local"), { recursive: true });
   await writeFile(join(root, ".local/companions-activity-smoke.json"), JSON.stringify(report, null, 2) + "\n");

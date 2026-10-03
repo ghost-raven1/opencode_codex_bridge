@@ -51,6 +51,10 @@ import AppKit
         let fading = step(&interrupted, 3.2, state: "idle")
         let retargeted = step(&interrupted, 3.2, state: "working")
         precondition(abs(fading.opacity - retargeted.opacity) < 0.000001, "Retargeting flashed the old silhouette")
+        precondition(abs(fading.y - retargeted.y) < 0.000001 && abs(fading.angle - retargeted.angle) < 0.000001 &&
+                     abs(fading.scaleY - retargeted.scaleY) < 0.000001, "Intermediate posture snapped on interruption")
+        let calm = interrupted.frame(at: 3.25, reduced: true)
+        precondition(calm.y == 0 && calm.angle == 0 && calm.scaleY == 1, "Enabling Reduce Motion retained an old posture offset")
         precondition(step(&interrupted, 4.1).kind == .standing)
         var reduced = PoseAnimation(seed: "reduced")
         _ = step(&reduced, 0, state: "idle", reduced: true); _ = step(&reduced, 3, state: "idle", reduced: true)

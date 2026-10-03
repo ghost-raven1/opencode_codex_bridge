@@ -17,6 +17,8 @@ final class CharacterView: NSView {
     private var workAnimations: [String: WorkAnimation] = [:]
     private var poseAnimations: [String: PoseAnimation] = [:]
     private var previousPostures: [String: PoseAnimation] = [:]
+    private var team = TeamCoordinator()
+    var teamActionKinds: [String] { team.actions.map { $0.kind.rawValue } }
     private var badges: [String: CharacterBadgeView] = [:]
     var speaker: String?
     var mouthUntil: TimeInterval = 0
@@ -82,7 +84,7 @@ final class CharacterView: NSView {
     }
     override func mouseUp(with event: NSEvent) { dragStart = nil; resizeStart = nil; NSCursor.openHand.set() }
 
-    func update(_ character: Character) {
+    func update(_ character: Character, animateInteractions: Bool = true) {
         let time = now
         if let index = characters.firstIndex(where: { $0.id == character.id }) {
             let old = characters[index]
@@ -93,8 +95,9 @@ final class CharacterView: NSView {
                     previousPostures[old.id] = poseAnimations[old.id]
                 }
                 motions[old.id] = Motion(kind: "turn", start: time, previous: previous ?? old)
-            } else if motions[old.id]?.kind == "leave" {
-                motions[old.id] = Motion(kind: "enter", start: time)
+            } else if let leaving = motions[old.id], leaving.kind == "leave" {
+                let opacity = SpriteTransition.frame(kind: "leave", progress: leaving.progress(time, reduced: reduced), reduced: reduced).opacity
+                motions[old.id] = Motion(kind: "enter", start: time, initialOpacity: opacity)
             }
             characters[index] = character
         } else {
@@ -105,27 +108,33 @@ final class CharacterView: NSView {
         var work = workAnimations[character.id] ?? WorkAnimation(seed: character.id)
         work.update(active: ["working", "thinking"].contains(character.state), at: time)
         workAnimations[character.id] = work
+        let delay = motions[character.id].map { (1 - $0.progress(time, reduced: reduced)) * $0.duration(reduced: reduced) } ?? 0
+        team.observe(character, at: time, entranceDelay: delay, animated: animateInteractions)
         _ = posture(for: character, at: time)
         if badge.superview == nil { addSubview(badge); badges[character.id] = badge }
-        badge.update(character, color: accents[character.column])
+        badge.update(character, color: accent(for: character))
         layoutBadges()
     }
 
     func remove(_ id: String, immediately: Bool = false) {
         guard characters.contains(where: { $0.id == id }) else { return }
+        team.remove(id)
         if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; workAnimations[id] = nil; poseAnimations[id] = nil; previousPostures[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
         else { motions[id] = Motion(kind: "leave", start: now) }
     }
 
     func replace(_ entries: [Character], animated: Bool = true) {
+        let next = Set(entries.map(\.id))
+        for character in characters where !next.contains(character.id) { team.remove(character.id) }
         badges.values.forEach { $0.removeFromSuperview() }; badges = [:]
         characters = []; motions = [:]; ambient = [:]; workAnimations = [:]; poseAnimations = [:]; previousPostures = [:]
-        for entry in entries { update(entry) }
+        for entry in entries { update(entry, animateInteractions: animated) }
         if !animated { motions = [:]; layoutBadges() }
     }
 
     @discardableResult func tick() -> Bool {
         let before = characters.count, time = now
+        team.tick(at: time)
         for (id, motion) in motions where motion.progress(time, reduced: reduced) >= 1 {
             if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; workAnimations[id] = nil; poseAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
             motions[id] = nil; previousPostures[id] = nil
@@ -145,6 +154,15 @@ final class CharacterView: NSView {
         character.rig.flatMap { rigs[$0]?.gestureInterval } ?? 8...15
     }
 
+    private func accent(for character: Character) -> NSColor {
+        switch character.rig {
+        case "designer": return .systemPink
+        case "devops": return .systemCyan
+        case "tester": return .systemYellow
+        default: return accents[character.column]
+        }
+    }
+
     private func rigNames(for character: Character) -> (body: String, head: String?) {
         let core = ["lead", "code", "research", "review"]
         return (character.rig ?? core[character.bodyColumn],
@@ -162,7 +180,8 @@ final class CharacterView: NSView {
         let dancing = MusicMotion.pose(beat: musicBeat, time: time, column: character.column, rig: character.rig, reduced: reduced).strength > 0
         let identity = "\(names.body):\(names.head ?? names.body):\(character.name ?? "")"
         var result = animation.advance(identity: identity,
-            state: character.state, speaking: speaker == character.id, dancing: dancing, available: available, at: time, reduced: reduced)
+            state: character.state, speaking: speaker == character.id || team.action(for: character.id, at: time) != nil,
+            dancing: dancing, available: available, at: time, reduced: reduced)
         if animation.requested != .standing {
             let key = animation.requested.rawValue
             if poseRigs?.rig("\(names.body)/\(key)") == nil || (names.head != nil && poseRigs?.rig("\(names.head!)/\(key)") == nil) {
@@ -187,7 +206,8 @@ final class CharacterView: NSView {
             guard let badge = badges[character.id] else { continue }
             badge.frame = NSRect(x: CGFloat(index) * width + 10, y: 12, width: width - 20, height: 28)
             let motion = motions[character.id], progress = motion?.progress(now, reduced: reduced) ?? 1
-            badge.alphaValue = motion?.kind == "leave" ? 1 - progress : motion?.kind == "enter" ? min(1, progress * 2) : 1
+            badge.alphaValue = motion.flatMap { ["leave", "enter"].contains($0.kind)
+                ? SpriteTransition.frame(kind: $0.kind, progress: progress, reduced: reduced, initialOpacity: $0.initialOpacity).opacity : nil } ?? 1
         }
     }
 
@@ -200,17 +220,20 @@ final class CharacterView: NSView {
         }
         NSGraphicsContext.current?.imageInterpolation = .none
         let time = now, width = bounds.width / CGFloat(max(characters.count, 1))
+        var centers: [String: NSPoint] = [:], colors: [String: NSColor] = [:]
         for (index, character) in characters.enumerated() {
             let x = CGFloat(index) * width
             let motion = motions[character.id], progress = motion?.progress(time, reduced: reduced) ?? 1
             let displayed = motion?.kind == "turn" && progress < 0.5 ? motion?.previous ?? character : character
-            let accent = accents[character.column]
+            let accent = accent(for: character)
             let speaking = speaker == character.id, blink = ambient[character.id].map { time >= $0.blinkAt && time < $0.blinkAt + 0.30 } ?? false
-            let faceRows = FacialMotion.rows(state: displayed.state, speaking: speaking, open: time < mouthUntil,
+            var faceRows = FacialMotion.rows(state: displayed.state, speaking: speaking, open: time < mouthUntil,
                                              level: mouthLevel, time: time,
                                              blinkElapsed: !reduced && blink ? time - (ambient[character.id]?.blinkAt ?? time) : nil)
             let factor = min(width / 256, 220.0 / 384)
             let gesture = ambient[character.id]?.gestureStart
+            let interaction = team.action(for: character.id, at: time)
+            if !speaking, !reduced, let interaction, let expression = TeamMotion.face(interaction, id: character.id, at: time) { faceRows[0] = expression }
             let names = rigNames(for: displayed), rigName = names.body
             let posture = displayPosture(for: character, at: time)
             let rig = posture.kind == .standing ? rigs[rigName] : poseRigs?.rig("\(rigName)/\(posture.kind.rawValue)") ?? rigs[rigName]
@@ -220,27 +243,35 @@ final class CharacterView: NSView {
             let motionTime = rig.map { time * 2 * .pi / (1.35 * $0.definition.motion.breathSeconds) } ?? time
             var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
                 gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
-                speaking: speaking, reduced: reduced, seed: index)
+                speaking: speaking, reduced: reduced, seed: character.motionSeed)
             let dance = MusicMotion.pose(beat: musicBeat, time: time, column: displayed.column, rig: displayed.rig, reduced: reduced)
             pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
-            let work = rig != nil ? workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced)
-                .scaled(1 - dance.strength).forPose(rig: rigName, standing: posture.kind == .standing) ?? WorkPose() : WorkPose()
-            pose.headX += work.headX; pose.headY += work.headY
+            let idle = IdleMotion.pose(rig: rigName, state: displayed.state, time: time, gestureElapsed: gesture.map { time - $0 },
+                variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed, seed: character.motionSeed, reduced: reduced)
+            var work = workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced, rest: idle) ?? idle
+            if let interaction, let peer = characters.firstIndex(where: { $0.id == (interaction.source == character.id ? interaction.target : interaction.source) }) {
+                let direction = peer > index ? 1.0 : -1.0
+                let reaction = TeamMotion.pose(interaction, id: character.id, rig: rigName, direction: direction, at: time, reduced: reduced)
+                work = work.blending(reaction, weight: pow(sin(interaction.progress(at: time) * .pi), 2) * (speaking ? 0.35 : 1))
+            }
+            work = work.scaled(1 - dance.strength).forPose(rig: rigName, standing: posture.kind == .standing)
+            pose.headX += work.headX; pose.headY += work.headY; pose.headAngle += work.headAngle
+            let effect = motion.map { SpriteTransition.frame(kind: $0.kind, progress: progress, reduced: reduced, initialOpacity: $0.initialOpacity) } ?? TransitionFrame()
+            pose.headY += effect.nod
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
                                 width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
-            var opacity = posture.opacity
-            if let motion {
-                if motion.kind == "enter" { opacity *= min(1, progress * 2) }
-                if motion.kind == "leave" { opacity *= 1 - progress }
-                if motion.kind == "turn" {
-                    if reduced { opacity *= abs(progress * 2 - 1) }
-                    else { target = target.insetBy(dx: target.width * 0.25 * sin(progress * .pi), dy: 0) }
-                }
-            }
+            target = target.insetBy(dx: target.width * (1 - effect.scaleX) / 2, dy: 0)
+            target.origin.y += (posture.y + effect.y) * factor
+            target.size.height *= posture.scaleY * effect.scaleY
+            let opacity = posture.opacity * effect.opacity
+            centers[character.id] = NSPoint(x: target.midX, y: target.minY + target.height * 0.48); colors[character.id] = accent
+            if let motion, motion.initialOpacity == nil { SpriteTransition.drawBehind(target, kind: motion.kind, progress: progress, accent: accent, reduced: reduced) }
             SpriteDepth.drawContact(in: target, opacity: opacity)
             let scale = frame.width / max(1, bounds.width)
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
             NSGraphicsContext.saveGraphicsState(); MusicMotion.apply(dance, target: target)
+            SpriteTransition.apply(angle: posture.angle + effect.angle + work.bodyAngle, in: target)
+            if effect.reveal < 1 { NSBezierPath(rect: NSRect(x: target.minX, y: target.minY, width: target.width, height: target.height * effect.reveal)).addClip() }
             if let rig {
                 rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,
                     gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
@@ -267,8 +298,9 @@ final class CharacterView: NSView {
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)
             }
             NSGraphicsContext.restoreGraphicsState()
-            if !reduced, let motion { drawParticles(target, kind: motion.kind, progress: progress, accent: accent, seed: index) }
+            if let motion, motion.initialOpacity == nil { SpriteTransition.drawFront(target, kind: motion.kind, progress: progress, accent: accent, seed: character.motionSeed, reduced: reduced) }
         }
+        TeamMotion.draw(team.active(at: time), centers: centers, colors: colors, time: time, reduced: reduced)
         if onResize != nil && !characters.isEmpty {
             NSColor.secondaryLabelColor.withAlphaComponent(0.7).setStroke()
             let grip = NSBezierPath(); grip.lineWidth = 1
@@ -277,21 +309,6 @@ final class CharacterView: NSView {
                 grip.line(to: NSPoint(x: bounds.maxX - 3, y: 13 - inset))
             }
             grip.stroke()
-        }
-    }
-
-    private func drawParticles(_ rect: NSRect, kind: String, progress: Double, accent: NSColor, seed: Int) {
-        if kind == "turn" {
-            accent.withAlphaComponent(0.18 * sin(progress * .pi)).setFill()
-            NSBezierPath(ovalIn: rect.insetBy(dx: 14, dy: 8)).fill()
-        }
-        for n in 0..<18 {
-            let angle = Double(n) * 2.399 + Double(seed), t = kind == "enter" ? 1 - progress : progress
-            let reach = 15 + t * 46
-            let x = rect.midX + cos(angle) * (rect.width * 0.38 + reach)
-            let y = rect.minY + Double((n * 37) % 190) + sin(angle) * reach
-            accent.withAlphaComponent(sin(progress * .pi) * 0.85).setFill()
-            NSRect(x: x.rounded(), y: y.rounded(), width: n % 3 == 0 ? 4 : 2, height: n % 3 == 0 ? 4 : 2).fill()
         }
     }
 

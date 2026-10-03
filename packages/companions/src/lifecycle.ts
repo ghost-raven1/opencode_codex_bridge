@@ -81,7 +81,7 @@ export class CompanionLifecycle {
       clearTimeout(resident.timer); resident.timer = undefined; return;
     }
     if (!resident.timer) {
-      resident.timer = setTimeout(() => this.retire(id), 10_000);
+      resident.timer = setTimeout(() => this.retire(id), 30_000);
       resident.timer.unref?.();
     }
   }

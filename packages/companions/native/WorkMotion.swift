@@ -13,8 +13,11 @@ struct WorkPose {
     var joints: [String: WorkJoint] = [:]
     var headX: CGFloat = 0
     var headY: CGFloat = 0
+    var headAngle: CGFloat = 0
+    var bodyAngle: CGFloat = 0
     func scaled(_ weight: CGFloat) -> WorkPose {
-        WorkPose(clip: clip, joints: joints.mapValues { $0.scaled(weight) }, headX: headX * weight, headY: headY * weight)
+        WorkPose(clip: clip, joints: joints.mapValues { $0.scaled(weight) }, headX: headX * weight, headY: headY * weight,
+                 headAngle: headAngle * weight, bodyAngle: bodyAngle * weight)
     }
 
     /// New seated/reclining cutouts separate the held prop from its driving hand.
@@ -34,6 +37,7 @@ struct WorkPose {
         }
         result.clip = other.clip
         result.headX += other.headX * weight; result.headY += other.headY * weight
+        result.headAngle += other.headAngle * weight; result.bodyAngle += other.bodyAngle * weight
         return result
     }
 }
@@ -60,17 +64,22 @@ struct WorkAnimation {
         return initialWeight + ((active ? 1 : 0) - initialWeight) * eased
     }
 
-    func pose(rig: String, at time: Double, reduced: Bool) -> WorkPose {
-        guard !reduced, time.isFinite, weight(at: time) > 0 else { return WorkPose() }
+    func pose(rig: String, at time: Double, reduced: Bool, rest: WorkPose = WorkPose()) -> WorkPose {
+        guard !reduced, time.isFinite else { return WorkPose() }
+        guard weight(at: time) > 0 else { return rest }
         let period = 8.2 + Double(seed % 31) / 10
         let phase = max(0, time + Double(seed % 997) / 97)
         let cycle = Int(phase / period), elapsed = phase.truncatingRemainder(dividingBy: period)
         let focus = focusPose(rig: rig, phase: phase)
-        let duration = 4.2
-        guard elapsed < duration else { return focus.scaled(weight(at: time)) }
+        let duration = 4.2 + Double(cycle % 3) * 0.25
+        guard elapsed < duration else { return rest.blending(focus, weight: weight(at: time)) }
         let p = elapsed / duration, envelope = pow(sin(p * .pi), 2)
         let sweep = sin(p * 2 * .pi), taps = sin(p * 12 * .pi)
-        let alternate = (cycle + Int(seed % 2)) % 2 == 1
+        let variant = (cycle + Int(seed % 4)) % 4
+        if variant >= 2 {
+            return rest.blending(focus.blending(detailPose(rig: rig, variant: variant, p: p), weight: envelope), weight: weight(at: time))
+        }
+        let alternate = variant == 1
         var pose = WorkPose(headY: -0.7)
         switch rig {
         case "lead":
@@ -106,13 +115,13 @@ struct WorkAnimation {
                                                         y: sin(p * (alternate ? 16 : 10) * .pi) * 0.7)]
         default: return WorkPose()
         }
-        return focus.blending(pose, weight: envelope).scaled(weight(at: time))
+        return rest.blending(focus.blending(pose, weight: envelope), weight: weight(at: time))
     }
 
     private func focusPose(rig: String, phase: Double) -> WorkPose {
         let p = phase * 2 * .pi / (3.4 + Double(seed % 13) / 10)
         let sweep = sin(p), tap = sin(p * 4), other = sin(p * 4 + .pi / 2)
-        var pose = WorkPose(clip: "\(rig)-focus", headY: -0.4 + 0.25 * cos(p))
+        var pose = WorkPose(clip: "\(rig)-focus", headY: -0.4 + 0.25 * cos(p), bodyAngle: sweep * 0.3)
         switch rig {
         case "lead":
             pose.joints = ["arm-right": WorkJoint(angle: tap * 0.9, y: tap * 0.7),
@@ -134,6 +143,44 @@ struct WorkAnimation {
             pose.headX = sweep * 0.6
         case "tester":
             pose.joints = ["controller-arms": WorkJoint(angle: sweep * 0.7, y: tap * 0.8)]
+        default: return WorkPose()
+        }
+        return pose
+    }
+
+    /// Slower inspection/confirmation beats alternate with the hand-intensive clips.
+    private func detailPose(rig: String, variant: Int, p: Double) -> WorkPose {
+        let scan = sin(p * 2 * .pi), nod = sin(p * 4 * .pi), confirm = variant == 3
+        var pose = WorkPose(headX: confirm ? 0 : scan * 1.1, headY: confirm ? nod * 0.8 : -0.6,
+                            headAngle: scan * 0.6, bodyAngle: scan * 0.5)
+        switch rig {
+        case "lead":
+            pose.clip = confirm ? "plan-confirm" : "schedule-scan"
+            pose.joints = ["arm-right": WorkJoint(angle: scan * 1.4, y: confirm ? nod * 0.5 : 0),
+                           "arm-left": WorkJoint(angle: -scan * 0.6), "prop": WorkJoint(angle: scan * 0.35)]
+        case "code":
+            pose.clip = confirm ? "compile-check" : "code-scan"
+            pose.joints = ["arm-left": WorkJoint(angle: scan * 0.6, y: confirm ? nod * 0.5 : 0.2 * scan),
+                           "arm-right": WorkJoint(angle: -scan * 0.8, y: confirm ? -nod * 0.7 : 0)]
+        case "research":
+            pose.clip = confirm ? "note-confirm" : "reference-compare"
+            pose.joints = ["arm-right": WorkJoint(angle: scan * 1.2), "arm-left": WorkJoint(angle: -scan * 0.5),
+                           "prop": WorkJoint(angle: scan * 0.3)]
+        case "review":
+            pose.clip = confirm ? "review-approve" : "diff-compare"
+            pose.joints = ["arm-right": WorkJoint(angle: scan * 1.8, y: confirm ? nod * 0.6 : 0),
+                           "arm-left": WorkJoint(angle: -scan * 0.7), "prop": WorkJoint(angle: scan * 0.4)]
+        case "designer":
+            pose.clip = confirm ? "composition-check" : "stroke-trace"
+            pose.joints = ["arm-left": WorkJoint(angle: scan * 1.3, x: confirm ? 0 : scan * 0.8),
+                           "arm-right": WorkJoint(angle: -scan * 0.9)]
+        case "devops":
+            pose.clip = confirm ? "deploy-confirm" : "telemetry-scan"
+            pose.joints = ["tool-arm": WorkJoint(angle: scan * 1.5, y: nod * 0.3),
+                           "hip-arm": WorkJoint(angle: -scan * 0.5)]
+        case "tester":
+            pose.clip = confirm ? "test-confirm" : "test-sequence"
+            pose.joints = ["controller-arms": WorkJoint(angle: scan * 1.1, y: confirm ? nod * 0.5 : sin(p * 8 * .pi) * 0.8)]
         default: return WorkPose()
         }
         return pose

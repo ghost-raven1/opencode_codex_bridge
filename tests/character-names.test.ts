@@ -68,7 +68,7 @@ describe("names belong to a companion invocation", () => {
   });
   it("does not reuse the retiring name for the immediate next invocation", () => {
     const t = setup(); t.user("agent", "first"); const first = t.latest("agent");
-    t.life.event({ ...first, state: "success" }); vi.advanceTimersByTime(10_000);
+    t.life.event({ ...first, state: "success" }); vi.advanceTimersByTime(30_000);
     t.user("agent", "second"); expect(t.latest("agent").name).not.toBe(first.name);
     t.life.dispose();
   });

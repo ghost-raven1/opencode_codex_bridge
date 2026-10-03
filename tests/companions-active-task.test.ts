@@ -39,10 +39,10 @@ describe("active task cannot be retired by an idle notification", () => {
     const t = setup(); t.idle(); t.stays();
     t.assistant("a"); t.stays();
   });
-  it("holds an unfinished assistant stream, then starts ten seconds only after completion and speech drain", () => {
+  it("holds an unfinished assistant stream, then starts thirty seconds only after completion and speech drain", () => {
     const t = setup(); t.assistant("a"); t.idle(); t.stays();
     t.lifecycle.speechActivity(new Set(["s"])); t.assistant("a", true); t.stays();
-    t.lifecycle.speechActivity(new Set()); vi.advanceTimersByTime(9_999);
+    t.lifecycle.speechActivity(new Set()); vi.advanceTimersByTime(29_999);
     expect(t.output.some(event => event.type === "remove")).toBe(false);
     vi.advanceTimersByTime(1); expect(t.output.at(-1)).toMatchObject({ type: "remove", characterId: "s" });
   });
@@ -51,18 +51,18 @@ describe("active task cannot be retired by an idle notification", () => {
     t.assistant("a", true, finish); t.idle(); t.stays();
     t.tool("one", "completed"); t.stays(); t.tool("two", "completed"); t.stays();
     t.assistant("b"); t.stays(); t.assistant("b", true); t.idle();
-    vi.advanceTimersByTime(10_000); expect(t.output.at(-1)?.type).toBe("remove");
+    vi.advanceTimersByTime(30_000); expect(t.output.at(-1)?.type).toBe("remove");
   });
   it("does not reuse an earlier idle after generation has resumed", () => {
     const t = setup(); t.assistant("a"); t.idle();
     t.send("session.status", { sessionID: "s", status: { type: "busy" } });
     t.assistant("a", true); t.stays(); t.idle();
-    vi.advanceTimersByTime(10_000); expect(t.output.at(-1)?.type).toBe("remove");
+    vi.advanceTimersByTime(30_000); expect(t.output.at(-1)?.type).toBe("remove");
   });
   it("accepts a late final tool result after a confirmed final answer and idle", () => {
     const t = setup(); t.assistant("a"); t.tool("one", "running");
     t.assistant("a", true); t.idle(); t.stays();
-    t.tool("one", "completed"); vi.advanceTimersByTime(10_000);
+    t.tool("one", "completed"); vi.advanceTimersByTime(30_000);
     expect(t.output.at(-1)?.type).toBe("remove");
   });
 });

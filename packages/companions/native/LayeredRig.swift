@@ -46,9 +46,10 @@ final class LayeredRig {
                   Self.hasPixels(image, width: 256, height: 384) else { return nil }
             loaded.append((layer, image))
         }
-        let occluders = loaded.filter { ["head", "arm"].contains($0.0.motion) }.map { $0.1 }
+        let occluders = loaded.filter { ["head", "arm", "prop"].contains($0.0.motion) }.map { $0.1 }
         loaded = loaded.map { layer, image in
-            (layer, layer.id == "body" ? SpriteDepth.body(image, under: occluders) : image)
+            let lit = layer.motion == "head" ? image : SpriteDepth.volume(image)
+            return (layer, layer.id == "body" ? SpriteDepth.body(lit, under: occluders) : lit)
         }
         self.definition = definition; self.layers = loaded; self.face = face; self.head = head
     }

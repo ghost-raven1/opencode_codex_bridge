@@ -62,6 +62,34 @@ enum SpriteDepth {
         return body.image ?? source
     }
 
+    /// Cached top-left light and rounded surface shading preserve alpha and pixel detail.
+    static func volume(_ source: NSImage) -> NSImage {
+        guard var pixels = Pixels(source) else { return source }
+        for y in 0..<pixels.height {
+            var x = 0
+            while x < pixels.width {
+                while x < pixels.width && pixels.bytes[(y * pixels.width + x) * 4 + 3] == 0 { x += 1 }
+                let start = x
+                while x < pixels.width && pixels.bytes[(y * pixels.width + x) * 4 + 3] > 0 { x += 1 }
+                let length = x - start
+                guard length >= 5 else { continue }
+                for column in start..<x {
+                    let offset = (y * pixels.width + column) * 4, alpha = Double(pixels.bytes[offset + 3])
+                    let u = Double(column - start) / Double(length - 1)
+                    let v = Double(y) / Double(max(1, pixels.height - 1))
+                    let shade = 0.055 * pow(u, 1.8) + 0.015 * v
+                    let rim = column - start < 3 ? 0.025 : 0.0
+                    let light = 0.020 * (1 - u) + rim
+                    for channel in 0..<3 {
+                        let value = Double(pixels.bytes[offset + channel])
+                        pixels.bytes[offset + channel] = UInt8(min(alpha, max(0, value * (1 - shade) + (alpha - value) * light)).rounded())
+                    }
+                }
+            }
+        }
+        return pixels.image ?? source
+    }
+
     /// A cached transparent ellipse anchors the feet without a hard halo on either background.
     static let contact: NSImage? = {
         var pixels = Pixels(width: 128, height: 24)
