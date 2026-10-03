@@ -25,6 +25,7 @@ try {
     ["music", ["MusicRhythm.swift", "MusicMotion.swift"], "test-music.swift"],
     ["music-control", ["MusicRhythm.swift", "MusicControl.swift"], "test-music-control.swift"],
     ["voice-commands", ["VoiceCommands.swift"], "test-voice-commands.swift"],
+    ["voice-wake", ["VoiceCommands.swift", "WakeWord.swift", "SpeechCapture.swift", "MicrophoneTap.swift", "NativeDictation.swift", "WakeControl.swift"], "test-voice-wake.swift"],
     ["scale", ["ScaleControl.swift"], "test-scale.swift"],
     ["speech", ["NativeSpeech.swift", "NativeAudioStream.swift", "NativeAudioEngine.swift"], "test-native-speech.swift"],
     ["speech-stream", ["NativeSpeech.swift", "NativeAudioStream.swift", "NativeAudioEngine.swift"], "test-native-audio-stream.swift"],

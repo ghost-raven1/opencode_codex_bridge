@@ -178,6 +178,20 @@ describe("CLI voice and durable drafts", () => {
     expect(mocks.send.mock.calls.map(([e]) => e)).toEqual([{ type: "dictation-disable" }, { type: "dictation-enable" }]);
     expect(mocks.synthesize).not.toHaveBeenCalled(); expect(client.tui.appendPrompt).not.toHaveBeenCalled(); expect(client.tui.submitPrompt).not.toHaveBeenCalled();
   });
+  it("keeps keyword and music capture explicit and never submits passive wake events", async () => {
+    const { hooks, client } = await setup(); mocks.send.mockClear();
+    expect(configSchema.parse({}).wakeWord).toBe(false);
+    expect(configSchema.parse({ wakeWord: true }).wakeWord).toBe(true);
+    await action(hooks, "wake_on"); await action(hooks, "wake_off");
+    await action(hooks, "music_on"); await action(hooks, "music_off");
+    expect(mocks.send.mock.calls.map(([e]) => e)).toEqual([{ type: "wake-enable" }, { type: "wake-disable" },
+      { type: "music-enable" }, { type: "music-disable" }]);
+    mocks.receive?.({ type: "wake-status", enabled: true, listening: true });
+    mocks.receive?.({ type: "diagnostic", event: "wake-state", state: "triggered", reason: "active" });
+    mocks.receive?.({ type: "dictation", active: true });
+    expect(client.tui.appendPrompt).not.toHaveBeenCalled(); expect(client.tui.submitPrompt).not.toHaveBeenCalled();
+    expect(mocks.synthesize).not.toHaveBeenCalled();
+  });
   it("saves dictated text before append and sends only after the explicit command is acknowledged", async () => {
     const { client } = await setup();
     let release!: (value: object) => void;

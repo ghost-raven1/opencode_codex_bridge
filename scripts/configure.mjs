@@ -62,6 +62,10 @@ const config = {
     "voice-test": { description: "Проверить голоса команды", template: "Use companion with action test_voice. Use the configured local speech engine. $ARGUMENTS" },
     "dictation-off": { description: "Выключить диктовку", template: "Use companion with action dictation_off." },
     "dictation-on": { description: "Разрешить диктовку", template: "Use companion with action dictation_on. Do not start recording." },
+    "voice-wake-on": { description: "Включить микрофон для слова OpenCode", template: "Use companion with action wake_on. This enables background microphone recognition of OpenCode. The user still sends with the spoken command Отправить." },
+    "voice-wake-off": { description: "Выключить слово пробуждения", template: "Use companion with action wake_off." },
+    "music-on": { description: "Включить микрофон и реакцию на музыку", template: "Use companion with action music_on. This enables microphone capture for local rhythm analysis." },
+    "music-off": { description: "Выключить реакцию на музыку", template: "Use companion with action music_off." },
   },
 };
 await writeFile(join(target, "opencode.json"), JSON.stringify(config, null, 2) + "\n");
@@ -75,7 +79,7 @@ await writeFile(join(target, "companions.json"), JSON.stringify({
   tts: { engine: localTtsInstalled ? "local" : "macos", voices: {
     coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna",
   } },
-  language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: false, dictation: true,
+  language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: false, dictation: true, wakeWord: false,
   appearance: { mode: "presets", roles: {} },
   agentRoles: {},
 }, null, 2) + "\n");

@@ -17,6 +17,7 @@ struct MusicCapturePolicy {
     private let defaults: UserDefaults
     private var policy = MusicCapturePolicy()
     private var diagnostics = MusicDiagnosticGate()
+    private var lastBeat: MusicBeatState?
     private(set) var listening = false
 
     init(defaults: UserDefaults = .standard) {
@@ -28,12 +29,13 @@ struct MusicCapturePolicy {
         capture.onState = { [weak self] active in
             guard let self else { return }
             self.listening = active
-            if !active { self.onBeat?(nil) }
+            if !active { self.lastBeat = nil; self.onBeat?(nil) }
             self.diagnose(active ? "running" : "stopped", reason: self.policy.shouldCapture ? "active" : "disabled")
             self.updateMenu(); self.onChange?()
         }
         capture.onBeat = { [weak self] beat in
             guard let self, self.policy.shouldCapture else { return }
+            self.lastBeat = beat
             self.onBeat?(beat)
             let dancing = beat.strength(at: Date.timeIntervalSinceReferenceDate) > 0.05
             self.diagnose(beat.classification == "speech" ? "speech" : dancing ? "music" : "quiet",
@@ -55,9 +57,22 @@ struct MusicCapturePolicy {
         policy.allowed = false; policy.enabled = false
         defaults.set(false, forKey: "companions.musicEnabled"); reconcile()
     }
-    @objc private func toggle() {
-        policy.enabled.toggle(); policy.failed = false
+    func setEnabled(_ enabled: Bool) {
+        guard !enabled || policy.allowed else { return }
+        policy.enabled = enabled; policy.failed = false
         defaults.set(policy.enabled, forKey: "companions.musicEnabled"); reconcile()
+    }
+    @objc private func toggle() { setEnabled(!policy.enabled) }
+    var status: [String: Any] {
+        let now = Date.timeIntervalSinceReferenceDate
+        return ["type": "music-status", "enabled": policy.enabled, "allowed": policy.allowed,
+         "listening": listening, "dictating": policy.dictating, "failed": policy.failed,
+         "audible": now - (lastBeat?.audibleAt ?? -.infinity) < 1,
+         "classification": lastBeat?.classification ?? "quiet", "confidence": lastBeat?.classificationConfidence ?? 0,
+         "gateAllowance": lastBeat?.allowance ?? 0, "beatConfidence": lastBeat?.confidence ?? 0,
+         "analysisLagMs": lastBeat.map { max(0, (now - $0.measuredAt) * 1000) } ?? 0,
+         "tempo": lastBeat.map { $0.confidence > 0 ? 60 / $0.period : 0 } ?? 0,
+         "strength": lastBeat?.strength(at: now) ?? 0]
     }
     func stop() { policy.allowed = false; capture.stop(); onBeat?(nil) }
 

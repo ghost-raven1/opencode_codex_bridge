@@ -8,19 +8,19 @@ const events = ["diagnostic-start", "log-overflow", "lifecycle-state", "lifecycl
   "speech-queue", "synthesis-start", "synthesis-end", "synthesis-discard", "synthesis-wait", "speech-start", "speech-end",
   "speech-fallback", "speech-cancel", "worker-start", "worker-ready", "worker-exit", "worker-error",
   "stream-chunk", "stream-buffering", "stream-ended", "stream-accepted", "stream-consumed",
-  "native-connect", "native-close", "native-error", "renderer-state", "music-state"] as const;
+  "native-connect", "native-close", "native-error", "renderer-state", "music-state", "wake-state"] as const;
 export type DiagnosticEvent = typeof events[number];
 export type DiagnosticSink = (event: DiagnosticEvent, fields?: Readonly<Record<string, unknown>>) => void;
 const strings: Record<string, readonly string[]> = {
   role: ["coordinator", "developer", "researcher", "reviewer", "designer", "devops", "tester"],
-  state: ["idle", "working", "thinking", "waiting", "success", "error", "starting", "running", "stopped", "unavailable", "music", "speech", "quiet"],
+  state: ["idle", "working", "thinking", "waiting", "success", "error", "starting", "running", "stopped", "unavailable", "music", "speech", "quiet", "listening", "paused", "triggered"],
   engine: ["local", "macos"], voice: ["Serena", "Vivian", "Sohee", "Ono_Anna", "designer-local", "devops-local", "tester-local"],
   phase: ["end", "cancel", "error", "start"],
   reason: ["latency-budget", "synthesis-failed", "playback-error", "playback-cancel", "playback-timeout", "system-no-start",
     "system-timeout", "system-retry-exhausted", "muted", "suspended", "stopped", "disposed", "replaced", "retired",
     "visual-eviction", "stale-audio", "queue-full", "startup-timeout", "request-timeout", "spawn-failed", "input-failed",
     "exited", "frame-limit", "invalid-output", "duplicate-response", "unexpected-response", "invalid-audio", "over-duration",
-    "connected", "closed", "native-failed", "hidden", "empty", "active", "permission-denied", "capture-failed", "disabled",
+    "connected", "closed", "native-failed", "hidden", "empty", "active", "permission-denied", "capture-failed", "disabled", "speaking", "dictating", "cooldown",
     "partial-stream-failure", "stream-stall", "empty-stream", "invalid-chunk", "invocation-locked",
     "local-unavailable", "local-slow", "playback-failed", "system-unavailable", "system-selected"],
 };

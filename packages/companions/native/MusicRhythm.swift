@@ -20,7 +20,7 @@ struct MusicBeatState {
     }
 }
 
-/// Two confident music classifications are required; speech wins ambiguous classifications.
+/// Two music classifications start dancing; hysteresis tolerates room acoustics while speech wins.
 struct MusicClassificationGate {
     private var consecutive = 0
     private var open = false
@@ -29,13 +29,14 @@ struct MusicClassificationGate {
     private(set) var label = "quiet"
     private(set) var confidence: Double = 0
     mutating func update(music: Double, speech: Double, vocals: Double = 0, at time: Double) {
+        if time - lastResult > 3 { consecutive = 0; open = false }
         // Singing is a distinct classifier signal; ordinary rhythmic speech alone cannot open this gate.
         let vocalMusic = vocals.isFinite && vocals >= 0.65 && music >= 0.7 && music > speech + 0.12
-        let instrumental = music >= 0.65 && speech < 0.4 && music > speech + 0.25
+        // A microphone hears less confident music than the source file; established music can dip briefly.
+        let instrumental = music >= (open ? 0.3 : 0.5) && speech < 0.4 && music > speech + 0.25
         let positive = music.isFinite && speech.isFinite && (instrumental || vocalMusic)
         label = positive ? "music" : speech >= 0.4 ? "speech" : "quiet"
         confidence = min(1, max(0, label == "speech" ? speech : music.isFinite ? music : 0))
-        if time - lastResult > 3 { consecutive = 0; open = false }
         lastResult = time
         if positive {
             consecutive += 1

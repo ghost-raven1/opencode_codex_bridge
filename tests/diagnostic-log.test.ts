@@ -53,6 +53,17 @@ describe("private companion diagnostics", () => {
     expect(events[1].invocationId).toMatch(/^[a-f0-9]{24}$/);
     expect(events[2].reason).toBe("partial-stream-failure");
   });
+  it("records wake state without background transcripts or audio", async () => {
+    const t = await setup();
+    t.log.record("wake-state", { state: "listening", reason: "active", text: "private background conversation", audio: "private microphone audio" });
+    t.log.record("wake-state", { state: "paused", reason: "speaking" });
+    await t.log.flush();
+    const raw = await contents(t.log.path);
+    expect(raw).not.toContain("private");
+    const events = raw.trim().split("\n").map(line => JSON.parse(line));
+    expect(events[1]).toMatchObject({ event: "wake-state", state: "listening", reason: "active" });
+    expect(events[2]).toMatchObject({ event: "wake-state", state: "paused", reason: "speaking" });
+  });
   it("retains at most three bounded files and serializes independent writers for the same project", async () => {
     const t = await setup(1024), second = await DiagnosticLog.open(t.project, { dataRoot: t.dataRoot, maxBytes: 1024 });
     for (let index = 0; index < 60; index++) {

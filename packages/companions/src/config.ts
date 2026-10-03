@@ -17,6 +17,7 @@ export const configSchema = z.object({
   // Legacy configuration is accepted, but startup never creates demonstration agents.
   showOnStart: z.boolean().default(false),
   dictation: z.boolean().default(true),
+  wakeWord: z.boolean().default(false),
   speech: z.enum(["off", "coordinator-only", "all"]).default("all"),
   tts: z.object({
     engine: z.enum(["macos", "local"]).default("macos"),

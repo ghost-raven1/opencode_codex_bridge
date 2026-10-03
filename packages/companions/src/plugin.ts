@@ -112,7 +112,7 @@ const Companions: Plugin = async ({ directory, client }) => {
       diagnostic?.("native-error", { reason: "native-failed" }); report(event.message);
     }
     else if (event.type === "dictation") {
-      void toast(event.active ? "Микрофон включён. Надиктуй текст, сделай паузу и скажи «Отправить»; кнопка завершает без отправки." : "Микрофон выключен.").catch(() => undefined);
+      void toast(event.active ? "Диктовка включена. Надиктуй текст, сделай паузу и скажи «Отправить»; кнопка завершает без отправки." : "Диктовка завершена.").catch(() => undefined);
     }
   };
   const connect = (): Promise<void> => {
@@ -182,7 +182,7 @@ const Companions: Plugin = async ({ directory, client }) => {
       }),
       companion: tool({
         description: "Control native macOS companions. Dictation is retained as local text drafts and submitted only after the user's spoken command. recover_dictation republishes the latest draft without submitting; OpenCode does not acknowledge insertion.",
-        args: { action: tool.schema.enum(["preview", "hide", "show", "reset_position", "voice_menu", "test_voice", "mute", "unmute", "stop", "dictation_on", "dictation_off", "recover_dictation", "clear_dictation"]) },
+        args: { action: tool.schema.enum(["preview", "hide", "show", "reset_position", "voice_menu", "test_voice", "mute", "unmute", "stop", "dictation_on", "dictation_off", "wake_on", "wake_off", "music_on", "music_off", "recover_dictation", "clear_dictation"]) },
         async execute({ action }) {
           if (action === "recover_dictation") {
             if (!drafts) throw new Error("История диктовки недоступна.");
@@ -196,6 +196,8 @@ const Companions: Plugin = async ({ directory, client }) => {
             preview: { type: "preview" }, voice_menu: { type: "show-menu" }, test_voice: { type: "speech-test" },
             mute: { type: "mute", muted: true }, unmute: { type: "mute", muted: false }, stop: { type: "stop-speech" },
             dictation_on: { type: "dictation-enable" }, dictation_off: { type: "dictation-disable" },
+            wake_on: { type: "wake-enable" }, wake_off: { type: "wake-disable" },
+            music_on: { type: "music-enable" }, music_off: { type: "music-disable" },
           };
           host!.send(events[action]);
           return action === "voice_menu" ? "Меню ✦ открыто. Нажми «Начать диктовку»; после остановки проверь текст в CLI." : `Companion: ${action}`;

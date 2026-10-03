@@ -33,6 +33,7 @@ var exitStatus: Int32 = 0
     let speech = NativeSpeech()
     let speechStatus = NativeSpeechStatus()
     let dictation = NativeDictation()
+    var wake: WakeControl!
     let draftMenu = DraftMenu()
     let music = MusicControl()
     var realCharacters: [Character] = []
@@ -77,7 +78,7 @@ var exitStatus: Int32 = 0
             view.faceAtlas = NSImage(contentsOf: directory.appendingPathComponent("facial-v3.png"))
             if view.atlas == nil { emit(["type": "error", "code": "atlas", "message": "Не удалось открыть атлас персонажей; системный голос доступен."]) }
         }
-        configureCallbacks(); configurePanel(); configureMusic(); configureMenu()
+        configureCallbacks(); configurePanel(); configureMusic(); configureDictation(config); configureMenu()
         emitReady()
         if CommandLine.arguments.contains("--preview") || argument("--snapshot") != nil {
             populatePreview()
@@ -140,22 +141,7 @@ var exitStatus: Int32 = 0
                 self?.speechTestTimer?.invalidate(); NSApp.terminate(nil)
             }
         }
-        dictation.onPreparing = { [weak self] in
-            self?.music.setDictating(true)
-            emit(["type": "speech-control", "action": "suspend", "suspended": true])
-            self?.speech.suspended = true; self?.speech.stop(); self?.updateMenu()
-        }
-        dictation.onState = { [weak self] active in
-            self?.music.setDictating(active)
-            self?.speech.suspended = active; self?.updateMenu()
-            emit(["type": "dictation", "active": active])
-            emit(["type": "speech-control", "action": "suspend", "suspended": active])
-        }
-        dictation.onTranscript = { text in emit(["type": "transcript", "text": text]) }
-        dictation.onCommand = { input in
-            emit(["type": "voice-command", "command": input.command, "text": input.text])
-        }
-        dictation.onError = { message in emit(["type": "error", "code": "dictation", "message": message]) }
+
     }
 
     func configureMenu() {
@@ -183,6 +169,7 @@ var exitStatus: Int32 = 0
         cancelItem = menu.addItem(withTitle: "Отменить диктовку", action: #selector(cancelDictation), keyEquivalent: "")
         menu.addItem(withTitle: "Команды голосового управления…", action: #selector(showVoiceHelp), keyEquivalent: "")
         menu.addItem(withTitle: "Черновики диктовки", action: nil, keyEquivalent: "").submenu = draftMenu.menu
+        menu.addItem(wake.menuItem); menu.addItem(wake.statusItem)
         menu.addItem(music.menuItem); menu.addItem(music.statusItem)
         menu.addItem(.separator())
         visibilityItem = menu.addItem(withTitle: "Скрыть компаньонов", action: #selector(toggleVisibility), keyEquivalent: "")
@@ -212,7 +199,7 @@ var exitStatus: Int32 = 0
         microphoneItem?.button?.contentTintColor = dictation.active ? .systemRed : nil
         microphoneItem?.button?.toolTip = dictation.active ? "Завершить диктовку без отправки. Для отправки скажи «Отправить»." : "Начать диктовку. После текста сделай паузу и скажи «Отправить»."
         for entry in voiceItems { entry.state = entry.representedObject as? String == speech.voice?.identifier ? .on : .off }
-        updateMusicIndicator()
+        updateMusicIndicator(); updateWakeIndicator()
     }
 
     func emitReady() {
@@ -269,6 +256,12 @@ var exitStatus: Int32 = 0
         case "dictation-enable": setDictationEnabled(true)
         case "dictation-disable": setDictationEnabled(false)
         case "dictation-status": emitDictationStatus()
+        case "wake-enable": setDictationEnabled(true); wake.setEnabled(true); emit(wake.status)
+        case "wake-disable": wake.setEnabled(false); emit(wake.status)
+        case "wake-status": emit(wake.status)
+        case "music-enable": setDictationEnabled(true); music.setEnabled(true); emit(music.status)
+        case "music-disable": music.setEnabled(false); emit(music.status)
+        case "music-status": emit(music.status)
         default: receiveCharacter(value)
         }
         view.needsDisplay = true
@@ -410,31 +403,10 @@ var exitStatus: Int32 = 0
         emit(["type": "speech-control", "action": "stop"]); speech.stop()
         captions = CaptionState(); refreshCaption()
     }
-    func setDictationEnabled(_ enabled: Bool) {
-        dictationEnabled = enabled
-        if enabled { music.configure(allowed: true) } else { music.disableMicrophone() }
-        UserDefaults.standard.set(enabled, forKey: "companions.dictationEnabled")
-        if !enabled { dictation.cancel() }
-        updateMenu(); emitDictationStatus()
-    }
-    func emitDictationStatus() { emit(dictation.status(enabled: dictationEnabled, language: language)) }
-    @objc func toggleDictation() { setDictationEnabled(!dictationEnabled) }
-    @objc func startDictation() {
-        guard dictationEnabled else { emitDictationStatus(); return }
-        dictation.start(language: language)
-    }
-    @objc func finishDictation() { dictation.finish() }
-    @objc func cancelDictation() { dictation.cancel() }
-    @objc func toggleRecording() { if dictation.active { finishDictation() } else { startDictation() } }
-    @objc func showVoiceHelp() {
-        let alert = NSAlert(); alert.messageText = "Голосовое управление OpenCode"
-        alert.informativeText = VoiceCommands.help; alert.addButton(withTitle: "Понятно")
-        NSApp.activate(ignoringOtherApps: true); alert.runModal()
-    }
     @objc func quit() { NSApp.terminate(nil) }
 
     func applicationWillTerminate(_ notification: Notification) {
-        timer?.invalidate(); speechTestTimer?.invalidate(); music.stop(); dictation.cancel(); speech.stop()
+        timer?.invalidate(); speechTestTimer?.invalidate(); wake.stop(); music.stop(); dictation.cancel(); speech.stop()
     }
 }
 

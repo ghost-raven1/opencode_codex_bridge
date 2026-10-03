@@ -1,6 +1,6 @@
 import AVFoundation
 
-/// Both microphone modes use the same checked tap API on new macOS versions.
+/// Music and speech capture use the same checked tap API on new macOS versions.
 enum MicrophoneTap {
     static func install(on input: AVAudioInputNode, format: AVAudioFormat, receive: @escaping AVAudioNodeTapBlock) throws {
 #if compiler(>=6.4)

@@ -1,3 +1,4 @@
+import AppKit
 import AVFoundation
 
 /// Explicit opt-in microphone capture, independent of speech recognition and never written to disk.
@@ -14,6 +15,7 @@ import AVFoundation
     func start() {
         guard token == nil else { return }
         let current = UUID(); token = current
+        if AVCaptureDevice.authorizationStatus(for: .audio) == .notDetermined { NSApp.activate(ignoringOtherApps: true) }
         AVCaptureDevice.requestAccess(for: .audio) { [weak self] allowed in
             DispatchQueue.main.async {
                 guard let self, self.token == current else { return }

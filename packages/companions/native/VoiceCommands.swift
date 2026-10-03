@@ -31,6 +31,10 @@ enum VoiceCommands {
     Нажми кнопку микрофона 🎙, надиктуй текст, сделай паузу около секунды и скажи «Отправить».
     Повторное нажатие завершает диктовку и только вставляет текст. Без команды «Отправить» запрос модели не отправляется.
 
+    Для старта без кнопки включи ✦ → Активация по слову «OpenCode» или введи /voice-wake-on в CLI.
+    Скажи «OpenCode», затем запрос. Слово пробуждения не попадёт в текст. На время озвучки персонажей прослушивание приостанавливается.
+    /voice-wake-off выключает фоновое прослушивание; кнопка микрофона продолжает работать.
+
     Отдельные команды:
     • «Очистить ввод» — очистить строку OpenCode.
     • «Отменить диктовку» — отбросить текущую запись.
@@ -50,6 +54,12 @@ enum VoiceCommands {
             .filter { !$0.isEmpty }.joined(separator: " ")
     }
 
+    /// A quoted command or a negation at the end of a draft is ordinary text even after a pause.
+    static func blocksTerminalCommand(after prefix: String) -> Bool {
+        let literalCue: Set<Substring> = ["слово", "слова", "словом", "фразу", "фраза", "команду", "команды", "кнопку", "кнопка", "не", "нельзя"]
+        return normalized(prefix).split(separator: " ").suffix(3).contains { literalCue.contains($0) }
+    }
+
     static func recognize(_ text: String, segments: [VoiceSegment]) -> VoiceInput? {
         if let command = aliases[normalized(text)] { return VoiceInput(text: "", command: command) }
         let source = text as NSString
@@ -61,9 +71,7 @@ enum VoiceCommands {
                   command == "submit" || command == "cancel" else { continue }
             let prefix = source.substring(to: segment.range.location).trimmingCharacters(in: .whitespacesAndNewlines)
             // A pause before a quoted word or negated verb is still ordinary dictation.
-            let words = normalized(prefix).split(separator: " ")
-            let literalCue: Set<Substring> = ["слово", "слова", "словом", "фразу", "фраза", "команду", "команды", "кнопку", "кнопка", "не", "нельзя"]
-            if words.suffix(3).contains(where: { literalCue.contains($0) }) { continue }
+            if blocksTerminalCommand(after: prefix) { continue }
             return VoiceInput(text: command == "cancel" ? "" : prefix, command: command)
         }
         return nil

@@ -21,6 +21,7 @@
     "setup:playwright": "node scripts/setup-playwright.mjs",
     "smoke:voice": "node scripts/smoke-local-voice.mjs",
     "smoke:dictation": "node scripts/smoke-dictation.mjs",
+    "smoke:voice-wake": "node scripts/smoke-wake-word.mjs",
     "smoke:codex": "node scripts/smoke-codex.mjs",
     "start": "node scripts/launch.mjs",
     "smoke:mcp": "node scripts/smoke-mcp.mjs",

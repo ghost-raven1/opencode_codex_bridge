@@ -1,110 +1,152 @@
 import AVFoundation
 import Speech
 
-/// A bounded microphone session started only by a user action; partial text stays in memory.
+/// Passive recognition never delivers text; only a user action or a keyword starts a bounded draft.
 @MainActor final class NativeDictation {
     var onState: ((Bool) -> Void)?
     var onTranscript: ((String) -> Void)?
     var onCommand: ((VoiceInput) -> Void)?
     var onError: ((String) -> Void)?
     var onPreparing: (() -> Void)?
+    var onListening: ((Bool) -> Void)?
+    var onWake: (() -> Void)?
+    var onWakeError: ((String) -> Void)?
     private(set) var active = false
     private(set) var recording = false
     private var token: UUID?
-    private var engine: AVAudioEngine?
-    private var request: SFSpeechAudioBufferRecognitionRequest?
-    private var task: SFSpeechRecognitionTask?
-    private var recognizer: SFSpeechRecognizer?
-    private var tapInstalled = false
+    private var passive = false, woke = false
+    private let capture: SpeechCapture
     private var latest = ""
+    private var commandPrefix = ""
     private var segments: [VoiceSegment] = []
+    private var recognitionResults = 0
+    private var lastHasKeyword = false
     private var commandCandidate: VoiceInput?
-    private var commandTimer: Timer?
-    private var limitTimer: Timer?
-    private var finishTimer: Timer?
+    private var commandTimer: Timer?, limitTimer: Timer?, finishTimer: Timer?
+    var listening: Bool { passive && recording }
+    var preparingWake: Bool { passive && token != nil && !recording }
+
+    init(capture: SpeechCapture? = nil) { self.capture = capture ?? NativeSpeechCapture() }
 
     func start(language: String) {
-        guard token == nil else { return }
+        guard !active else { return }
+        // Mark the foreground mode before callbacks so background policy cannot reopen capture.
+        clearCapture(); passive = false; active = true; woke = false
+        onPreparing?(); begin(language: language)
+    }
+
+    func listen(language: String) {
+        guard token == nil, !active else { return }
+        passive = true; woke = false; begin(language: language)
+    }
+
+    func stopListening() {
+        guard passive else { return }
+        clearCapture(); passive = false; onListening?(false)
+    }
+
+    private func begin(language: String) {
         let current = UUID(); token = current
-        active = true; onPreparing?()
-        AVCaptureDevice.requestAccess(for: .audio) { [weak self] allowed in
-            DispatchQueue.main.async {
-                guard let self, self.token == current else { return }
-                guard allowed else { self.fail("Разрешите микрофон для CodexBridge Companions в настройках macOS."); return }
-                SFSpeechRecognizer.requestAuthorization { status in
-                    DispatchQueue.main.async {
-                        guard self.token == current else { return }
-                        guard status == .authorized else {
-                            self.fail("Разрешите распознавание речи для CodexBridge Companions в настройках macOS."); return
-                        }
-                        self.begin(language: language, token: current)
-                    }
-                }
+        recognitionResults = 0
+        capture.onStarted = { [weak self] in
+            guard let self, self.token == current else { return }
+            self.recording = true
+            if self.passive { self.renewDeadline(); self.onListening?(true) }
+            else { self.dictationDeadline(); self.onState?(true) }
+        }
+        capture.onResult = { [weak self] result in
+            guard let self, self.token == current else { return }
+            self.receive(result)
+        }
+        capture.onError = { [weak self] message in
+            guard let self, self.token == current else { return }
+            if self.passive {
+                self.clearCapture(); self.passive = false
+                self.onWakeError?(message); self.onListening?(false)
+            } else if self.finishTimer != nil { self.complete(deliver: true) }
+            else { self.complete(deliver: false); self.onError?(message) }
+        }
+        capture.start(language: language)
+    }
+
+    private func receive(_ result: CapturedSpeech) {
+        recognitionResults += 1; lastHasKeyword = WakeWord.recognize(result.text, segments: []) != nil
+        if passive {
+            guard let input = WakeWord.recognize(result.text, segments: result.segments) else {
+                if result.final { capture.renewRecognition(); renewDeadline() }
+                return
             }
+            // The same recognition request retains audio and words following the keyword.
+            passive = false; woke = true; active = true; updateTranscript(input.text, segments: input.segments)
+            onPreparing?(); onListening?(false); onWake?(); dictationDeadline(); onState?(true)
+        } else if woke {
+            if let input = WakeWord.recognize(result.text, segments: result.segments) {
+                updateTranscript(input.text, segments: input.segments)
+            } else {
+                // On-device recognition can start a new phrase without repeating its earlier keyword.
+                updateTranscript(result.text, segments: result.segments)
+            }
+        } else { updateTranscript(result.text, segments: result.segments) }
+        scheduleCommand()
+        if result.final {
+            if woke && latest.isEmpty { woke = false; capture.renewRecognition() }
+            else { complete(deliver: true) }
         }
     }
 
-    private func begin(language: String, token current: UUID) {
-        guard let recognizer = SFSpeechRecognizer(locale: Locale(identifier: language)), recognizer.isAvailable else {
-            fail("Системное распознавание речи сейчас недоступно для языка \(language)."); return
-        }
-        let engine = AVAudioEngine()
-        let request = SFSpeechAudioBufferRecognitionRequest()
-        request.shouldReportPartialResults = true
-        if recognizer.supportsOnDeviceRecognition { request.requiresOnDeviceRecognition = true }
-        let input = engine.inputNode
-        let format = input.outputFormat(forBus: 0)
-        guard format.sampleRate > 0, format.channelCount > 0 else {
-            fail("Не найден доступный микрофон. Проверьте устройство ввода macOS."); return
-        }
-        self.engine = engine; self.request = request; self.recognizer = recognizer
-        do { try installInputTap(input, request: request, format: format) }
-        catch { fail("Не удалось подключить микрофон. Проверьте устройство ввода macOS."); return }
-        tapInstalled = true
-        task = recognizer.recognitionTask(with: request) { [weak self] result, error in
-            DispatchQueue.main.async {
-                guard let self, self.token == current else { return }
-                if let result {
-                    self.latest = result.bestTranscription.formattedString
-                    self.segments = result.bestTranscription.segments.map {
-                        VoiceSegment(range: $0.substringRange, timestamp: $0.timestamp, duration: $0.duration)
-                    }
-                    self.scheduleCommand()
-                }
-                if result?.isFinal == true { self.complete(deliver: true) }
-                else if error != nil {
-                    // Finishing a recording can produce an error after a usable partial result.
-                    if self.finishTimer != nil { self.complete(deliver: true) }
-                    else { self.fail("Не удалось распознать речь. Проверьте микрофон и повторите запись.") }
-                }
+    private var transcript: String { [commandPrefix, latest].filter { !$0.isEmpty }.joined(separator: " ") }
+
+    /// A separately recognized Send must include the draft that preceded it in this capture.
+    private func updateTranscript(_ text: String, segments: [VoiceSegment]) {
+        if let input = VoiceCommands.recognize(text, segments: []), ["submit", "cancel"].contains(input.command),
+           !latest.isEmpty, VoiceCommands.aliases[VoiceCommands.normalized(latest)] == nil {
+            commandPrefix = transcript
+        } else if !commandPrefix.isEmpty, text.hasPrefix(commandPrefix) { commandPrefix = "" }
+        latest = text; self.segments = segments
+    }
+
+    private func recognizedCommand() -> VoiceInput? {
+        guard let input = VoiceCommands.recognize(latest, segments: segments) else { return nil }
+        guard input.text.isEmpty, !commandPrefix.isEmpty, ["submit", "cancel"].contains(input.command) else { return input }
+        guard !VoiceCommands.blocksTerminalCommand(after: commandPrefix) else { return nil }
+        return VoiceInput(text: input.command == "submit" ? commandPrefix : "", command: input.command)
+    }
+
+    private func renewDeadline() {
+        limitTimer?.invalidate()
+        let timer = Timer(timeInterval: 50, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.passive else { return }
+                self.capture.renewRecognition(); self.renewDeadline()
             }
         }
-        do { engine.prepare(); try engine.start() }
-        catch { fail("Не удалось запустить микрофон: \(error.localizedDescription)"); return }
-        recording = true; onState?(true)
-        let limit = Timer(timeInterval: 60, repeats: false) { [weak self] _ in
+        limitTimer = timer; RunLoop.main.add(timer, forMode: .common)
+    }
+
+    private func dictationDeadline() {
+        limitTimer?.invalidate()
+        let timer = Timer(timeInterval: 60, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated { self?.finish() }
         }
-        limitTimer = limit; RunLoop.main.add(limit, forMode: .common)
+        limitTimer = timer; RunLoop.main.add(timer, forMode: .common)
     }
 
-    /// End audio immediately, then allow a short bounded time for the final recognition result.
+    /// Stop foreground audio now, allowing a bounded interval for its final recognition result.
     func finish() {
-        guard token != nil else { return }
-        guard request != nil else { complete(deliver: false); return }
-        guard finishTimer == nil else { return }
-        stopAudio(); request?.endAudio(); task?.finish()
-        let deadline = Timer(timeInterval: 2, repeats: false) { [weak self] _ in
+        guard active, token != nil, finishTimer == nil else { return }
+        guard recording else { complete(deliver: false); return }
+        limitTimer?.invalidate(); limitTimer = nil; recording = false
+        let timer = Timer(timeInterval: 2, repeats: false) { [weak self] _ in
             MainActor.assumeIsolated { self?.complete(deliver: true) }
         }
-        finishTimer = deadline; RunLoop.main.add(deadline, forMode: .common)
+        finishTimer = timer; RunLoop.main.add(timer, forMode: .common); capture.finish()
     }
 
-    func cancel() { complete(deliver: false) }
+    func cancel() { if active { complete(deliver: false) } }
 
-    /// Wait for a stable command before ending the microphone session; ordinary partials never send.
+    /// Ordinary partials never send. Stable terminal commands keep the existing explicit-send rule.
     private func scheduleCommand() {
-        let candidate = VoiceCommands.recognize(latest, segments: segments)
+        let candidate = recognizedCommand()
         guard candidate != commandCandidate else { return }
         commandTimer?.invalidate(); commandTimer = nil; commandCandidate = candidate
         guard candidate != nil else { return }
@@ -114,9 +156,9 @@ import Speech
         commandTimer = deadline; RunLoop.main.add(deadline, forMode: .common)
     }
 
-    /// Query system permissions and recognizer readiness without opening the microphone.
+    /// Query permissions without opening the microphone; passive and foreground recording are distinct.
     func status(enabled: Bool, language: String) -> [String: Any] {
-        let availableRecognizer = SFSpeechRecognizer(locale: Locale(identifier: language))
+        let recognizer = SFSpeechRecognizer(locale: Locale(identifier: language))
         let microphone: String
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
         case .authorized: microphone = "authorized"
@@ -134,36 +176,29 @@ import Speech
         @unknown default: permission = "unknown"
         }
         return ["type": "dictation-status", "enabled": enabled, "active": active, "recording": recording,
-                "language": language, "microphonePermission": microphone, "speechPermission": permission,
-                "available": availableRecognizer?.isAvailable ?? false,
-                "onDeviceRecognition": availableRecognizer?.supportsOnDeviceRecognition ?? false]
+                "wakeListening": listening, "language": language, "microphonePermission": microphone,
+                "speechPermission": permission, "available": recognizer?.isAvailable ?? false,
+                "onDeviceRecognition": recognizer?.supportsOnDeviceRecognition ?? false,
+                "partialLength": (transcript as NSString).length, "recognitionResults": recognitionResults,
+                "lastHasKeyword": lastHasKeyword, "segmentCount": segments.count,
+                "maxWordPause": zip(segments.dropFirst(), segments).map { $0.timestamp - $1.timestamp - $1.duration }
+                    .filter { $0.isFinite && $0 >= 0 }.max() ?? 0,
+                "commandPending": commandCandidate != nil]
     }
 
-    private func installInputTap(_ input: AVAudioInputNode, request: SFSpeechAudioBufferRecognitionRequest, format: AVAudioFormat) throws {
-        try MicrophoneTap.install(on: input, format: format) { buffer, _ in request.append(buffer) }
-    }
-
-    private func stopAudio() {
-        limitTimer?.invalidate(); limitTimer = nil
-        engine?.stop()
-        recording = false
-        if tapInstalled { engine?.inputNode.removeTap(onBus: 0); tapInstalled = false }
+    private func clearCapture() {
+        token = nil; capture.stop(); recording = false
+        for timer in [commandTimer, limitTimer, finishTimer] { timer?.invalidate() }
+        commandTimer = nil; limitTimer = nil; finishTimer = nil
+        latest = ""; commandPrefix = ""; segments = []; commandCandidate = nil
     }
 
     private func complete(deliver: Bool) {
-        guard token != nil else { return }
-        token = nil
-        stopAudio(); finishTimer?.invalidate(); finishTimer = nil
-        commandTimer?.invalidate(); commandTimer = nil
-        request?.endAudio(); task?.cancel()
-        task = nil; request = nil; engine = nil; recognizer = nil
-        let transcript = latest.trimmingCharacters(in: .whitespacesAndNewlines)
-        let command = VoiceCommands.recognize(latest, segments: segments)
-        latest = ""; segments = []; commandCandidate = nil
-        active = false; onState?(false)
+        guard active, token != nil else { return }
+        let transcript = self.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
+        let command = recognizedCommand()
+        clearCapture(); active = false; passive = false; woke = false; onState?(false)
         if deliver, let command { onCommand?(command) }
         else if deliver, !transcript.isEmpty { onTranscript?(transcript) }
     }
-
-    private func fail(_ message: String) { complete(deliver: false); onError?(message) }
 }
