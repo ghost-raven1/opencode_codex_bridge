@@ -70,15 +70,15 @@ import AppKit
             view.musicBeat = MusicBeatState(anchor: Double(sequence) * 0.5, period: 0.5, sequence: sequence,
                 confidence: 1, audibleAt: time, allowance: 1, measuredAt: time)
             view.snapshotTime = time; view.tick()
-            for actor in entries { signatures.insert("\(actor.rig!)/\(view.posture(for: actor, at: time).kind.rawValue)") }
+            for actor in entries { signatures.insert("\(actor.rig!)/\(view.displayPosture(for: actor, at: time).kind.rawValue)") }
             try save(String(format: "dance-%03d", frame))
         }
         precondition(signatures.filter { $0.contains("/dance-") }.count == 28, "Some authored dances were never shown")
         view.speaker = entries[3].id; view.snapshotTime = 8.5; view.tick(); view.snapshotTime = 9.5; view.tick()
-        precondition(view.posture(for: entries[3], at: 9.5).kind == .standing, "Narration retained a neutral dance face")
+        precondition(view.displayPosture(for: entries[3], at: 9.5).kind == .standing, "Narration retained a neutral dance face")
         try save("dance-speech-return")
         view.auditReduced = true; view.snapshotTime = 10; view.tick()
-        precondition(entries.allSatisfy { !view.posture(for: $0, at: 10).kind.isDance }, "Reduce Motion retained dance keyframes")
+        precondition(entries.allSatisfy { !view.displayPosture(for: $0, at: 10).kind.isDance }, "Reduce Motion retained dance keyframes")
         try save("dance-reduced")
         let building = entries.map { actor -> Character in var result = actor; result.activity = "build"; return result }
         setup(at: 0, actors: building)
@@ -99,8 +99,22 @@ import AppKit
             }
             try save("role-speech-\(name)")
         }
+        // State-specific layered gestures use all seven roles and never depend on rare idle timers.
+        for state in StateMotion.kinds {
+            let reacting = entries.map { actor -> Character in
+                var result = actor; result.state = state; result.activity = nil; result.invocationID = "state-\(state)"; return result
+            }
+            for background in ["light", "dark"] {
+                setup(at: 1000, actors: reacting); view.auditPose = .standing; view.snapshotBackground = background
+                for elapsed in [0.4, 1.0, 2.0, 4.0] {
+                    view.snapshotTime = 1000 + elapsed; view.tick()
+                    try save("state-\(state)-\(background)-\(elapsed)")
+                }
+            }
+        }
         let report: [String: Any] = ["passed": true, "snapshots": count, "roles": roles,
             "layeredPoses": 112, "dancePosesUsed": 28, "mixedIdentities": 12,
+            "stateGestures": 28,
             "scales": [0.5, 1, 2], "backingScale": panel.backingScaleFactor,
             "microphone": false, "speech": false]
         try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])

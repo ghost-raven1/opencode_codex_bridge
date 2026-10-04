@@ -21,6 +21,7 @@ try {
     ["layered", ["LayeredMotion.swift", "CaptionState.swift", "SpeechReveal.swift"], "test-layered.swift"],
     ["rig", ["LayeredRig.swift", "LayeredMotion.swift", "WorkMotion.swift", "ActionMotion.swift", "CharacterMotion.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-rig.swift"],
     ["actions", ["WorkMotion.swift", "ActionMotion.swift"], "test-action-motion.swift"],
+    ["state", ["WorkMotion.swift", "StateMotion.swift"], "test-state-motion.swift"],
     ["work", ["WorkMotion.swift", "ActionMotion.swift", "IdleMotion.swift"], "test-work-motion.swift"],
     ["poses", rendererSources, "test-poses.swift"],
     ["choreography", ["PoseAnimation.swift", "PoseChoreography.swift", "MusicRhythm.swift", "MusicMotion.swift"], "test-choreography.swift"],

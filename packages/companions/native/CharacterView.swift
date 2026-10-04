@@ -15,9 +15,12 @@ final class CharacterView: NSView {
     private var motions: [String: Motion] = [:]
     private var ambient: [String: AmbientMotion] = [:]
     private var workAnimations: [String: WorkAnimation] = [:]
+    private var stateAnimations: [String: StateAnimation] = [:]
     private var poseAnimations: [String: PoseAnimation] = [:]
     private var previousPostures: [String: PoseAnimation] = [:]
     private var team = TeamCoordinator()
+    var hasArtwork: Bool { atlas != nil || !rigs.isEmpty ||
+        ((mixedHeadAtlas ?? headAtlas) != nil && (mixedBodyAtlas ?? bodyAtlas) != nil) }
     var teamActionKinds: [String] { team.actions.map { $0.kind.rawValue } }
     private var badges: [String: CharacterBadgeView] = [:]
     var speaker: String?
@@ -121,9 +124,10 @@ final class CharacterView: NSView {
         work.update(active: ["working", "thinking"].contains(character.state), at: time,
                     activity: character.activity, invocation: character.invocationID)
         workAnimations[character.id] = work
+        advanceState(for: character, at: time)
         let delay = motions[character.id].map { (1 - $0.progress(time, reduced: reduced)) * $0.duration(reduced: reduced) } ?? 0
         team.observe(character, at: time, entranceDelay: delay, animated: animateInteractions)
-        _ = posture(for: character, at: time)
+        advanceDisplayPostures(for: character, at: time)
         if badge.superview == nil { addSubview(badge); badges[character.id] = badge }
         badge.update(character, color: accent(for: character))
         layoutBadges()
@@ -132,7 +136,7 @@ final class CharacterView: NSView {
     func remove(_ id: String, immediately: Bool = false) {
         guard characters.contains(where: { $0.id == id }) else { return }
         team.remove(id)
-        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; workAnimations[id] = nil; poseAnimations[id] = nil; previousPostures[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
+        if immediately { characters.removeAll { $0.id == id }; motions[id] = nil; ambient[id] = nil; workAnimations[id] = nil; stateAnimations[id] = nil; poseAnimations[id] = nil; previousPostures[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
         else { motions[id] = Motion(kind: "leave", start: now) }
     }
 
@@ -140,7 +144,7 @@ final class CharacterView: NSView {
         let next = Set(entries.map(\.id))
         for character in characters where !next.contains(character.id) { team.remove(character.id) }
         badges.values.forEach { $0.removeFromSuperview() }; badges = [:]
-        characters = []; motions = [:]; ambient = [:]; workAnimations = [:]; poseAnimations = [:]; previousPostures = [:]
+        characters = []; motions = [:]; ambient = [:]; workAnimations = [:]; stateAnimations = [:]; poseAnimations = [:]; previousPostures = [:]
         for entry in entries { update(entry, animateInteractions: animated) }
         if !animated { motions = [:]; layoutBadges() }
     }
@@ -149,7 +153,7 @@ final class CharacterView: NSView {
         let before = characters.count, time = now
         team.tick(at: time)
         for (id, motion) in motions where motion.progress(time, reduced: reduced) >= 1 {
-            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; workAnimations[id] = nil; poseAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
+            if motion.kind == "leave" { characters.removeAll { $0.id == id }; ambient[id] = nil; workAnimations[id] = nil; stateAnimations[id] = nil; poseAnimations[id] = nil; badges.removeValue(forKey: id)?.removeFromSuperview() }
             motions[id] = nil; previousPostures[id] = nil
         }
         for character in characters {
@@ -157,7 +161,8 @@ final class CharacterView: NSView {
             if let activity = character.activity, ["working", "thinking"].contains(character.state) {
                 workAnimations[character.id]?.update(active: true, at: time, activity: activity, invocation: character.invocationID)
             }
-            _ = posture(for: character, at: time)
+            advanceDisplayPostures(for: character, at: time)
+            advanceState(for: character, at: time)
         }
         layoutBadges()
         layoutBubble(width: bounds.width)
@@ -170,6 +175,12 @@ final class CharacterView: NSView {
 
     private func gestureInterval(for character: Character) -> ClosedRange<Double> {
         character.rig.flatMap { rigs[$0]?.gestureInterval } ?? 8...15
+    }
+
+    private func advanceState(for character: Character, at time: TimeInterval) {
+        var animation = stateAnimations[character.id] ?? StateAnimation(seed: character.id)
+        animation.update(state: character.state, at: time, invocation: character.invocationID, speaking: speaker == character.id)
+        stateAnimations[character.id] = animation
     }
 
     private func accent(for character: Character) -> NSColor {
@@ -187,7 +198,7 @@ final class CharacterView: NSView {
                 character.rig == nil && character.headColumn != character.bodyColumn ? core[character.headColumn] : nil)
     }
 
-    /// A mixed identity changes posture only when both its outfit and original head have that pose.
+    /// Advance only on input/update ticks; a mixed identity requires a pose for both outfit and head.
     func posture(for character: Character, at time: TimeInterval) -> PoseFrame {
         var animation = poseAnimations[character.id] ?? PoseAnimation(seed: character.id, clips: poseRigs?.clips ?? .standard)
         let result = advancePosture(&animation, for: character, at: time)
@@ -219,18 +230,22 @@ final class CharacterView: NSView {
         return result
     }
 
+    private func advanceDisplayPostures(for character: Character, at time: TimeInterval) {
+        _ = posture(for: character, at: time)
+        if let motion = motions[character.id], motion.kind == "turn", motion.progress(time, reduced: reduced) < 0.5,
+           var previous = previousPostures[character.id], speaker == character.id, let outgoing = motion.previous {
+            _ = advancePosture(&previous, for: outgoing, at: time)
+            previousPostures[character.id] = previous
+        }
+    }
+
+    /// AppKit may redraw independently of the render timer; reading a frame never reschedules poses.
     func displayPosture(for character: Character, at time: TimeInterval) -> PoseFrame {
         if let motion = motions[character.id], motion.kind == "turn", motion.progress(time, reduced: reduced) < 0.5,
-           var previous = previousPostures[character.id] {
-            // The outgoing role still needs its frontal mouth while the appearance changes.
-            if speaker == character.id, let outgoing = motion.previous {
-                let result = advancePosture(&previous, for: outgoing, at: time)
-                previousPostures[character.id] = previous
-                return result
-            }
+           let previous = previousPostures[character.id] {
             return previous.frame(at: time, reduced: reduced)
         }
-        return posture(for: character, at: time)
+        return poseAnimations[character.id]?.frame(at: time, reduced: reduced) ?? PoseFrame()
     }
 
     private func layoutBadges() {
@@ -290,6 +305,9 @@ final class CharacterView: NSView {
             let idle = IdleMotion.pose(rig: rigName, state: displayed.state, time: time, gestureElapsed: gesture.map { time - $0 },
                 variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed, seed: character.motionSeed, reduced: reduced)
             var work = workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced, rest: idle) ?? idle
+            if !speaking, character.activity == nil, let reaction = stateAnimations[character.id]?.frame(rig: rigName, at: time, reduced: reduced) {
+                work = work.blending(reaction.pose, weight: reaction.weight)
+            }
             if let interaction, let peer = characters.firstIndex(where: { $0.id == (interaction.source == character.id ? interaction.target : interaction.source) }) {
                 let direction = peer > index ? 1.0 : -1.0
                 let reaction = TeamMotion.pose(interaction, id: character.id, rig: rigName, direction: direction, at: time, reduced: reduced)

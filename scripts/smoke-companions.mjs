@@ -10,6 +10,7 @@ import { startNativeHost } from "../packages/companions/dist/native-host.js";
 if (process.platform !== "darwin") throw new Error("Companion lifecycle smoke requires macOS");
 const root = fileURLToPath(new URL("../", import.meta.url));
 const visual = process.argv.includes("--visual");
+const layeredOnly = process.argv.includes("--layered-only");
 const reduced = process.argv.includes("--reduce-motion");
 const scale = Number(process.argv.find(argument => argument.startsWith("--scale="))?.slice(8) ?? 1);
 assert([0.5, 1, 2].includes(scale), "Scale must be 0.5, 1 or 2");
@@ -22,7 +23,7 @@ const captures = await mkdtemp(join(tmpdir(), "codexbridge-captures-"));
 const bundle = join(temporary, "Companions Smoke.app");
 const identifier = `dev.codexbridge.companions.smoke.${Date.now()}`;
 const results = [], errors = [];
-let host, pending, closed = false, nativePID;
+let host, pending, closed = false, nativePID, graphics;
 let resolveClosed;
 const didClose = new Promise(resolve => { resolveClosed = resolve; });
 
@@ -128,16 +129,22 @@ async function captureVisuals() {
 try {
   // A separate bundle identity keeps QA hide/show actions out of the user's saved preferences.
   await cp(join(root, "packages/companions/native/CodexBridge Companions.app"), bundle, { recursive: true });
+  if (layeredOnly) {
+    for (const file of ["team-atlas.png", "head-atlas.png", "body-atlas.png", "mixed-head-atlas.png", "mixed-body-atlas.png", "facial-v3.png"]) {
+      await rm(join(bundle, "Contents/Resources", file), { force: true });
+    }
+  }
   await exec("/usr/libexec/PlistBuddy", ["-c", `Set :CFBundleIdentifier ${identifier}`, join(bundle, "Contents/Info.plist")]);
   await exec("/usr/bin/codesign", ["--force", "--sign", "-", "--identifier", identifier, bundle]);
   host = await startNativeHost(join(bundle, "Contents/MacOS/Companions"), ["--atlas", join(bundle, "Contents/Resources/team-atlas.png"),
     ...(reduced ? ["--reduce-motion"] : []),
     "--config", JSON.stringify({ enabled: true, showOnStart: true, speech: "off", dictation: false, maxVisible: 4, scale })], event => {
-    if (event.type === "ready") nativePID = event.pid;
+    if (event.type === "ready") { nativePID = event.pid; graphics = event.graphics; }
     if (event.type === "closed") { closed = true; resolveClosed(); }
     if (event.type === "error") errors.push(event.message ?? "Native error");
     pending?.(event);
   }, message => errors.push(message));
+  assert.equal(graphics, true, "Native host requires legacy atlases despite valid layered rigs");
   await windowState("normal startup ignores legacy showOnStart", event => event.count === 0 &&
     event.characters?.length === 0 && event.visible === false && event.rendering === false);
   host.send(realCharacter);
@@ -201,7 +208,7 @@ try {
   await rm(temporary, { recursive: true, force: true });
   await rm(captures, { recursive: true, force: true });
   await writeFile(join(root, ".local/companions-smoke.json"), JSON.stringify({ checkedAt: new Date().toISOString(),
-    passed: !process.exitCode, results, errors, snapshots }, null, 2) + "\n");
+    passed: !process.exitCode, layeredOnly, graphics, results, errors, snapshots }, null, 2) + "\n");
   if (visual) await writeFile(join(root, ".local/companions-snapshots", captureGroup, "report.json"),
     JSON.stringify({ passed: !process.exitCode, snapshots }, null, 2) + "\n");
 }

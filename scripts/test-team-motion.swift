@@ -54,6 +54,56 @@ import AppKit
         late.observe(member("child", parent: "parent", invocation: "next"), at: 3)
         precondition(late.actions.count == 1, "A fresh invocation lost its handoff after eviction")
 
+        // Fast tasks report their result rather than accepting an assignment after completion.
+        var fast = TeamCoordinator()
+        fast.observe(member("parent"), at: 0)
+        fast.observe(member("child", parent: "parent"), at: 1, entranceDelay: 1.65)
+        fast.observe(member("child", parent: "parent", state: "success"), at: 1.1, entranceDelay: 1.55)
+        precondition(fast.actions.map(\.kind) == [.result], "Completed child retained an unstarted handoff")
+        precondition(fast.actions[0].start >= 2.65, "Result began before the child appeared")
+        fast.observe(member("child", parent: "parent", state: "success"), at: 1.2)
+        precondition(fast.actions.count == 1, "Repeated completion duplicated a queued result")
+
+        var entering = TeamCoordinator()
+        entering.observe(member("child", parent: "parent"), at: 1, entranceDelay: 1.65)
+        entering.observe(member("parent"), at: 1.1)
+        precondition(entering.actions[0].start >= 2.65, "Late parent metadata ignored the child's entrance time")
+
+        // A result rejected by the six-second horizon must retry without another metadata event.
+        var busy = TeamCoordinator()
+        busy.observe(member("parent"), at: 0)
+        for id in ["child-a", "child-b", "child-c"] { busy.observe(member(id, parent: "parent"), at: 1) }
+        busy.observe(member("child-a", parent: "parent", state: "success"), at: 1.2)
+        precondition(!busy.actions.contains { $0.kind == .result }, "Fixture did not fill the scheduling horizon")
+        let freedAt = busy.actions.map(\.end).max()! + 1
+        busy.tick(at: freedAt)
+        precondition(busy.actions.contains { $0.kind == .result && $0.source == "child-a" }, "Busy parent lost a deferred result")
+        let resultEnd = busy.actions.last!.end
+        busy.tick(at: resultEnd + 1); busy.tick(at: resultEnd + 2)
+        precondition(busy.actions.isEmpty, "Consumed reactions replayed on render ticks")
+
+        var stale = TeamCoordinator()
+        stale.observe(member("parent"), at: 0)
+        for id in ["child-a", "child-b", "child-c"] { stale.observe(member(id, parent: "parent"), at: 1) }
+        stale.observe(member("child-a", parent: "parent", state: "success"), at: 1.2)
+        var evicted = stale
+        evicted.remove("child-a")
+        evicted.observe(member("parent", invocation: "next"), at: 1.3)
+        evicted.observe(member("child-a", parent: "parent", state: "success"), at: 2)
+        evicted.tick(at: 10)
+        precondition(evicted.actions.isEmpty, "Evicted child delivered an old result to a new parent invocation")
+        stale.observe(member("parent", invocation: "next"), at: 1.3)
+        stale.tick(at: 10)
+        precondition(stale.actions.isEmpty, "Old child delivered a deferred result to a new parent invocation")
+
+        var reconnect = TeamCoordinator()
+        reconnect.observe(member("parent"), at: 0)
+        reconnect.observe(member("child", parent: "parent"), at: 1, entranceDelay: 1.65)
+        reconnect.observe(member("parent"), at: 1.1, animated: false)
+        reconnect.observe(member("child", parent: "parent"), at: 1.1, animated: false)
+        reconnect.tick(at: 2)
+        precondition(reconnect.actions.isEmpty, "Silent restoration retained old queued interactions")
+
         for kind in [TeamActionKind.greeting, .handoff, .result, .support] {
             let action = TeamAction(kind: kind, source: "parent", target: "child", start: 0)
             for role in ["lead", "code", "research", "review", "designer", "devops", "tester"] {

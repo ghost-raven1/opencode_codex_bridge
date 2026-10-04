@@ -76,7 +76,7 @@ var exitStatus: Int32 = 0
             view.mixedHeadAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-head-atlas.png"))
             view.mixedBodyAtlas = NSImage(contentsOf: directory.appendingPathComponent("mixed-body-atlas.png"))
             view.faceAtlas = NSImage(contentsOf: directory.appendingPathComponent("facial-v3.png"))
-            if view.atlas == nil { emit(["type": "error", "code": "atlas", "message": "Не удалось открыть атлас персонажей; системный голос доступен."]) }
+            if !view.hasArtwork { emit(["type": "error", "code": "atlas", "message": "Не удалось открыть графику персонажей; системный голос доступен."]) }
         }
         configureCallbacks(); configurePanel(); configureMusic(); configureDictation(config); configureMenu()
         emitReady()
@@ -84,8 +84,8 @@ var exitStatus: Int32 = 0
             populatePreview()
         }
         if let output = argument("--snapshot") {
-            guard view.atlas != nil else {
-                emit(["type": "error", "code": "atlas", "message": "Для снимка нужен атлас персонажей."])
+            guard view.hasArtwork else {
+                emit(["type": "error", "code": "atlas", "message": "Для снимка нужна графика персонажей."])
                 exitStatus = 1; NSApp.terminate(nil); return
             }
             if !view.snapshot(output) { exitStatus = 1; emit(["type": "error", "message": "Не удалось сохранить снимок."]) }
@@ -204,7 +204,7 @@ var exitStatus: Int32 = 0
 
     func emitReady() {
         emit(["type": "ready", "voice": speech.voice?.identifier ?? "system-default",
-              "language": speech.voice?.language ?? language, "graphics": view.atlas != nil,
+              "language": speech.voice?.language ?? language, "graphics": view.hasArtwork,
               "pid": ProcessInfo.processInfo.processIdentifier])
     }
 
@@ -318,7 +318,7 @@ var exitStatus: Int32 = 0
     }
 
     func populatePreview() {
-        guard view.atlas != nil else { return }
+        guard view.hasArtwork else { return }
         let state = argument("--snapshot-state") ?? "idle"
         demonstration = true
         let entries = ["LEAD", "CODE", "RESEARCH", "REVIEW"].prefix(maxVisible).enumerated().map {
@@ -332,7 +332,7 @@ var exitStatus: Int32 = 0
     func presentCharacters() {
         let wasRendering = timer != nil
         defer { emitRendererState(previous: wasRendering) }
-        windowState.present(hasContent: view.atlas != nil && !view.characters.isEmpty)
+        windowState.present(hasContent: view.hasArtwork && !view.characters.isEmpty)
         if panel.isVisible && !view.characters.isEmpty {
             if timer == nil {
                 timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 24, repeats: true) { [weak self] _ in

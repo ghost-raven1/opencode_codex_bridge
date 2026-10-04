@@ -19,6 +19,7 @@ struct TeamAction {
 struct TeamCoordinator {
     private struct Member {
         var character: Character
+        var readyAt: Double
         var handedOff = false
         var reactions = Set<String>()
     }
@@ -28,51 +29,84 @@ struct TeamCoordinator {
 
     mutating func observe(_ character: Character, at time: Double, entranceDelay: Double = 0, animated: Bool = true) {
         guard time.isFinite else { return }
-        tick(at: time)
+        actions.removeAll { $0.end <= time }
         let old = members[character.id] ?? archived.removeValue(forKey: character.id)
         let newInvocation = old != nil && old?.character.invocationID != character.invocationID
-        if newInvocation { actions.removeAll { $0.contains(character.id) } }
-        var member = newInvocation ? Member(character: character) : old ?? Member(character: character)
+        let newParent = old != nil && old?.character.parentID != character.parentID
+        if newInvocation || newParent || !animated { actions.removeAll { $0.contains(character.id) } }
+        if newInvocation {
+            // An old child's delayed result must not reach the parent's next task.
+            for id in members.keys where members[id]?.character.parentID == character.id {
+                members[id]?.handedOff = true
+                members[id]?.reactions.formUnion(["success", "error"])
+            }
+            for id in archived.keys where archived[id]?.character.parentID == character.id {
+                archived[id]?.handedOff = true
+                archived[id]?.reactions.formUnion(["success", "error"])
+            }
+        }
+        let delay = entranceDelay.isFinite ? max(0, entranceDelay) : 0
+        var member = newInvocation || newParent ? Member(character: character, readyAt: time + delay)
+            : old ?? Member(character: character, readyAt: time + delay)
+        member.readyAt = max(member.readyAt, time + delay)
         member.character = character; members[character.id] = member
         if animated, old == nil, character.parentID == nil,
            let peer = members.keys.filter({ $0 != character.id }).sorted().first {
-            enqueue(.greeting, source: peer, target: character.id, at: time + entranceDelay)
+            _ = enqueue(.greeting, source: peer, target: character.id, at: time)
         }
+        if ["success", "error"].contains(character.state) {
+            actions.removeAll { $0.kind == .handoff && $0.target == character.id && $0.start > time }
+        }
+        schedule(at: time, animated: animated)
+    }
+
+    /// Pending reactions stay on the latest member state until a bounded queue accepts them.
+    private mutating func schedule(at time: Double, animated: Bool) {
         // Metadata and the parent's first appearance can arrive in either order.
         for id in members.keys.sorted() {
             guard var child = members[id], let parent = child.character.parentID, parent != id,
                   members[parent] != nil else { continue }
             if !child.handedOff, ["working", "thinking", "waiting"].contains(child.character.state) {
-                if animated { enqueue(.handoff, source: parent, target: id, at: time + entranceDelay) }
-                child.handedOff = true
+                if !animated || enqueue(.handoff, source: parent, target: id, at: time) { child.handedOff = true }
             }
             if ["success", "error"].contains(child.character.state), !child.reactions.contains(child.character.state) {
                 let failed = child.character.state == "error"
-                if animated { enqueue(failed ? .support : .result, source: failed ? parent : id,
-                        target: failed ? id : parent, at: time + entranceDelay) }
-                child.reactions.insert(child.character.state)
+                if !animated || enqueue(failed ? .support : .result, source: failed ? parent : id,
+                                        target: failed ? id : parent, at: time) {
+                    child.reactions.insert(child.character.state)
+                }
             }
             members[id] = child
         }
-        if animated, character.parentID == nil, old?.character.state != character.state,
-           ["success", "error"].contains(character.state), !member.reactions.contains(character.state),
-           let peer = members.keys.filter({ $0 != character.id && members[$0]?.character.parentID == character.id }).sorted().first {
+        for id in members.keys.sorted() {
+            guard let member = members[id] else { continue }
+            let character = member.character
+            guard character.parentID == nil, ["success", "error"].contains(character.state),
+                  !member.reactions.contains(character.state),
+                  let peer = members.keys.filter({ $0 != id && members[$0]?.character.parentID == id }).sorted().first else { continue }
             let failed = character.state == "error"
-            enqueue(failed ? .support : .result, source: failed ? peer : character.id,
-                    target: failed ? character.id : peer, at: time + entranceDelay)
-            members[character.id]?.reactions.insert(character.state)
+            if !animated || enqueue(failed ? .support : .result, source: failed ? peer : id,
+                                    target: failed ? id : peer, at: time) {
+                members[id]?.reactions.insert(character.state)
+            }
         }
     }
 
-    private mutating func enqueue(_ kind: TeamActionKind, source: String, target: String, at time: Double) {
-        guard source != target, actions.count < 8 else { return }
-        let last = actions.filter { $0.contains(source) || $0.contains(target) }.map(\.end).max() ?? time
-        let start = max(time, last + 0.12)
-        guard start - time <= 6 else { return }
+    private mutating func enqueue(_ kind: TeamActionKind, source: String, target: String, at time: Double) -> Bool {
+        guard source != target, actions.count < 8 else { return false }
+        let ready = max(time, max(members[source]?.readyAt ?? time, members[target]?.readyAt ?? time))
+        let last = actions.filter { $0.contains(source) || $0.contains(target) }.map(\.end).max() ?? ready
+        let start = max(ready, last + 0.12)
+        guard start - time <= 6 else { return false }
         actions.append(TeamAction(kind: kind, source: source, target: target, start: start))
+        return true
     }
 
-    mutating func tick(at time: Double) { actions.removeAll { $0.end <= time } }
+    mutating func tick(at time: Double) {
+        guard time.isFinite else { return }
+        actions.removeAll { $0.end <= time }
+        schedule(at: time, animated: true)
+    }
     mutating func remove(_ id: String) {
         if let member = members.removeValue(forKey: id) {
             if archived.count >= 64, let first = archived.keys.first { archived[first] = nil }

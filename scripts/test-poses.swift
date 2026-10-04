@@ -176,9 +176,11 @@ import AppKit
         precondition(view.posture(for: oldNarrator, at: 1.2).kind == .workThreeQuarter)
         let newNarrator = Character(id: oldNarrator.id, column: 2, label: "RESEARCH", state: "working", rig: "research", activity: "read")
         view.snapshotTime = 1.2; view.update(newNarrator); view.speaker = newNarrator.id
+        view.tick()
         let returning = view.displayPosture(for: newNarrator, at: 1.2)
         precondition(returning.kind == .workThreeQuarter && returning.opacity == 1,
                      "Narration snapped the outgoing authored silhouette")
+        view.snapshotTime = 1.8; view.tick()
         let frontal = view.displayPosture(for: newNarrator, at: 1.8)
         precondition(frontal.kind == .standing && frontal.opacity == 1,
                      "Role change froze a neutral-only head throughout the first spoken words")
@@ -209,6 +211,24 @@ import AppKit
         for time in [0.0, 0.4, 0.95, 1.0] { _ = view.posture(for: oldNarrator, at: time) }
         precondition(view.posture(for: oldNarrator, at: 1.6).kind == .workProfile,
                      "CharacterView ignored the authored work hold despite loading its pose library")
+        // AppKit redraws/resizing must read a frame without changing the next scheduled posture.
+        let repainted = CharacterView(frame: view.frame)
+        view.loadRigs(directory: directory); repainted.loadRigs(directory: directory)
+        view.snapshotTime = 0; repainted.snapshotTime = 0
+        view.replace([oldNarrator], animated: false); repainted.replace([oldNarrator], animated: false)
+        let repaintBuffer = repainted.bitmapImageRepForCachingDisplay(in: repainted.bounds)!
+        for time in [1.3, 1.5, 2.0, 2.5] {
+            repainted.snapshotTime = time
+            repainted.cacheDisplay(in: repainted.bounds, to: repaintBuffer)
+            _ = repainted.displayPosture(for: oldNarrator, at: time)
+        }
+        for time in [3.0, 3.3, 3.6] {
+            view.snapshotTime = time; repainted.snapshotTime = time
+            view.tick(); repainted.tick()
+            let a = view.displayPosture(for: oldNarrator, at: time), b = repainted.displayPosture(for: oldNarrator, at: time)
+            precondition(a.kind == b.kind && abs(a.scaleX - b.scaleX) < 0.000001 && abs(a.opacity - b.opacity) < 0.000001,
+                         "Reading render frames advanced a character's posture schedule")
+        }
         print("PASS lazy pose loading: zero startup decodes, one decode per selected rig, cached failures")
         for (role, armID) in [("devops", "tool-arm"), ("tester", "controller-arms")] {
             var value = definition("layer.png")
@@ -253,6 +273,7 @@ import AppKit
         for y in 80..<350 { for x in 40..<220 { coloured.setColor(red, atX: x, y: y) } }
         try coloured.representation(using: .png, properties: [:])!.write(to: directory.appendingPathComponent("layer.png"))
         view.loadRigs(directory: directory); view.atlas = nil; view.snapshotTime = 1000
+        precondition(view.hasArtwork, "Native host would hide a valid layered renderer")
         view.replace([Character(id: "layered-only", column: 1, label: "CODE", state: "idle", rig: "code")], animated: false)
         let capture = view.bitmapImageRepForCachingDisplay(in: view.bounds)!
         view.cacheDisplay(in: view.bounds, to: capture)
