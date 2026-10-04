@@ -36,7 +36,7 @@ try {
     func auditResetTeam() { team.reset() }`],
     ['var reduced: Bool { CommandLine.arguments.contains("--reduce-motion") || NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }', "var reduced: Bool { auditReduced }"],
     ["let gesture = ambient[character.id]?.gestureStart", "let gesture = auditGesture.map { time - $0 } ?? ambient[character.id]?.gestureStart"],
-    ["let posture = displayPosture(for: character, at: time)", "let posture = auditPose.map { PoseFrame(kind: $0) } ?? displayPosture(for: character, at: time)"],
+    ["let posture = displayPosture(for: character, at: time)", "let posture = auditPose.map { PoseFrame(kind: $0, walkPhase: $0.isWalk ? time * .pi / (2 * (poseRigs?.clips.walk.stepSeconds ?? ChoreographyClips.standard.walk.stepSeconds)) : nil) } ?? displayPosture(for: character, at: time)"],
     ["variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed", "variant: auditVariant ?? ((ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed)"],
     ["let depth = SpriteDepth.pose(", "let depth = auditDepth ?? SpriteDepth.pose("],
   ]) {

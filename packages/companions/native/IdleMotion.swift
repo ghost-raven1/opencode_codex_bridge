@@ -12,7 +12,8 @@ enum IdleMotion {
         let sweep = sin(p * 2 * .pi), nod = sin(p * 4 * .pi), kind = max(0, variant) % 4
         var pose = WorkPose(headX: kind == 1 ? sweep * 1.2 : 0,
                             headY: kind == 3 ? nod * 0.9 : -envelope * 0.4,
-                            headAngle: sweep * (kind == 2 ? 1.2 : 0.6), bodyAngle: sweep * 0.7)
+                            headAngle: sweep * (kind == 2 ? 1.2 : 0.6), bodyAngle: sweep * 0.7,
+                            bones: SkeletalGestures.rest(role: rig, scan: sweep, nod: nod, variant: kind))
         switch rig {
         case "lead":
             pose.clip = ["tablet-rest", "team-glance", "jacket-settle", "calm-nod"][kind]

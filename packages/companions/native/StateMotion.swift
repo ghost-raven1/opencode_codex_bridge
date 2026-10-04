@@ -22,6 +22,7 @@ enum StateMotion {
             pose.headX = scan * 1.1; pose.headY = -0.4 + nod * 0.4
             pose.headAngle = scan * 1.8; pose.bodyAngle = -scan * 0.4
             pose.joints = [hand: WorkJoint(angle: scan * 1.5, y: nod * 0.6), support: WorkJoint(angle: -scan * 0.4)]
+            pose.bones = SkeletalGestures.reaction(role: rig, state: state, scan: scan, nod: nod, amount: 0)
         case "waiting":
             // A visible request on entry, then a slow reminder rather than a frozen work pose.
             let cycle = elapsed.truncatingRemainder(dividingBy: 8)
@@ -29,6 +30,7 @@ enum StateMotion {
             weight = 0.45 + offer * 0.45
             pose.headX = scan * 0.7; pose.headAngle = -0.7 - offer * 1.2; pose.bodyAngle = offer * 0.6
             pose.joints = [hand: WorkJoint(angle: offer * 2.4, y: offer * 1.2), support: WorkJoint(angle: -offer * 0.5)]
+            pose.bones = SkeletalGestures.reaction(role: rig, state: state, scan: scan, nod: nod, amount: offer)
         case "success":
             guard elapsed < 3 else { return StateFrame() }
             let p = elapsed / 3, envelope = pow(sin(p * .pi), 2)
@@ -36,6 +38,7 @@ enum StateMotion {
             pose.headY = sin(p * 4 * .pi) * 1.1; pose.headAngle = sin(p * 2 * .pi) * 0.7
             pose.bodyAngle = -sin(p * 2 * .pi) * 0.8
             pose.joints = [hand: WorkJoint(angle: sin(p * .pi) * 2.3, y: envelope), support: WorkJoint(angle: -envelope * 0.7)]
+            pose.bones = SkeletalGestures.reaction(role: rig, state: state, scan: sin(p * 2 * .pi), nod: sin(p * 4 * .pi), amount: envelope)
         case "error":
             guard elapsed < 3.6 else { return StateFrame() }
             let p = elapsed / 3.6, envelope = pow(sin(p * .pi), 2)
@@ -43,6 +46,7 @@ enum StateMotion {
             pose.headAngle = sin(p * 6 * .pi) * 1.8; pose.headY = -envelope * 1.2
             pose.headX = sin(p * 2 * .pi) * 0.8; pose.bodyAngle = envelope * 0.5
             pose.joints = [hand: WorkJoint(angle: -envelope * 1.6, y: -envelope * 0.8), support: WorkJoint(angle: envelope * 0.5)]
+            pose.bones = SkeletalGestures.reaction(role: rig, state: state, scan: sin(p * 2 * .pi), nod: sin(p * 6 * .pi), amount: envelope)
         default: return StateFrame()
         }
         return StateFrame(pose: pose.scaled(CGFloat(0.8 + Double(role) * 0.03)), weight: CGFloat(weight))

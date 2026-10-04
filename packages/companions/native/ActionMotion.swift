@@ -14,7 +14,7 @@ enum ActionMotion {
         let p = (time + Double(seed % 991) / 101).truncatingRemainder(dividingBy: 6) / 6
         let scan = sin(p * 2 * .pi), tap = sin(p * 12 * .pi), other = sin(p * 12 * .pi + .pi / 2)
         let press = pow(max(0, sin((p - 0.05) * 2 * .pi)), 4)
-        var pose = WorkPose(clip: "\(rig)-\(kind)")
+        var pose = WorkPose(clip: "\(rig)-\(kind)", bones: SkeletalGestures.action(role: rig, kind: kind, phase: p * 2 * .pi))
         let hand: String, support: String
         switch rig {
         case "designer": hand = "arm-left"; support = "arm-right"

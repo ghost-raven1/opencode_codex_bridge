@@ -23,6 +23,21 @@ STANDING = {
 POSE_LEGS = {
     "research/dance-3": (((116, 209), (144, 251), (80, 268)), ((135, 213), (130, 284), (115, 337))),
     "tester/dance-4": (((142, 190), (163, 240), (88, 233)), ((157, 189), (161, 281), (167, 335))),
+    # Floor poses have folded/crossed legs: bind their actual joints rather than a standing silhouette split.
+    "lead/seated": (((111, 296), (63, 303), (152, 340)), ((132, 298), (189, 309), (84, 336))),
+    "lead/reclining": (((113, 287), (65, 305), (34, 328)), ((137, 290), (91, 344), (192, 340))),
+    "code/seated": (((115, 300), (176, 317), (220, 318)), ((132, 303), (169, 346), (82, 345))),
+    "code/reclining": (((129, 303), (160, 279), (199, 331)), ((148, 298), (191, 247), (222, 337))),
+    "research/seated": (((107, 308), (137, 338), (199, 341)), ((132, 304), (165, 325), (204, 331))),
+    "research/reclining": (((133, 309), (170, 335), (208, 344)), ((148, 292), (187, 313), (220, 332))),
+    "review/seated": (((121, 298), (100, 249), (65, 333)), ((142, 303), (145, 344), (197, 338))),
+    "review/reclining": (((158, 289), (85, 242), (41, 328)), ((173, 302), (111, 339), (50, 337))),
+    "designer/seated": (((119, 292), (65, 319), (162, 350)), ((139, 293), (179, 320), (198, 351))),
+    "designer/reclining": (((153, 283), (107, 306), (35, 324)), ((159, 301), (101, 339), (47, 341))),
+    "devops/seated": (((108, 294), (116, 337), (64, 339)), ((133, 289), (184, 268), (185, 331))),
+    "devops/reclining": (((115, 291), (145, 328), (98, 338)), ((142, 288), (179, 274), (211, 333))),
+    "tester/seated": (((115, 303), (80, 322), (157, 349)), ((133, 304), (177, 322), (103, 349))),
+    "tester/reclining": (((115, 306), (98, 314), (59, 331)), ((143, 307), (104, 346), (65, 349))),
 }
 
 
@@ -113,10 +128,10 @@ def definition(key, value):
 
 def main():
     characters, inputs = {}, {}
-    for name in ("manifest.json", "choreography.json"):
+    for name in ("manifest.json", "poses.json", "choreography.json"):
         manifest = json.loads((ASSETS / name).read_text())
         for key, value in manifest["characters"].items():
-            if key not in STANDING and key.split("/")[-1] not in UPRIGHT: continue
+            if key not in STANDING and key not in POSE_LEGS and key.split("/")[-1] not in UPRIGHT: continue
             for layer in value["layers"]:
                 inputs[layer["file"]] = hashlib.sha256((ASSETS / layer["file"]).read_bytes()).hexdigest()
             characters[key] = definition(key, value)

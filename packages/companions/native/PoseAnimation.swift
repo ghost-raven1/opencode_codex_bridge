@@ -21,6 +21,8 @@ struct PoseFrame {
     var y: Double = 0
     var angle: Double = 0
     var scaleX: Double = 1
+    /// Radians on the invocation's authored contact/passing clock; absent outside walking.
+    var walkPhase: Double?
 }
 
 /// Slow per-character posture changes share the existing render clock and never create timers.
@@ -125,6 +127,16 @@ struct PoseAnimation {
 
     /// Keep authored turns visible; legacy poses retain their original single-silhouette fade.
     func frame(at time: Double, reduced: Bool) -> PoseFrame {
+        var result = transitionFrame(at: time, reduced: reduced)
+        if result.kind.isWalk, !reduced, time.isFinite {
+            // Contact and passing are half a step apart; the full two-foot stride lasts four keyframes.
+            result.walkPhase = max(0, time - walkStarted) * .pi / (2 * clips.walk.stepSeconds)
+                + (firstStep == .walkRight ? .pi / 2 : 0)
+        }
+        return result
+    }
+
+    private func transitionFrame(at time: Double, reduced: Bool) -> PoseFrame {
         let t = min(1, max(0, (time - changedAt) / (reduced ? AnimationTiming.reducedTransition : duration)))
         if t >= 1 { return PoseFrame(kind: target) }
         let initial = reduced ? PoseFrame() : initialFrame

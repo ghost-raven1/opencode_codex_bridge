@@ -7,6 +7,10 @@ import AppKit
             let x = a.joints[key] ?? WorkJoint(), y = b.joints[key] ?? WorkJoint()
             values += [x.angle - y.angle, x.x - y.x, x.y - y.y]
         }
+        for key in Set(a.bones.keys).union(b.bones.keys) {
+            let x = a.bones[key] ?? BoneOffset(), y = b.bones[key] ?? BoneOffset()
+            values += [CGFloat(x.angle - y.angle), CGFloat(x.x - y.x), CGFloat(x.y - y.y)]
+        }
         return values.map { abs(Double($0)) }.max() ?? 0
     }
     static func main() {

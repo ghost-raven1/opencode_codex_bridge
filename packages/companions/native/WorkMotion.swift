@@ -15,9 +15,11 @@ struct WorkPose {
     var headY: CGFloat = 0
     var headAngle: CGFloat = 0
     var bodyAngle: CGFloat = 0
+    var bones: [String: BoneOffset] = [:]
     func scaled(_ weight: CGFloat) -> WorkPose {
         WorkPose(clip: clip, joints: joints.mapValues { $0.scaled(weight) }, headX: headX * weight, headY: headY * weight,
-                 headAngle: headAngle * weight, bodyAngle: bodyAngle * weight)
+                 headAngle: headAngle * weight, bodyAngle: bodyAngle * weight,
+                 bones: bones.mapValues { $0.scaled(Double(weight)) })
     }
 
     /// New seated/reclining cutouts separate the held prop from its driving hand.
@@ -46,6 +48,9 @@ struct WorkPose {
         for (id, joint) in other.joints {
             let old = result.joints[id] ?? WorkJoint(), next = joint.scaled(weight)
             result.joints[id] = WorkJoint(angle: old.angle + next.angle, x: old.x + next.x, y: old.y + next.y)
+        }
+        for (id, offset) in other.bones {
+            result.bones[id] = (result.bones[id] ?? BoneOffset()).adding(offset.scaled(Double(weight)))
         }
         result.clip = other.clip
         result.headX += other.headX * weight; result.headY += other.headY * weight
@@ -124,7 +129,9 @@ struct WorkAnimation {
             return focus.blending(detailPose(rig: rig, variant: variant, p: p), weight: envelope)
         }
         let alternate = variant == 1
-        var pose = WorkPose(headY: -0.7)
+        let kind = ["lead": "edit", "code": "edit", "research": "read", "review": "read",
+                    "designer": "edit", "devops": "run", "tester": "test"][rig] ?? "read"
+        var pose = WorkPose(headY: -0.7, bones: SkeletalGestures.action(role: rig, kind: kind, phase: p * 2 * .pi))
         switch rig {
         case "lead":
             pose.clip = alternate ? "tablet-swipe" : "tablet-tap"
@@ -165,7 +172,8 @@ struct WorkAnimation {
     private func focusPose(rig: String, phase: Double) -> WorkPose {
         let p = phase * 2 * .pi / (3.4 + Double(seed % 13) / 10)
         let sweep = sin(p), tap = sin(p * 4), other = sin(p * 4 + .pi / 2)
-        var pose = WorkPose(clip: "\(rig)-focus", headY: -0.4 + 0.25 * cos(p), bodyAngle: sweep * 0.3)
+        var pose = WorkPose(clip: "\(rig)-focus", headY: -0.4 + 0.25 * cos(p), bodyAngle: sweep * 0.3,
+                            bones: SkeletalGestures.focus(role: rig, phase: p))
         switch rig {
         case "lead":
             pose.joints = ["arm-right": WorkJoint(angle: tap * 0.9, y: tap * 0.7),
@@ -196,7 +204,8 @@ struct WorkAnimation {
     private func detailPose(rig: String, variant: Int, p: Double) -> WorkPose {
         let scan = sin(p * 2 * .pi), nod = sin(p * 4 * .pi), confirm = variant == 3
         var pose = WorkPose(headX: confirm ? 0 : scan * 1.1, headY: confirm ? nod * 0.8 : -0.6,
-                            headAngle: scan * 0.6, bodyAngle: scan * 0.5)
+                            headAngle: scan * 0.6, bodyAngle: scan * 0.5,
+                            bones: SkeletalGestures.action(role: rig, kind: confirm ? "build" : "search", phase: p * 2 * .pi))
         switch rig {
         case "lead":
             pose.clip = confirm ? "plan-confirm" : "schedule-scan"

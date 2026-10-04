@@ -1611,6 +1611,3353 @@
         }
       ]
     },
+    "lead/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            121.5,
+            297.0
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            124.702,
+            258.183
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            127.904,
+            219.366
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            127.904,
+            197.366
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            127.904,
+            197.366
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            150.904,
+            215.366
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            162.512,
+            247.925
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            166.12,
+            280.485
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            104.904,
+            215.366
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            86.322,
+            241.429
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            75.74,
+            267.492
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            111,
+            296
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            63,
+            303
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            152,
+            340
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            132,
+            298
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            189,
+            309
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            84,
+            336
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            129.624,
+            282.778
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "lead/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            125.0,
+            288.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            142.309,
+            256.9
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            159.618,
+            225.3
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            159.618,
+            203.3
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            159.618,
+            203.3
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            136.618,
+            221.3
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            116.16,
+            240.665
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            103.702,
+            260.03
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            182.618,
+            221.3
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            200.535,
+            264.964
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            210.452,
+            308.627
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            113,
+            287
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            65,
+            305
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            34,
+            328
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            137,
+            290
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            91,
+            344
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            192,
+            340
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            118.545,
+            280.567
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "code/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            123.5,
+            301.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            121.749,
+            252.562
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            119.997,
+            203.624
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            119.997,
+            181.624
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            119.997,
+            181.624
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            96.997,
+            199.624
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            101.76,
+            236.323
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            114.522,
+            273.022
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            142.997,
+            199.624
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            147.923,
+            233.901
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            144.848,
+            268.178
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            115,
+            300
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            176,
+            317
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            220,
+            318
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            132,
+            303
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            169,
+            346
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            82,
+            345
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-right",
+          "origin": [
+            155.798,
+            280.603
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "hair-back",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        },
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "code/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            138.5,
+            300.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            125.176,
+            269.712
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            111.852,
+            238.925
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            111.852,
+            216.925
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            111.852,
+            216.925
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            88.852,
+            234.925
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            88.007,
+            276.536
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            95.162,
+            318.147
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            134.852,
+            234.925
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            146.968,
+            235.137
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            151.084,
+            235.348
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            129,
+            303
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            160,
+            279
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            199,
+            331
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            148,
+            298
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            191,
+            247
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            222,
+            337
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            70.019,
+            333.97
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "hair-back",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        },
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        }
+      ]
+    },
+    "research/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            119.5,
+            306.0
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            118.063,
+            259.163
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            116.626,
+            212.326
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            116.626,
+            190.326
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            116.626,
+            190.326
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            93.626,
+            208.326
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            95.341,
+            233.939
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            105.055,
+            259.552
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            139.626,
+            208.326
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            154.776,
+            242.862
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            161.927,
+            277.398
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            107,
+            308
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            137,
+            338
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            199,
+            341
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            132,
+            304
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            165,
+            325
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            204,
+            331
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-right",
+          "origin": [
+            159.966,
+            271.319
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "research/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            140.5,
+            300.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            117.57,
+            256.147
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            94.639,
+            211.795
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            94.639,
+            189.795
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            94.639,
+            189.795
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            71.639,
+            207.795
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            55.504,
+            261.229
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            47.368,
+            314.664
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            117.639,
+            207.795
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            135.97,
+            231.738
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            146.302,
+            255.681
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            133,
+            309
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            170,
+            335
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            208,
+            344
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            148,
+            292
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            187,
+            313
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            220,
+            332
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-right",
+          "origin": [
+            119.111,
+            272.623
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "review/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            131.5,
+            300.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            132.454,
+            257.664
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            133.407,
+            214.828
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            133.407,
+            192.828
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            133.407,
+            192.828
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            110.407,
+            210.828
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            91.562,
+            217.163
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            80.717,
+            223.498
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            156.407,
+            210.828
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            165.323,
+            237.61
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            166.239,
+            264.391
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            121,
+            298
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            100,
+            249
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            65,
+            333
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            142,
+            303
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            145,
+            344
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            197,
+            338
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            114.533,
+            248.073
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "review/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            165.5,
+            295.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            181.101,
+            267.819
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            196.703,
+            240.138
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            196.703,
+            218.138
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            196.703,
+            218.138
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            173.703,
+            236.138
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            142.934,
+            237.082
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            120.165,
+            238.026
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            219.703,
+            236.138
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            227.069,
+            272.238
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            226.435,
+            308.337
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            158,
+            289
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            85,
+            242
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            41,
+            328
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            173,
+            302
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            111,
+            339
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            50,
+            337
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            126.393,
+            261.932
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "designer/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            129.0,
+            292.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            132.625,
+            255.661
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            136.25,
+            218.822
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            136.25,
+            196.822
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            136.25,
+            196.822
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            113.25,
+            214.822
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            101.466,
+            242.223
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            97.683,
+            269.624
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            159.25,
+            214.822
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            163.505,
+            246.245
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            159.761,
+            277.668
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            119,
+            292
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            65,
+            319
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            162,
+            350
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            139,
+            293
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            179,
+            320
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            198,
+            351
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            102.22,
+            285.505
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "braid",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "designer/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            156.0,
+            292.0
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            168.94,
+            265.692
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            181.879,
+            239.384
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            181.879,
+            217.384
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            181.879,
+            217.384
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            158.879,
+            235.384
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            134.236,
+            249.446
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            117.592,
+            263.508
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            204.879,
+            235.384
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            213.501,
+            271.998
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            214.124,
+            308.611
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            153,
+            283
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            107,
+            306
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            35,
+            324
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            159,
+            301
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            101,
+            339
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            47,
+            341
+          ],
+          "limit": 40
+        },
+        {
+          "id": "prop",
+          "parent": "hand-left",
+          "origin": [
+            109.836,
+            278.61
+          ],
+          "limit": 1
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "prop"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-left",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "arm-right",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "braid",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "devops/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            120.5,
+            291.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            121.891,
+            257.084
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            123.282,
+            222.667
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            123.282,
+            200.667
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            123.282,
+            200.667
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            146.282,
+            218.667
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            159.868,
+            241.247
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            165.453,
+            263.826
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            100.282,
+            218.667
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            88.141,
+            232.966
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            84.0,
+            247.266
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            108,
+            294
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            116,
+            337
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            64,
+            339
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            133,
+            289
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            184,
+            268
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            185,
+            331
+          ],
+          "limit": 40
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "hip-arm",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "tool-arm",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "devops/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            128.5,
+            289.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            112.665,
+            259.95
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            96.829,
+            230.399
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            96.829,
+            208.399
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            96.829,
+            208.399
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            119.829,
+            226.399
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            141.946,
+            240.617
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            156.063,
+            254.835
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            73.829,
+            226.399
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            64.875,
+            241.44
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            63.922,
+            256.481
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            115,
+            291
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            145,
+            328
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            98,
+            338
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            142,
+            288
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            179,
+            274
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            211,
+            333
+          ],
+          "limit": 40
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "hip-arm",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "tool-arm",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "tester/seated": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            124.0,
+            303.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            125.059,
+            277.357
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            126.118,
+            251.214
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            126.118,
+            229.214
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            126.118,
+            229.214
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            103.118,
+            247.214
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            109.755,
+            271.616
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            124.393,
+            296.019
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            103.118,
+            247.214
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            109.755,
+            271.616
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            124.393,
+            296.019
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            115,
+            303
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            80,
+            322
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            157,
+            349
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            133,
+            304
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            177,
+            322
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            103,
+            349
+          ],
+          "limit": 40
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "controller-arms",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
+    "tester/reclining": {
+      "bones": [
+        {
+          "id": "pelvis",
+          "parent": null,
+          "origin": [
+            129.0,
+            306.5
+          ],
+          "limit": 6
+        },
+        {
+          "id": "spine",
+          "parent": "pelvis",
+          "origin": [
+            138.084,
+            280.799
+          ],
+          "limit": 4
+        },
+        {
+          "id": "chest",
+          "parent": "spine",
+          "origin": [
+            147.168,
+            255.099
+          ],
+          "limit": 4
+        },
+        {
+          "id": "neck",
+          "parent": "chest",
+          "origin": [
+            147.168,
+            233.099
+          ],
+          "limit": 3
+        },
+        {
+          "id": "head",
+          "parent": "neck",
+          "origin": [
+            147.168,
+            233.099
+          ],
+          "limit": 1.1
+        },
+        {
+          "id": "upper-arm-left",
+          "parent": "chest",
+          "origin": [
+            124.168,
+            251.099
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-left",
+          "parent": "upper-arm-left",
+          "origin": [
+            109.212,
+            266.802
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-left",
+          "parent": "forearm-left",
+          "origin": [
+            102.255,
+            282.504
+          ],
+          "limit": 8
+        },
+        {
+          "id": "upper-arm-right",
+          "parent": "chest",
+          "origin": [
+            124.168,
+            251.099
+          ],
+          "limit": 8
+        },
+        {
+          "id": "forearm-right",
+          "parent": "upper-arm-right",
+          "origin": [
+            109.212,
+            266.802
+          ],
+          "limit": 12
+        },
+        {
+          "id": "hand-right",
+          "parent": "forearm-right",
+          "origin": [
+            102.255,
+            282.504
+          ],
+          "limit": 8
+        },
+        {
+          "id": "thigh-left",
+          "parent": "pelvis",
+          "origin": [
+            115,
+            306
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-left",
+          "parent": "thigh-left",
+          "origin": [
+            98,
+            314
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-left",
+          "parent": "shin-left",
+          "origin": [
+            59,
+            331
+          ],
+          "limit": 40
+        },
+        {
+          "id": "thigh-right",
+          "parent": "pelvis",
+          "origin": [
+            143,
+            307
+          ],
+          "limit": 30
+        },
+        {
+          "id": "shin-right",
+          "parent": "thigh-right",
+          "origin": [
+            104,
+            346
+          ],
+          "limit": 40
+        },
+        {
+          "id": "foot-right",
+          "parent": "shin-right",
+          "origin": [
+            65,
+            349
+          ],
+          "limit": 40
+        }
+      ],
+      "skins": [
+        {
+          "layer": "body",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "prop",
+          "chains": [
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ]
+          ]
+        },
+        {
+          "layer": "controller-arms",
+          "chains": [
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ]
+          ]
+        },
+        {
+          "layer": "support-arm",
+          "chains": [
+            [
+              "pelvis",
+              "spine",
+              "chest",
+              "neck"
+            ],
+            [
+              "upper-arm-left",
+              "forearm-left",
+              "hand-left"
+            ],
+            [
+              "upper-arm-right",
+              "forearm-right",
+              "hand-right"
+            ],
+            [
+              "thigh-left",
+              "shin-left",
+              "foot-left"
+            ],
+            [
+              "thigh-right",
+              "shin-right",
+              "foot-right"
+            ]
+          ]
+        },
+        {
+          "layer": "head",
+          "chains": [
+            [
+              "head"
+            ]
+          ]
+        }
+      ]
+    },
     "lead/work-three-quarter": {
       "bones": [
         {

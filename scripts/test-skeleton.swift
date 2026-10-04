@@ -63,7 +63,7 @@ import AppKit
         let directory = URL(fileURLWithPath: CommandLine.arguments[1])
         let raw = try JSONSerialization.jsonObject(with: Data(contentsOf: directory.appendingPathComponent("skeletons.json"))) as! [String: Any]
         let characters = raw["characters"] as! [String: [String: Any]]
-        check(characters.count == 91, "Missing shipped skeletal views")
+        check(characters.count == 105, "Missing shipped skeletal views")
         let base = LayeredRig.load(directory: directory), poses = PoseRigLibrary(directory: directory)
         var moving = Set<String>(), maxSupportError = 0.0
         for key in characters.keys.sorted() {
@@ -74,9 +74,11 @@ import AppKit
             let role = String(key.split(separator: "/")[0]), posture = key.split(separator: "/").dropFirst().first.map(String.init) ?? "standing"
             for frame in 0..<60 {
                 let time = Double(frame) / 30
-                let offsets = SkeletalMotion.offsets(rig: skeleton, role: role, posture: "standing", time: time,
+                let offsets = SkeletalMotion.offsets(rig: skeleton, role: role, posture: posture, time: time,
                     seed: 7, head: LayerPose(), work: WorkPose(), music: MusicPose(), beat: nil, speaking: false, reduced: false)
                 let matrices = skeleton.transforms(offsets)
+                let head = skeleton.bones["head"]!.point
+                if hypot(matrices["head"]!.point(head).x - head.x, matrices["head"]!.point(head).y - head.y) > 0.15 { moving.insert(key) }
                 for side in ["left", "right"] {
                     let hip = skeleton.bones["thigh-\(side)"]!.point, knee = skeleton.bones["shin-\(side)"]!.point
                     let ankle = skeleton.bones["foot-\(side)"]!.point
@@ -95,7 +97,7 @@ import AppKit
                 check(reduced.isEmpty, "Reduce Motion animated a bone")
             }
         }
-        check(moving.count == 91, "Unused skeletons: \(Set(characters.keys).subtracting(moving))")
+        check(moving.count == 105, "Unused skeletons: \(Set(characters.keys).subtracting(moving))")
         let rig = base["code"]!, skeleton = rig.skeleton!
         try shadowBoundary(rig.definition)
         let canvas = NSRect(origin: .zero, size: SpriteGeometry.size)
@@ -144,7 +146,8 @@ import AppKit
         for frame in 0..<120 {
             let time = Double(frame) / 60, gait = time * 2 * .pi / ChoreographyClips.standard.walk.stepSeconds
             let offsets = SkeletalMotion.offsets(rig: skeleton, role: "code", posture: "walk-left", time: time,
-                seed: 7, head: LayerPose(), work: WorkPose(), music: MusicPose(), beat: nil, speaking: false, reduced: false)
+                seed: 7, head: LayerPose(), work: WorkPose(), music: MusicPose(), beat: nil, speaking: false, reduced: false,
+                walkPhase: gait)
             let matrices = skeleton.transforms(offsets)
             for (index, side) in ["left", "right"].enumerated() {
                 let swing = pow(max(0, sin(gait + Double(index) * .pi)), 2), ankle = skeleton.bones["foot-\(side)"]!.point
@@ -185,9 +188,11 @@ import AppKit
             check(SkeletalRig(definition: bad, layers: layers) == nil, "Invalid skeleton accepted: \(mutation)")
         }
         for role in CompanionRig.names {
+            check(poses.rig("\(role)/seated")?.skeleton != nil && poses.rig("\(role)/reclining")?.skeleton != nil,
+                         "Floor resting poses have no pose-specific skeleton")
             check(poses.rig("\(role)/work-seated")?.skeleton == nil && poses.rig("\(role)/work-kneeling")?.skeleton == nil,
-                         "Standing skinning deformed a seated/kneeling pose")
+                         "Standing skinning deformed a furniture/kneeling pose")
         }
-        print("PASS 91 full skeletons, 17+ bones, connected parent joints, fixed-length IK, planted/swing feet, continuous-alpha mesh, invalid rig fallback and Reduce Motion; max support error \(maxSupportError) px")
+        print("PASS 105 full skeletons, 17+ bones, connected parent joints, fixed-length IK, planted/swing feet, continuous-alpha mesh, invalid rig fallback and Reduce Motion; max support error \(maxSupportError) px")
     }
 }

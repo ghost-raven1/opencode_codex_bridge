@@ -8,8 +8,8 @@ import AppKit
         let library = PoseRigLibrary(directory: expansion)
         let roles = ["lead", "code", "research", "review", "designer", "devops", "tester"]
         let skeletons = SkeletonManifest.read(directory: expansion)
-        precondition(skeletons.count == 91, "Missing full skeletal rigs")
-        for role in roles { for pose in CharacterPose.allCases where pose.isDrawn {
+        precondition(skeletons.count == 105, "Missing full skeletal rigs")
+        for role in roles { for pose in CharacterPose.allCases where pose != .standing {
             precondition(library.rig("\(role)/\(pose.rawValue)") != nil, "Invalid native rig: \(role)/\(pose.rawValue)")
         } }
         let panel = NSPanel(contentRect: NSRect(x: 80, y: 80, width: 1176, height: 330),
@@ -38,12 +38,13 @@ import AppKit
         func setup(at time: Double = 1000, actors: [Character]? = nil) {
             view.snapshotTime = time; view.musicBeat = nil; view.speaker = nil; view.auditPose = nil
             view.auditReduced = false; view.replace(actors ?? entries, animated: false)
+            view.auditWalkPhase = nil; view.auditGesture = nil; view.auditVariant = nil
         }
         // Every real view on both backgrounds, with proportional scale and Retina backing.
         for background in ["light", "dark"] { for size in [0.5, 1.0, 2.0] {
             panel.setContentSize(NSSize(width: 1176 * size, height: 330 * size))
             view.setFrameSize(panel.contentView!.frame.size); view.setBoundsSize(NSSize(width: 1176, height: 330))
-            for pose in CharacterPose.allCases where pose.isDrawn {
+            for pose in CharacterPose.allCases where pose != .standing {
                 setup(); view.auditPose = pose; view.snapshotBackground = background; view.snapshotTime = 1002.3
                 try save("pose-\(pose.rawValue)-\(background)-\(size)")
             }
@@ -57,7 +58,7 @@ import AppKit
             for background in ["light", "dark"] { for size in [0.5, 1.0, 2.0] {
                 panel.setContentSize(NSSize(width: 672 * size, height: 330 * size))
                 view.setFrameSize(panel.contentView!.frame.size); view.setBoundsSize(NSSize(width: 672, height: 330))
-                for pose in CharacterPose.allCases where pose.isDrawn {
+                for pose in CharacterPose.allCases where pose != .standing {
                     setup(actors: mixed); view.auditPose = pose; view.snapshotBackground = background; view.snapshotTime = 1002.3
                     let group = headOffset == 1 ? "mixed" : "mixed\(headOffset)"
                     try save("\(group)-\(pose.rawValue)-\(background)-\(size)")
@@ -66,6 +67,24 @@ import AppKit
         }
         panel.setContentSize(NSSize(width: 1176, height: 330))
         view.setFrameSize(panel.contentView!.frame.size); view.setBoundsSize(NSSize(width: 1176, height: 330))
+        // Joint clips must actually appear in the production renderer, even between full-body key poses.
+        for background in ["light", "dark"] {
+            for kind in ActionMotion.kinds {
+                let working = entries.map { actor -> Character in var result = actor; result.activity = kind; return result }
+                setup(actors: working); view.auditPose = .standing; view.snapshotBackground = background
+                for elapsed in [0.4, 1.0, 2.0, 3.2] {
+                    view.snapshotTime = 1000 + elapsed; view.tick(); try save("joint-work-\(kind)-\(background)-\(elapsed)")
+                }
+            }
+            let resting = entries.map { actor -> Character in var result = actor; result.state = "idle"; result.activity = nil; return result }
+            for pose in [CharacterPose.standing, .seated, .reclining] { for variant in 0..<4 {
+                setup(actors: resting); view.auditPose = pose; view.auditVariant = variant; view.snapshotBackground = background
+                for elapsed in [1.2, 2.4] {
+                    view.auditGesture = elapsed; view.snapshotTime = 1000 + elapsed; view.tick()
+                    try save("joint-idle-\(pose.rawValue)-\(variant)-\(background)-\(elapsed)")
+                }
+            } }
+        }
         setup(at: 0); view.snapshotBackground = "dark"
         for frame in 0..<192 {
             let time = Double(frame) / 24, sequence = Int(floor(time / 0.5))
@@ -120,6 +139,7 @@ import AppKit
             for pose in [CharacterPose.standing, .walkLeft, .walkRight] {
                 view.auditPose = pose
                 for elapsed in [0.0, 0.16, 0.33, 0.5, 0.66, 1.0] {
+                    view.auditWalkPhase = pose.isWalk ? elapsed * .pi / (2 * library.clips.walk.stepSeconds) : nil
                     view.snapshotTime = 1000 + elapsed; view.tick()
                     try save("skeleton-\(pose.rawValue)-\(background)-\(elapsed)")
                 }
@@ -138,13 +158,14 @@ import AppKit
             try save("skeleton-team-music-\(elapsed)")
         }
         let report: [String: Any] = ["passed": true, "snapshots": count, "roles": roles,
-            "layeredPoses": 112, "dancePosesUsed": 28, "mixedIdentities": 12,
+            "layeredPoses": 126, "dancePosesUsed": 28, "mixedIdentities": 12,
             "stateGestures": 28,
+            "jointWorkClips": 49, "jointIdleClips": 28, "floorPoseSkeletons": 14,
             "skeletalRigs": skeletons.count, "bonesPerRig": [17, 18],
             "scales": [0.5, 1, 2], "backingScale": panel.backingScaleFactor,
             "microphone": false, "speech": false]
         try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])
             .write(to: output.appendingPathComponent("report.json"))
-        print("PASS \(count) AppKit snapshots, 112 layered rigs, 12 mixed identities, 28 dance poses, Retina scale, narration and reduced motion")
+        print("PASS \(count) AppKit snapshots, 126 layered rigs, 105 skeletons, 49 joint work clips, 12 mixed identities, 28 dance poses, Retina scale, narration and reduced motion")
     }
 }

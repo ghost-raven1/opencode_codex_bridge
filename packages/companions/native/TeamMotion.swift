@@ -143,6 +143,7 @@ enum TeamMotion {
                             headAngle: -direction * 0.7, bodyAngle: -direction * 0.8)
         if action.kind == .result { pose.headY = sin(p * 4 * .pi) * 0.8; pose.bodyAngle = -direction * sin(p * .pi) * 0.7 }
         if action.kind == .support { pose.headY = -offer * 0.4; pose.bodyAngle *= 0.75 }
+        pose.bones = SkeletalGestures.interaction(role: rig, direction: direction, reach: offer, hand: hand)
         switch rig {
         case "lead", "research", "review":
             pose.joints = ["arm-right": WorkJoint(angle: hand * 2), "arm-left": WorkJoint(angle: -offer * 0.5),

@@ -320,7 +320,7 @@ final class CharacterView: NSView {
             let depth = SpriteDepth.pose(time: time, seed: character.motionSeed, headX: pose.headX,
                                          headAngle: pose.headAngle, reduced: reduced)
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
-                                width: 256 * factor, height: 384 * factor * pose.bodyScaleY)
+                                width: 256 * factor, height: 384 * factor * (rig?.skeleton == nil ? pose.bodyScaleY : 1))
             target = target.insetBy(dx: target.width * (1 - effect.scaleX) / 2, dy: 0)
             target = target.insetBy(dx: target.width * (1 - posture.scaleX) / 2, dy: 0)
             target.origin.y += (posture.y + effect.y) * factor
@@ -333,11 +333,15 @@ final class CharacterView: NSView {
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
             let boneOffsets = rig?.skeleton.map { skeleton in
                 SkeletalMotion.offsets(rig: skeleton, role: rigName, posture: posture.kind.rawValue, time: time,
-                    seed: character.motionSeed, head: pose, work: work, music: dance, beat: musicBeat, speaking: speaking, reduced: reduced)
+                    seed: character.motionSeed, head: pose, work: work, music: dance, beat: musicBeat,
+                    speaking: speaking, reduced: reduced, walkPhase: posture.walkPhase,
+                    transitionAngle: posture.angle + effect.angle)
             }
             NSGraphicsContext.saveGraphicsState()
-            if boneOffsets == nil { MusicMotion.apply(dance, target: target) }
-            SpriteTransition.apply(angle: posture.angle + effect.angle + (boneOffsets == nil ? work.bodyAngle : 0), in: target)
+            if boneOffsets == nil {
+                MusicMotion.apply(dance, target: target)
+                SpriteTransition.apply(angle: posture.angle + effect.angle + work.bodyAngle, in: target)
+            }
             if effect.reveal < 1 { NSBezierPath(rect: NSRect(x: target.minX, y: target.minY, width: target.width, height: target.height * effect.reveal)).addClip() }
             if let rig {
                 rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,

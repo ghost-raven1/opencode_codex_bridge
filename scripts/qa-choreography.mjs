@@ -21,9 +21,16 @@ function rendererHash() {
   return hash.digest("hex");
 }
 function artworkHash() {
-  const data = readFileSync(join(expansion, "choreography.json"));
-  const hash = createHash("sha256").update(data).update(readFileSync(join(expansion, "skeletons.json")));
-  for (const file of JSON.parse(data.toString("utf8")).runtimeFiles.sort()) hash.update(file).update(readFileSync(join(expansion, file)));
+  const hash = createHash("sha256"), images = new Set();
+  for (const name of ["manifest.json", "poses.json", "choreography.json", "skeletons.json"]) {
+    const data = readFileSync(join(expansion, name)); hash.update(name).update(data);
+    if (name === "skeletons.json") continue;
+    for (const rig of Object.values(JSON.parse(data.toString("utf8")).characters)) {
+      for (const layer of rig.layers) images.add(layer.file);
+      images.add(rig.face.file);
+    }
+  }
+  for (const file of [...images].sort()) hash.update(file).update(readFileSync(join(expansion, file)));
   return hash.digest("hex");
 }
 mkdirSync(output, { recursive: true });
@@ -33,9 +40,11 @@ try {
   const rendererBefore = rendererHash();
   let view = readFileSync(join(native, "CharacterView.swift"), "utf8");
   for (const [from, to] of [
-    ["final class CharacterView: NSView {", "final class CharacterView: NSView {\n    var auditPose: CharacterPose?\n    var auditReduced = false"],
+    ["final class CharacterView: NSView {", "final class CharacterView: NSView {\n    var auditPose: CharacterPose?\n    var auditWalkPhase: Double?\n    var auditGesture: Double?\n    var auditVariant: Int?\n    var auditReduced = false"],
     ['var reduced: Bool { CommandLine.arguments.contains("--reduce-motion") || NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }', "var reduced: Bool { auditReduced }"],
-    ["let posture = displayPosture(for: character, at: time)", "let posture = auditPose.map { PoseFrame(kind: $0) } ?? displayPosture(for: character, at: time)"],
+    ["let posture = displayPosture(for: character, at: time)", "let posture = auditPose.map { PoseFrame(kind: $0, walkPhase: auditWalkPhase) } ?? displayPosture(for: character, at: time)"],
+    ["let gesture = ambient[character.id]?.gestureStart", "let gesture = auditGesture.map { time - $0 } ?? ambient[character.id]?.gestureStart"],
+    ["variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed", "variant: auditVariant ?? ((ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed)"],
   ]) {
     assert(view.includes(from), `Missing native QA hook: ${from}`); view = view.replace(from, to);
   }

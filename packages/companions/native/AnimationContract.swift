@@ -6,6 +6,15 @@ enum CompanionRig: String, CaseIterable {
     static let names = allCases.map(\.rawValue)
 }
 
+/// Local joint rotation/translation in atlas degrees and source pixels.
+struct BoneOffset {
+    var angle = 0.0, x = 0.0, y = 0.0
+    func scaled(_ weight: Double) -> BoneOffset { BoneOffset(angle: angle * weight, x: x * weight, y: y * weight) }
+    func adding(_ other: BoneOffset) -> BoneOffset {
+        BoneOffset(angle: angle + other.angle, x: x + other.x, y: y + other.y)
+    }
+}
+
 /// Source geometry is shared by rig validation, registration and cached face composition.
 enum SpriteGeometry {
     static let width = 256
