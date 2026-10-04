@@ -120,6 +120,16 @@ struct TeamCoordinator {
 }
 
 enum TeamMotion {
+    /// A team gesture smoothly takes priority over music; its hands are never muted by dance strength.
+    static func blend(work: WorkPose, music: MusicPose, action: TeamAction?, id: String, rig: String,
+                      direction: Double, at time: Double, reduced: Bool, speaking: Bool) -> (work: WorkPose, music: MusicPose) {
+        guard let action, !reduced else { return (work.scaled(1 - music.strength), music) }
+        let weight = pow(sin(action.progress(at: time) * .pi), 2) * (speaking ? 0.35 : 1)
+        let dance = music.scaled(1 - weight)
+        let gesture = pose(action, id: id, rig: rig, direction: direction, at: time, reduced: reduced)
+        return (work.scaled(1 - dance.strength).blending(gesture, weight: weight), dance)
+    }
+
     /// Look, offer, receive and acknowledge share one timeline, with role-specific hands.
     static func pose(_ action: TeamAction, id: String, rig: String, direction: Double, at time: Double, reduced: Bool) -> WorkPose {
         guard !reduced else { return WorkPose() }

@@ -38,6 +38,8 @@ for (const name of ["manifest.json", "poses.json", "choreography.json"]) {
     copyFileSync(join(expansion, file), target);
   }
 }
+const skeletons = join(expansion, "skeletons.json");
+if (existsSync(skeletons)) copyFileSync(skeletons, join(bundle, "Contents/Resources/expansion/skeletons.json"));
 writeFileSync(`${bundle}/Contents/Info.plist`, `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>

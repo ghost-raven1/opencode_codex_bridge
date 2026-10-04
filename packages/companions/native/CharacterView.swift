@@ -299,21 +299,20 @@ final class CharacterView: NSView {
             var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
                 gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
                 speaking: speaking, reduced: reduced, seed: character.motionSeed)
-            let dance = speaking ? MusicPose() : MusicMotion.pose(beat: musicBeat, time: time,
+            var dance = speaking ? MusicPose() : MusicMotion.pose(beat: musicBeat, time: time,
                 column: displayed.column, rig: displayed.rig, reduced: reduced)
-            pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
             let idle = IdleMotion.pose(rig: rigName, state: displayed.state, time: time, gestureElapsed: gesture.map { time - $0 },
                 variant: (ambient[character.id]?.gestureIndex ?? 0) + character.motionSeed, seed: character.motionSeed, reduced: reduced)
             var work = workAnimations[character.id]?.pose(rig: rigName, at: time, reduced: reduced, rest: idle) ?? idle
             if !speaking, character.activity == nil, let reaction = stateAnimations[character.id]?.frame(rig: rigName, at: time, reduced: reduced) {
                 work = work.blending(reaction.pose, weight: reaction.weight)
             }
-            if let interaction, let peer = characters.firstIndex(where: { $0.id == (interaction.source == character.id ? interaction.target : interaction.source) }) {
-                let direction = peer > index ? 1.0 : -1.0
-                let reaction = TeamMotion.pose(interaction, id: character.id, rig: rigName, direction: direction, at: time, reduced: reduced)
-                work = work.blending(reaction, weight: pow(sin(interaction.progress(at: time) * .pi), 2) * (speaking ? 0.35 : 1))
-            }
-            work = work.scaled(1 - dance.strength).forPose(rig: rigName, standing: posture.kind == .standing)
+            let peer = interaction.flatMap { action in characters.firstIndex { $0.id == (action.source == character.id ? action.target : action.source) } }
+            let composed = TeamMotion.blend(work: work, music: dance, action: peer == nil ? nil : interaction,
+                id: character.id, rig: rigName, direction: (peer ?? index) > index ? 1 : -1,
+                at: time, reduced: reduced, speaking: speaking)
+            dance = composed.music; work = composed.work.forPose(rig: rigName, standing: posture.kind == .standing)
+            pose.headX += dance.headX; pose.headY += dance.headY; pose.headAngle += dance.headAngle
             if posture.kind.isDrawn { work = work.forDrawnPose(rig: rigName) }
             pose.headX += work.headX; pose.headY += work.headY; pose.headAngle += work.headAngle
             let effect = motion.map { SpriteTransition.frame(kind: $0.kind, progress: progress, reduced: reduced, initialOpacity: $0.initialOpacity) } ?? TransitionFrame()
@@ -332,14 +331,19 @@ final class CharacterView: NSView {
             SpriteDepth.drawContact(in: target, opacity: opacity, turn: depth.turn)
             let scale = frame.width / max(1, bounds.width)
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
-            NSGraphicsContext.saveGraphicsState(); MusicMotion.apply(dance, target: target)
-            SpriteTransition.apply(angle: posture.angle + effect.angle + work.bodyAngle, in: target)
+            let boneOffsets = rig?.skeleton.map { skeleton in
+                SkeletalMotion.offsets(rig: skeleton, role: rigName, posture: posture.kind.rawValue, time: time,
+                    seed: character.motionSeed, head: pose, work: work, music: dance, beat: musicBeat, speaking: speaking, reduced: reduced)
+            }
+            NSGraphicsContext.saveGraphicsState()
+            if boneOffsets == nil { MusicMotion.apply(dance, target: target) }
+            SpriteTransition.apply(angle: posture.angle + effect.angle + (boneOffsets == nil ? work.bodyAngle : 0), in: target)
             if effect.reveal < 1 { NSBezierPath(rect: NSRect(x: target.minX, y: target.minY, width: target.width, height: target.height * effect.reveal)).addClip() }
             if let rig {
                 rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,
                     gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
                     opacity: opacity, radius: radius, faceRows: faceRows, sprites: sprites,
-                    beatArm: dance.arm, beatHair: dance.hair, work: work, headRig: mixedHead, depth: depth)
+                    beatArm: dance.arm, beatHair: dance.hair, work: work, headRig: mixedHead, depth: depth, boneOffsets: boneOffsets)
             } else if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
                 sprites.frame(sourceBody, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)

@@ -7,6 +7,8 @@ import AppKit
         let expansion = assets.appendingPathComponent("expansion")
         let library = PoseRigLibrary(directory: expansion)
         let roles = ["lead", "code", "research", "review", "designer", "devops", "tester"]
+        let skeletons = SkeletonManifest.read(directory: expansion)
+        precondition(skeletons.count == 91, "Missing full skeletal rigs")
         for role in roles { for pose in CharacterPose.allCases where pose.isDrawn {
             precondition(library.rig("\(role)/\(pose.rawValue)") != nil, "Invalid native rig: \(role)/\(pose.rawValue)")
         } }
@@ -112,9 +114,33 @@ import AppKit
                 }
             }
         }
+        // Actual mesh deformation in the production view, including ground contact, walking and mixed portraits.
+        for background in ["light", "dark"] {
+            setup(at: 1000); view.snapshotBackground = background
+            for pose in [CharacterPose.standing, .walkLeft, .walkRight] {
+                view.auditPose = pose
+                for elapsed in [0.0, 0.16, 0.33, 0.5, 0.66, 1.0] {
+                    view.snapshotTime = 1000 + elapsed; view.tick()
+                    try save("skeleton-\(pose.rawValue)-\(background)-\(elapsed)")
+                }
+            }
+        }
+        // Music must yield continuously to a real parent/child handoff, including its skeletal hands.
+        var parent = entries[0], child = entries[1]
+        parent.id = "team-parent"; parent.invocationID = "team"; child.id = "team-child"; child.parentID = parent.id
+        child.invocationID = "team-child"
+        setup(at: 600, actors: [parent]); view.snapshotBackground = "dark"; view.update(child)
+        for elapsed in [0.0, 1.0, 1.65, 2.35, 3.05, 3.75, 4.55, 5.0] {
+            let time = 600 + elapsed
+            view.musicBeat = MusicBeatState(anchor: time - 0.2, period: 0.5, sequence: 4,
+                confidence: 1, audibleAt: time, allowance: 1, measuredAt: time)
+            view.snapshotTime = time; view.tick()
+            try save("skeleton-team-music-\(elapsed)")
+        }
         let report: [String: Any] = ["passed": true, "snapshots": count, "roles": roles,
             "layeredPoses": 112, "dancePosesUsed": 28, "mixedIdentities": 12,
             "stateGestures": 28,
+            "skeletalRigs": skeletons.count, "bonesPerRig": [17, 18],
             "scales": [0.5, 1, 2], "backingScale": panel.backingScaleFactor,
             "microphone": false, "speech": false]
         try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys])

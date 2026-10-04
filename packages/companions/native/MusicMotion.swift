@@ -4,6 +4,11 @@ struct MusicPose {
     var x: CGFloat = 0, y: CGFloat = 0, angle: CGFloat = 0
     var headX: CGFloat = 0, headY: CGFloat = 0, headAngle: CGFloat = 0
     var arm: Double = 0, hair: Double = 0, strength: Double = 0
+    func scaled(_ weight: Double) -> MusicPose {
+        MusicPose(x: x * weight, y: y * weight, angle: angle * weight,
+                  headX: headX * weight, headY: headY * weight, headAngle: headAngle * weight,
+                  arm: arm * weight, hair: hair * weight, strength: strength * weight)
+    }
 }
 
 /// Seven styles share the measured beat phase; no beat means no dance.

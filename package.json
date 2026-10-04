@@ -35,7 +35,8 @@
     "smoke:companions": "node scripts/smoke-companions.mjs",
     "test:native": "node scripts/test-native.mjs",
     "qa:motion": "node scripts/qa-companion-motion.mjs",
-    "assets:choreography": "node scripts/prepare-choreography.mjs",
+    "assets:choreography": "node scripts/prepare-choreography.mjs && python3 scripts/prepare-skeletons.py",
+    "assets:skeletons": "python3 scripts/prepare-skeletons.py",
     "qa:choreography": "node scripts/qa-choreography.mjs"
   },
   "devDependencies": {

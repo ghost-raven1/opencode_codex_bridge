@@ -61,7 +61,7 @@ struct WorkAnimation {
     private var changedAt = -Double.infinity
     private var initialWeight: CGFloat = 0
     private var activity: String?
-    private var previousActivity: String?
+    private var previous: [String: WorkPose] = [:]
     private var activityChangedAt = -Double.infinity
     private var activitySeenAt = -Double.infinity
     private var invocation: String?
@@ -72,13 +72,16 @@ struct WorkAnimation {
 
     mutating func update(active: Bool, at time: Double, activity: String? = nil, invocation: String? = nil) {
         if invocation != self.invocation {
-            self.invocation = invocation; self.activity = nil; previousActivity = nil
+            self.invocation = invocation; self.activity = nil; previous = [:]
             activitySeenAt = -.infinity; activityChangedAt = -.infinity
         }
         let next = activity.flatMap { ActionMotion.kinds.contains($0) ? $0 : nil }
         if let next {
+            if next != self.activity || time - activitySeenAt > 1.2 {
+                previous = Dictionary(uniqueKeysWithValues: CompanionRig.names.map { ($0, workingPose(rig: $0, at: time)) })
+                self.activity = next; activityChangedAt = time
+            }
             activitySeenAt = time
-            if next != self.activity { previousActivity = self.activity; self.activity = next; activityChangedAt = time }
         }
         guard active != self.active else { return }
         initialWeight = weight(at: time); changedAt = time; self.active = active
@@ -93,6 +96,11 @@ struct WorkAnimation {
     func pose(rig: String, at time: Double, reduced: Bool, rest: WorkPose = WorkPose()) -> WorkPose {
         guard !reduced, time.isFinite else { return WorkPose() }
         guard weight(at: time) > 0 else { return rest }
+        return rest.blending(workingPose(rig: rig, at: time), weight: weight(at: time))
+    }
+
+    /// Capture this layer before replacing an action, including an already interrupted crossfade.
+    private func workingPose(rig: String, at time: Double) -> WorkPose {
         let period = 8.2 + Double(seed % 31) / 10
         let phase = max(0, time + Double(seed % 997) / 97)
         let cycle = Int(phase / period), elapsed = phase.truncatingRemainder(dividingBy: period)
@@ -102,18 +110,18 @@ struct WorkAnimation {
             let actionWeight = min(1, max(0, (1.6 - held) / 0.4))
             // Running tools renew their hold; completed short tools finish one readable beat.
             let action = ActionMotion.pose(rig: rig, kind: activity, time: phase, seed: seed)
-            let from = previousActivity.map { ActionMotion.pose(rig: rig, kind: $0, time: phase, seed: seed) } ?? focus
+            let from = previous[rig] ?? focus
             let t = min(1, max(0, (time - activityChangedAt) / 0.4))
             let transitioned = from.blending(action, weight: t * t * (3 - 2 * t))
-            if actionWeight > 0 { return rest.blending(focus.blending(transitioned, weight: actionWeight), weight: weight(at: time)) }
+            if actionWeight > 0 { return focus.blending(transitioned, weight: actionWeight) }
         }
         let duration = 4.2 + Double(cycle % 3) * 0.25
-        guard elapsed < duration else { return rest.blending(focus, weight: weight(at: time)) }
+        guard elapsed < duration else { return focus }
         let p = elapsed / duration, envelope = pow(sin(p * .pi), 2)
         let sweep = sin(p * 2 * .pi), taps = sin(p * 12 * .pi)
         let variant = (cycle + Int(seed % 4)) % 4
         if variant >= 2 {
-            return rest.blending(focus.blending(detailPose(rig: rig, variant: variant, p: p), weight: envelope), weight: weight(at: time))
+            return focus.blending(detailPose(rig: rig, variant: variant, p: p), weight: envelope)
         }
         let alternate = variant == 1
         var pose = WorkPose(headY: -0.7)
@@ -151,7 +159,7 @@ struct WorkAnimation {
                                                         y: sin(p * (alternate ? 16 : 10) * .pi) * 0.7)]
         default: return WorkPose()
         }
-        return rest.blending(focus.blending(pose, weight: envelope), weight: weight(at: time))
+        return focus.blending(pose, weight: envelope)
     }
 
     private func focusPose(rig: String, phase: Double) -> WorkPose {

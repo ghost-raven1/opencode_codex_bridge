@@ -12,7 +12,7 @@ struct RigManifest: Decodable {
         let breathSeconds: Double; let gestureSeconds: Double; let gestureIntervalSeconds: [Double]
         let translationLimit: Double?; let projectedJoints: Bool?
     }
-    struct Character: Decodable { let layers: [Layer]; let face: Face; let motion: Timing }
+    struct Character: Decodable { let layers: [Layer]; let face: Face; let motion: Timing; let skeleton: SkeletonDefinition? }
     let version: Int; let canvas: Canvas; let characters: [String: Character]
     let coordinates: String?; let feetBaseline: Int?; let clips: ChoreographyClips?
 
@@ -37,8 +37,8 @@ final class LayeredRig {
     private let face: NSImage?
     private let head: RigManifest.Layer
     private let body: RigManifest.Layer
-    private let bodyMask: CGImage
     private let shadows: [String: NSImage]
+    let skeleton: SkeletalRig?
     var gestureInterval: ClosedRange<Double> { definition.motion.gestureIntervalSeconds[0]...definition.motion.gestureIntervalSeconds[1] }
 
     init?(definition: RigManifest.Character, directory: URL) {
@@ -69,15 +69,15 @@ final class LayeredRig {
                   Self.hasPixels(image, width: SpriteGeometry.width, height: SpriteGeometry.height) else { return nil }
             loaded.append((layer, image))
         }
-        let bodyImage = loaded.first { $0.0.id == "body" }!.1
-        var rect = NSRect(origin: .zero, size: bodyImage.size)
-        guard let bodyMask = bodyImage.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return nil }
+        let skeleton = definition.skeleton.flatMap { SkeletalRig(definition: $0, layers: loaded) }
+        guard definition.skeleton == nil || skeleton != nil else { return nil }
+        self.skeleton = skeleton
         self.shadows = Dictionary(uniqueKeysWithValues: loaded.compactMap { layer, image in
             guard ["head", "arm", "prop"].contains(layer.motion), let shadow = SpriteDepth.shadow(image) else { return nil }
             return (layer.id, shadow)
         })
         self.definition = definition; self.layers = loaded; self.face = face; self.head = head
-        self.body = body; self.bodyMask = bodyMask
+        self.body = body
     }
 
     private static func hasPixels(_ image: NSImage, width: Int, height: Int) -> Bool {
@@ -91,14 +91,18 @@ final class LayeredRig {
     }
 
     static func definitions(directory: URL, manifest name: String) -> [String: RigManifest.Character] {
-        RigManifest.read(directory: directory, name: name)?.characters ?? [:]
+        let skeletons = SkeletonManifest.read(directory: directory)
+        return Dictionary(uniqueKeysWithValues: (RigManifest.read(directory: directory, name: name)?.characters ?? [:]).map { key, value in
+            (key, RigManifest.Character(layers: value.layers, face: value.face, motion: value.motion, skeleton: skeletons[key] ?? value.skeleton))
+        })
     }
 
     func draw(in target: NSRect, pose: LayerPose, time: Double, gestureElapsed: Double?, reduced: Bool,
               opacity: Double, radius: CGFloat, faceRows: [Int], sprites: SpriteCache,
               beatArm: Double = 0, beatHair: Double = 0, work: WorkPose = WorkPose(), headRig: LayeredRig? = nil,
-              depth: DepthPose = DepthPose()) {
+              depth: DepthPose = DepthPose(), boneOffsets: [String: BoneOffset]? = nil) {
         let depth = reduced ? DepthPose() : depth
+        let matrices = skeleton?.transforms(reduced ? [:] : boneOffsets ?? [:])
         let bodyLayers = headRig == nil ? layers : layers.filter { $0.0.motion != "head" && $0.0.parent != "head" }
         let mixedLayers = headRig?.layers.filter { $0.0.motion == "head" || $0.0.parent == "head" } ?? []
         // A transferred ponytail stays behind the chosen outfit and held objects.
@@ -108,29 +112,57 @@ final class LayeredRig {
         NSGraphicsContext.saveGraphicsState()
         SpriteDepth.projection(pivot: body.pivot, target: target, turn: depth.turn).concat()
         for (source, layer, image) in entries {
+            let bodyLayer = layer.id == "body"
+            if bodyLayer {
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current?.cgContext.setBlendMode(.normal)
+                NSGraphicsContext.current?.cgContext.setAlpha(opacity)
+                NSGraphicsContext.current?.cgContext.beginTransparencyLayer(
+                    in: target.insetBy(dx: -target.width * 0.25, dy: -target.height * 0.25), auxiliaryInfo: nil)
+            }
+            let fraction = bodyLayer ? 1.0 : opacity
             let destination = source === self ? target : alignedHeadTarget(from: source, target: target)
             let rendered = sprites.frame(image, column: 0, row: 0, rows: 1, radius: radius, columns: 1,
                 face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" && source.face != nil ? faceRows : [],
                 light: depth.light(head: layer.motion == "head" || layer.parent == "head"))
             NSGraphicsContext.saveGraphicsState()
-            source.transform(for: layer, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
-                reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[layer.id], depth: depth).concat()
-            rendered?.draw(in: destination, from: .zero, operation: .sourceOver, fraction: opacity)
+            if let rendered, let skeleton, let matrices {
+                if layer.motion == "head" || layer.parent == "head" {
+                    // A mixed portrait follows the outfit's neck/head bones and keeps its own hair pivot.
+                    let local = source.transform(for: layer, target: destination, pose: LayerPose(), time: time,
+                        gestureElapsed: nil, reduced: reduced, beatHair: beatHair, depth: depth)
+                    skeleton.drawRigid(rendered, in: destination, bone: "head", reference: target,
+                        transforms: matrices, opacity: fraction, local: local)
+                } else { skeleton.draw(rendered, layer: layer.id, in: destination, transforms: matrices, opacity: fraction) }
+            } else {
+                source.transform(for: layer, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
+                    reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[layer.id], depth: depth).concat()
+                rendered?.draw(in: destination, from: .zero, operation: .sourceOver, fraction: fraction)
+            }
             NSGraphicsContext.restoreGraphicsState()
-            if layer.id == "body" {
-                NSGraphicsContext.saveGraphicsState()
-                NSGraphicsContext.current?.cgContext.clip(to: target, mask: bodyMask)
+            if bodyLayer {
                 for (owner, caster, _) in entries {
                     guard let shadow = owner.shadows[caster.id] else { continue }
                     let destination = owner === self ? target : alignedHeadTarget(from: owner, target: target)
                     NSGraphicsContext.saveGraphicsState()
-                    owner.transform(for: caster, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
-                        reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[caster.id], depth: depth).concat()
-                    shadow.draw(in: destination.offsetBy(dx: target.width * 3 / SpriteGeometry.size.width,
-                                dy: -target.height * 3 / SpriteGeometry.size.height),
-                                from: .zero, operation: .sourceOver, fraction: opacity)
+                    let shadowTarget = destination.offsetBy(dx: target.width * 3 / SpriteGeometry.size.width,
+                                                            dy: -target.height * 3 / SpriteGeometry.size.height)
+                    if let skeleton, let matrices {
+                        if caster.motion == "head" || caster.parent == "head" {
+                            let local = owner.transform(for: caster, target: destination, pose: LayerPose(), time: time,
+                                gestureElapsed: nil, reduced: reduced, depth: depth)
+                            skeleton.drawRigid(shadow, in: shadowTarget, bone: "head", reference: target,
+                                transforms: matrices, opacity: 1, local: local, operation: .sourceAtop)
+                        } else { skeleton.draw(shadow, layer: caster.id, in: shadowTarget,
+                            transforms: matrices, opacity: 1, operation: .sourceAtop) }
+                    } else {
+                        owner.transform(for: caster, target: destination, pose: pose, time: time, gestureElapsed: gestureElapsed,
+                            reduced: reduced, beatArm: beatArm, beatHair: beatHair, work: work.joints[caster.id], depth: depth).concat()
+                        shadow.draw(in: shadowTarget, from: .zero, operation: .sourceAtop, fraction: 1)
+                    }
                     NSGraphicsContext.restoreGraphicsState()
                 }
+                NSGraphicsContext.current?.cgContext.endTransparencyLayer()
                 NSGraphicsContext.restoreGraphicsState()
             }
         }
@@ -213,7 +245,7 @@ final class PoseRigLibrary {
         let choreography = RigManifest.read(directory: directory, name: "choreography.json")
         clips = choreography?.clips ?? .standard
         definitions = LayeredRig.definitions(directory: directory, manifest: "poses.json")
-            .merging(choreography?.characters ?? [:]) { _, authored in authored }
+            .merging(choreography == nil ? [:] : LayeredRig.definitions(directory: directory, manifest: "choreography.json")) { _, authored in authored }
     }
 
     func contains(_ name: String) -> Bool { definitions[name] != nil && !failed.contains(name) }

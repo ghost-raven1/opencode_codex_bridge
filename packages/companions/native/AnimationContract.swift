@@ -1,5 +1,11 @@
 import Foundation
 
+/// Stable rig IDs also bound the snapshots retained during interrupted gestures.
+enum CompanionRig: String, CaseIterable {
+    case lead, code, research, review, designer, devops, tester
+    static let names = allCases.map(\.rawValue)
+}
+
 /// Source geometry is shared by rig validation, registration and cached face composition.
 enum SpriteGeometry {
     static let width = 256

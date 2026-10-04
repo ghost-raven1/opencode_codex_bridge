@@ -9,7 +9,7 @@ struct StateFrame {
 enum StateMotion {
     static let kinds = ["thinking", "waiting", "success", "error"]
     static func frame(rig: String, state: String, elapsed: Double, seed: UInt64, reduced: Bool) -> StateFrame {
-        let roles = ["lead", "code", "research", "review", "designer", "devops", "tester"]
+        let roles = CompanionRig.names
         guard !reduced, elapsed.isFinite, elapsed >= 0, let role = roles.firstIndex(of: rig), kinds.contains(state) else { return StateFrame() }
         let hand = rig == "designer" ? "arm-left" : rig == "devops" ? "tool-arm" : rig == "tester" ? "controller-arms" : "arm-right"
         let support = rig == "designer" ? "arm-right" : rig == "devops" ? "hip-arm" : rig == "tester" ? "prop" : "arm-left"
@@ -56,7 +56,7 @@ struct StateAnimation {
     private var invocation: String?
     private var startedAt = 0.0
     private var pausedAt: Double?
-    private var previous: (state: String, elapsed: Double)?
+    private var previous: [String: StateFrame] = [:]
 
     init(seed: String) {
         self.seed = seed.utf8.reduce(UInt64(14695981039346656037)) { ($0 ^ UInt64($1)) &* 1099511628211 }
@@ -66,7 +66,7 @@ struct StateAnimation {
         guard time.isFinite else { return }
         if self.state != state || self.invocation != invocation {
             previous = self.invocation == invocation && !self.state.isEmpty
-                ? (self.state, max(0, (pausedAt ?? time) - startedAt)) : nil
+                ? Dictionary(uniqueKeysWithValues: CompanionRig.names.map { ($0, frame(rig: $0, at: time, reduced: false)) }) : [:]
             self.state = state; self.invocation = invocation; startedAt = time; pausedAt = nil
         }
         if speaking && ["success", "error"].contains(state) {
@@ -81,7 +81,7 @@ struct StateAnimation {
         let elapsed = max(0, (pausedAt ?? time) - startedAt)
         let target = StateMotion.frame(rig: rig, state: state, elapsed: elapsed, seed: seed, reduced: reduced)
         let t = CGFloat(min(1, elapsed / 0.35)), blend = t * t * (3 - 2 * t)
-        let old = previous.map { StateMotion.frame(rig: rig, state: $0.state, elapsed: $0.elapsed, seed: seed, reduced: reduced) } ?? StateFrame()
+        let old = previous[rig] ?? StateFrame()
         let weight = old.weight * (1 - blend) + target.weight * blend
         guard weight > 0 else { return StateFrame() }
         return StateFrame(pose: old.pose.blending(target.pose, weight: target.weight * blend / weight), weight: weight)

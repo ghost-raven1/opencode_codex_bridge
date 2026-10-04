@@ -18,11 +18,11 @@ const output = resolve(process.argv[2] ?? join(root, ".local/animation-qa"));
 const assets = join(root, "packages/companions/assets");
 const temporary = mkdtempSync(join(tmpdir(), "codexbridge-motion-qa-"));
 mkdirSync(output, { recursive: true });
-const files = ["manifest.json", "poses.json", "choreography.json"].filter(name => existsSync(join(assets, "expansion", name)))
+const files = ["manifest.json", "poses.json", "choreography.json", "skeletons.json"].filter(name => existsSync(join(assets, "expansion", name)))
   .flatMap(name => Object.values(JSON.parse(readFileSync(join(assets, "expansion", name), "utf8")).characters)
-  .flatMap(rig => [...rig.layers.map(layer => layer.file), rig.face.file]));
+  .flatMap(rig => rig.layers ? [...rig.layers.map(layer => layer.file), rig.face.file] : []));
 const sha = file => createHash("sha256").update(readFileSync(join(assets, "expansion", file))).digest("hex");
-const before = Object.fromEntries([...new Set(files)].map(file => [file, sha(file)]));
+const before = Object.fromEntries([...new Set([...files, "skeletons.json"])].map(file => [file, sha(file)]));
 try {
   let view = readFileSync(join(native, "CharacterView.swift"), "utf8");
   for (const [from, to] of [

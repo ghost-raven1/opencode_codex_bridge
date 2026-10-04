@@ -19,8 +19,10 @@ try {
     ["character", [...rendererSources, "WindowState.swift"], "test-character-view.swift"],
     ["render-clear", rendererSources, "test-render-clear.swift"],
     ["layered", ["LayeredMotion.swift", "CaptionState.swift", "SpeechReveal.swift"], "test-layered.swift"],
+    ["skeleton", ["LayeredRig.swift", "SkeletalRig.swift", "SkeletalMotion.swift", "LayeredMotion.swift", "WorkMotion.swift", "CharacterMotion.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-skeleton.swift"],
     ["rig", ["LayeredRig.swift", "LayeredMotion.swift", "WorkMotion.swift", "ActionMotion.swift", "CharacterMotion.swift", "SpriteCache.swift", "SpriteDepth.swift"], "test-rig.swift"],
     ["actions", ["WorkMotion.swift", "ActionMotion.swift"], "test-action-motion.swift"],
+    ["gesture-interruptions", ["WorkMotion.swift", "StateMotion.swift", "TeamMotion.swift", "CharacterMotion.swift"], "test-gesture-interruptions.swift"],
     ["state", ["WorkMotion.swift", "StateMotion.swift"], "test-state-motion.swift"],
     ["work", ["WorkMotion.swift", "ActionMotion.swift", "IdleMotion.swift"], "test-work-motion.swift"],
     ["poses", rendererSources, "test-poses.swift"],
@@ -42,7 +44,7 @@ try {
     { stdio: "inherit" });
     if (result.status !== 0) throw new Error(`${name} test build failed`);
     const args = name === "animation" ? [join(root, "packages/companions/assets")]
-      : name === "rig" ? [join(root, "packages/companions/assets/expansion")] : [];
+      : ["rig", "skeleton"].includes(name) ? [join(root, "packages/companions/assets/expansion")] : [];
     result = spawnSync(binary, args, { stdio: "inherit" });
     if (result.status !== 0) throw new Error(`${name} native regression failed`);
   }

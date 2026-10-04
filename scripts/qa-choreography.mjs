@@ -22,7 +22,7 @@ function rendererHash() {
 }
 function artworkHash() {
   const data = readFileSync(join(expansion, "choreography.json"));
-  const hash = createHash("sha256").update(data);
+  const hash = createHash("sha256").update(data).update(readFileSync(join(expansion, "skeletons.json")));
   for (const file of JSON.parse(data.toString("utf8")).runtimeFiles.sort()) hash.update(file).update(readFileSync(join(expansion, file)));
   return hash.digest("hex");
 }
