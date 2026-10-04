@@ -114,7 +114,8 @@ struct WorkAnimation {
             let held = time - activitySeenAt
             let actionWeight = min(1, max(0, (1.6 - held) / 0.4))
             // Running tools renew their hold; completed short tools finish one readable beat.
-            let action = ActionMotion.pose(rig: rig, kind: activity, time: phase, seed: seed)
+            // Repeated metadata renews the hold without restarting this local gesture clock.
+            let action = ActionMotion.pose(rig: rig, kind: activity, time: time - activityChangedAt, seed: seed)
             let from = previous[rig] ?? focus
             let t = min(1, max(0, (time - activityChangedAt) / 0.4))
             let transitioned = from.blending(action, weight: t * t * (3 - 2 * t))
