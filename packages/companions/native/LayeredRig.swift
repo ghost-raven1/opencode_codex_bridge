@@ -12,7 +12,12 @@ struct RigManifest: Decodable {
         let breathSeconds: Double; let gestureSeconds: Double; let gestureIntervalSeconds: [Double]
         let translationLimit: Double?; let projectedJoints: Bool?
     }
-    struct Character: Decodable { let layers: [Layer]; let face: Face; let motion: Timing; let skeleton: SkeletonDefinition? }
+    struct Character: Decodable {
+        let layers: [Layer]; let face: Face; let motion: Timing; let skeleton: SkeletonDefinition?
+        var renderScale: Double? = nil
+        var renderHeadScale: Double? = nil
+        var renderFeet: Double? = nil
+    }
     let version: Int; let canvas: Canvas; let characters: [String: Character]
     let coordinates: String?; let feetBaseline: Int?; let clips: ChoreographyClips?
 
@@ -39,6 +44,7 @@ final class LayeredRig {
     private let body: RigManifest.Layer
     private let shadows: [String: NSImage]
     let skeleton: SkeletalRig?
+    var renderScale: CGFloat { CGFloat(definition.renderScale ?? 1) }
     var gestureInterval: ClosedRange<Double> { definition.motion.gestureIntervalSeconds[0]...definition.motion.gestureIntervalSeconds[1] }
 
     init?(definition: RigManifest.Character, directory: URL) {
@@ -49,6 +55,9 @@ final class LayeredRig {
               definition.motion.breathSeconds.isFinite, definition.motion.breathSeconds > 0,
               definition.motion.gestureSeconds.isFinite, definition.motion.gestureSeconds > 0,
               definition.motion.translationLimit.map({ $0.isFinite && (0...1.5).contains($0) }) ?? true,
+              definition.renderScale.map({ $0.isFinite && (0.5...2).contains($0) }) ?? true,
+              definition.renderHeadScale.map({ $0.isFinite && (0.5...2).contains($0) }) ?? true,
+              definition.renderFeet.map({ $0.isFinite && (0...384).contains($0) }) ?? true,
               interval.count == 2, interval.allSatisfy({ $0.isFinite && $0 > 0 }), interval[0] <= interval[1],
               Set(definition.layers.map(\.id)).count == definition.layers.count,
               let body = definition.layers.first(where: { $0.id == "body" }), body.motion == "body", body.parent == nil,
@@ -68,6 +77,11 @@ final class LayeredRig {
                   let image = NSImage(contentsOf: directory.appendingPathComponent(layer.file)),
                   Self.hasPixels(image, width: SpriteGeometry.width, height: SpriteGeometry.height) else { return nil }
             loaded.append((layer, image))
+        }
+        // Keep the tail connected both to the resized crown and to the clothing's hidden socket.
+        loaded = loaded.map { layer, image in
+            (layer, layer.id == "hair-back" ? Self.registeredHair(image,
+                scale: definition.renderHeadScale ?? 1, pivot: head.pivot) : image)
         }
         let skeleton = definition.skeleton.flatMap { SkeletalRig(definition: $0, layers: loaded) }
         guard definition.skeleton == nil || skeleton != nil else { return nil }
@@ -93,14 +107,17 @@ final class LayeredRig {
     static func definitions(directory: URL, manifest name: String) -> [String: RigManifest.Character] {
         let skeletons = SkeletonManifest.read(directory: directory)
         return Dictionary(uniqueKeysWithValues: (RigManifest.read(directory: directory, name: name)?.characters ?? [:]).map { key, value in
-            (key, RigManifest.Character(layers: value.layers, face: value.face, motion: value.motion, skeleton: skeletons[key] ?? value.skeleton))
+            (key, RigManifest.Character(layers: value.layers, face: value.face, motion: value.motion,
+                skeleton: skeletons[key] ?? value.skeleton, renderScale: value.renderScale,
+                renderHeadScale: value.renderHeadScale, renderFeet: value.renderFeet))
         })
     }
 
     func draw(in target: NSRect, pose: LayerPose, time: Double, gestureElapsed: Double?, reduced: Bool,
               opacity: Double, radius: CGFloat, faceRows: [Int], sprites: SpriteCache,
               beatArm: Double = 0, beatHair: Double = 0, work: WorkPose = WorkPose(), headRig: LayeredRig? = nil,
-              depth: DepthPose = DepthPose(), boneOffsets: [String: BoneOffset]? = nil) {
+              depth: DepthPose = DepthPose(), boneOffsets: [String: BoneOffset]? = nil,
+              compositing: CGBlendMode = .normal) {
         let depth = reduced ? DepthPose() : depth
         let matrices = skeleton?.transforms(reduced ? [:] : boneOffsets ?? [:])
         let bodyLayers = headRig == nil ? layers : layers.filter { $0.0.motion != "head" && $0.0.parent != "head" }
@@ -110,18 +127,22 @@ final class LayeredRig {
         let front = mixedLayers.filter { $0.0.id != "hair-back" }.map { (headRig!, $0.0, $0.1) }
         let entries = back + bodyLayers.map { (self, $0.0, $0.1) } + front
         NSGraphicsContext.saveGraphicsState()
+        let context = NSGraphicsContext.current?.cgContext
+        // Joint underlays and portrait patches form one puppet; fading them separately darkens every overlap.
+        context?.setBlendMode(compositing); context?.setAlpha(opacity)
+        context?.beginTransparencyLayer(in: target.insetBy(dx: -target.width * 0.25, dy: -target.height * 0.25), auxiliaryInfo: nil)
         SpriteDepth.projection(pivot: body.pivot, target: target, turn: depth.turn).concat()
         for (source, layer, image) in entries {
             let bodyLayer = layer.id == "body"
             if bodyLayer {
                 NSGraphicsContext.saveGraphicsState()
                 NSGraphicsContext.current?.cgContext.setBlendMode(.normal)
-                NSGraphicsContext.current?.cgContext.setAlpha(opacity)
+                NSGraphicsContext.current?.cgContext.setAlpha(1)
                 NSGraphicsContext.current?.cgContext.beginTransparencyLayer(
                     in: target.insetBy(dx: -target.width * 0.25, dy: -target.height * 0.25), auxiliaryInfo: nil)
             }
-            let fraction = bodyLayer ? 1.0 : opacity
-            let destination = source === self ? target : alignedHeadTarget(from: source, target: target)
+            let fraction = 1.0
+            let destination = layer.motion == "head" || layer.parent == "head" ? alignedHeadTarget(from: source, target: target) : target
             let rendered = sprites.frame(image, column: 0, row: 0, rows: 1, radius: radius, columns: 1,
                 face: layer.id == "head" ? source.face : nil, faceRows: layer.id == "head" && source.face != nil ? faceRows : [],
                 light: depth.light(head: layer.motion == "head" || layer.parent == "head"))
@@ -143,7 +164,7 @@ final class LayeredRig {
             if bodyLayer {
                 for (owner, caster, _) in entries {
                     guard let shadow = owner.shadows[caster.id] else { continue }
-                    let destination = owner === self ? target : alignedHeadTarget(from: owner, target: target)
+                    let destination = caster.motion == "head" || caster.parent == "head" ? alignedHeadTarget(from: owner, target: target) : target
                     NSGraphicsContext.saveGraphicsState()
                     let shadowTarget = destination.offsetBy(dx: target.width * 3 / SpriteGeometry.size.width,
                                                             dy: -target.height * 3 / SpriteGeometry.size.height)
@@ -166,13 +187,73 @@ final class LayeredRig {
                 NSGraphicsContext.restoreGraphicsState()
             }
         }
+        context?.endTransparencyLayer()
         NSGraphicsContext.restoreGraphicsState()
+    }
+
+    /// Uniform pose registration keeps the authored proportions and the same screen ground.
+    func registeredTarget(_ target: NSRect) -> NSRect {
+        let ground = target.minY + (384 - CGFloat(SpriteGeometry.feetBaseline)) * target.height / 384
+        let width = target.width * renderScale, height = target.height * renderScale
+        return NSRect(x: target.midX - width / 2,
+            y: ground - (384 - CGFloat(definition.renderFeet ?? Double(SpriteGeometry.feetBaseline))) * height / 384,
+            width: width, height: height)
     }
 
     /// Mixed identities share the outfit's neck, while keeping the other face and hair proportions.
     func alignedHeadTarget(from source: LayeredRig, target: NSRect) -> NSRect {
-        target.offsetBy(dx: (head.pivot[0] - source.head.pivot[0]) * target.width / SpriteGeometry.size.width,
-                        dy: (source.head.pivot[1] - head.pivot[1]) * target.height / SpriteGeometry.size.height)
+        let scale = source.renderScale * CGFloat(source.definition.renderHeadScale ?? 1) / renderScale
+        let width = target.width * scale, height = target.height * scale
+        return NSRect(x: target.minX + head.pivot[0] * target.width / 256 - source.head.pivot[0] * width / 256,
+            y: target.minY + (384 - head.pivot[1]) * target.height / 384 - (384 - source.head.pivot[1]) * height / 384,
+            width: width, height: height)
+    }
+
+    /// Prepare this attachment once: the crown scales with the head, the lower tail with the outfit.
+    private static func registeredHair(_ image: NSImage, scale: Double, pivot: [Double]) -> NSImage {
+        guard abs(scale - 1) > 1e-6 else { return image }
+        var rect = NSRect(origin: .zero, size: image.size)
+        guard let cg = image.cgImage(forProposedRect: &rect, context: nil, hints: nil) else { return image }
+        let source = NSBitmapImageRep(cgImage: cg)
+        guard source.bitsPerSample == 8, source.samplesPerPixel == 4, !source.isPlanar,
+              let input = source.bitmapData,
+              let output = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 256, pixelsHigh: 384,
+                bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB,
+                bitmapFormat: source.bitmapFormat, bytesPerRow: 0, bitsPerPixel: 0),
+              let bytes = output.bitmapData else { return image }
+        bytes.initialize(repeating: 0, count: output.bytesPerRow * output.pixelsHigh)
+        func attachmentScale(_ y: Double) -> Double {
+            let t = min(1, max(0, (pivot[1] - y) / 48))
+            return 1 + (scale - 1) * t * t * (3 - 2 * t)
+        }
+        for y in 0..<384 {
+            let worldY = pivot[1] + (Double(y) + 0.5 - pivot[1]) * scale
+            // This smooth mapping is monotone for the validated portrait scale range.
+            var low = -384.0, high = 768.0
+            for _ in 0..<24 {
+                let middle = (low + high) / 2
+                let mapped = pivot[1] + (middle - pivot[1]) * attachmentScale(middle)
+                if mapped < worldY { low = middle } else { high = middle }
+            }
+            let sy = (low + high) / 2, localScale = attachmentScale(sy)
+            for x in 0..<256 {
+                let worldX = pivot[0] + (Double(x) + 0.5 - pivot[0]) * scale
+                let sx = pivot[0] + (worldX - pivot[0]) / localScale
+                let px = sx - 0.5, py = sy - 0.5, x0 = Int(floor(px)), y0 = Int(floor(py))
+                let fx = px - Double(x0), fy = py - Double(y0)
+                for channel in 0..<4 {
+                    var value = 0.0
+                    for (dx, wx) in [(0, 1 - fx), (1, fx)] { for (dy, wy) in [(0, 1 - fy), (1, fy)] {
+                        let xx = x0 + dx, yy = y0 + dy
+                        if (0..<256).contains(xx), (0..<384).contains(yy) {
+                            value += Double(input[yy * source.bytesPerRow + xx * 4 + channel]) * wx * wy
+                        }
+                    } }
+                    bytes[y * output.bytesPerRow + x * 4 + channel] = UInt8(min(255, max(0, value.rounded())))
+                }
+            }
+        }
+        let prepared = NSImage(size: image.size); prepared.addRepresentation(output); return prepared
     }
 
     /// A child first rotates around its own joint, then follows its parent's head transform.

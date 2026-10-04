@@ -37,7 +37,7 @@ enum SpriteTransition {
                 scaleX: 1 - dissolve * 0.04, scaleY: 1 - dissolve * 0.025,
                 y: dissolve * 5, angle: sin(p * .pi) * 1.2, nod: -sin(p * .pi) * 0.9)
         case "turn":
-            return TransitionFrame(opacity: 1 - 0.25 * sin(p * .pi), scaleX: 1 - 0.46 * sin(p * .pi),
+            return TransitionFrame(opacity: 1, scaleX: 1 - 0.46 * sin(p * .pi),
                                    angle: sin(p * 2 * .pi) * 2)
         default: return TransitionFrame()
         }

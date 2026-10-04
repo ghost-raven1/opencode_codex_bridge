@@ -55,7 +55,7 @@ try {
     join(root, "scripts/qa-choreography.swift"), "-o", binary], { stdio: "inherit" });
   assert.equal(compiled.status, 0, "Native choreography QA compilation failed");
   const rendered = spawnSync(binary, [join(root, "packages/companions/assets"), output], { stdio: "inherit" });
-  assert.equal(rendered.status, 0, "Native choreography QA failed");
+  assert.equal(rendered.status, 0, `Native choreography QA failed: signal=${rendered.signal ?? "none"}, error=${rendered.error?.message ?? "none"}`);
   assert.equal(artworkHash(), before, "Artwork changed during native QA; repeat after the role exports are frozen");
   assert.equal(rendererHash(), rendererBefore, "Renderer changed during native QA; repeat after the Swift sources are frozen");
   const reportPath = join(output, "report.json");

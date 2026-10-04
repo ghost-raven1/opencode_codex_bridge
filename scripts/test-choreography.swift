@@ -116,7 +116,29 @@ import Foundation
             let pose = sample(&reduced, time, beat: beat(time), reduced: true)
             precondition(!pose.kind.isDance && pose.angle == 0 && pose.y == 0 && pose.scaleX == 1)
         }
-        print("PASS drawn work views, tool selection, intermediate turns, continuous visibility, walking, seven beat-synced dance phrases, speech/stale/reduced controls")
+        var blending = PoseAnimation(seed: "blend-regression")
+        let all = Set(CharacterPose.allCases)
+        for time in [0.0, 1.2, 1.3] {
+            _ = blending.advance(identity: "code", state: "working", speaking: false, dancing: false,
+                available: all, at: time, reduced: false, activity: "edit", invocation: "blend")
+        }
+        let before = blending.frame(at: 1.35, reduced: false)
+        precondition(before.layers.filter { $0.weight > 0 }.count >= 2, "Authored pose changed by a hard cut")
+        precondition(abs(before.layers.reduce(0) { $0 + $1.weight } - 1) < 1e-9 && before.scaleY == 1,
+            "Pose blend lost opacity or stretched stature")
+        let resumedBlend = blending.advance(identity: "code", state: "working", speaking: true, dancing: false,
+            available: all, at: 1.35, reduced: false, activity: "edit", invocation: "blend")
+        for layer in before.layers {
+            precondition(abs((resumedBlend.layers.first { $0.kind == layer.kind }?.weight ?? 0) - layer.weight) < 1e-9,
+                "Interrupted pose discarded its visible contribution")
+        }
+        for step in 0...24 {
+            let frame = blending.frame(at: 1.35 + Double(step) / 60, reduced: false)
+            let layers = frame.layers.isEmpty ? [PoseLayer(kind: frame.kind, weight: 1)] : frame.layers
+            precondition(layers.allSatisfy { (0...1).contains($0.weight) }
+                && abs(layers.reduce(0) { $0 + $1.weight } - 1) < 1e-9, "Interrupted transition exposed a blank frame")
+        }
+        print("PASS drawn work views, tool selection, opaque interrupted pose blends, fixed stature, intermediate turns, walking, seven beat-synced dance phrases, speech/stale/reduced controls")
     }
 
     /// Durations and beat counts must come from the manifest rather than duplicate Swift constants.

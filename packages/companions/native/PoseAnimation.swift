@@ -14,6 +14,8 @@ enum CharacterPose: String, CaseIterable {
     var isWalk: Bool { self == .walkLeft || self == .walkRight }
 }
 
+struct PoseLayer { let kind: CharacterPose; let weight: Double }
+
 struct PoseFrame {
     var kind: CharacterPose = .standing
     var opacity: Double = 1
@@ -23,6 +25,8 @@ struct PoseFrame {
     var scaleX: Double = 1
     /// Radians on the invocation's authored contact/passing clock; absent outside walking.
     var walkPhase: Double?
+    /// All interrupted contributions are retained until they fade; authored poses bound this list.
+    var layers: [PoseLayer] = []
 }
 
 /// Slow per-character posture changes share the existing render clock and never create timers.
@@ -128,7 +132,7 @@ struct PoseAnimation {
     /// Keep authored turns visible; legacy poses retain their original single-silhouette fade.
     func frame(at time: Double, reduced: Bool) -> PoseFrame {
         var result = transitionFrame(at: time, reduced: reduced)
-        if result.kind.isWalk, !reduced, time.isFinite {
+        if result.kind.isWalk || result.layers.contains(where: { $0.kind.isWalk }), !reduced, time.isFinite {
             // Contact and passing are half a step apart; the full two-foot stride lasts four keyframes.
             result.walkPhase = max(0, time - walkStarted) * .pi / (2 * clips.walk.stepSeconds)
                 + (firstStep == .walkRight ? .pi / 2 : 0)
@@ -147,10 +151,15 @@ struct PoseAnimation {
             let squeeze = target.isDance || previous.isDance || target.isWalk ? 0.035 : 0.12
             let x = t < 0.5 ? initial.scaleX + (1 - squeeze - initial.scaleX) * blend : 1 - squeeze * (1 - blend)
             let y = t < 0.5 ? initial.y + (-1.8 - initial.y) * blend : -1.8 * (1 - blend)
-            let height = t < 0.5 ? initial.scaleY + (0.985 - initial.scaleY) * blend : 1 - 0.015 * (1 - blend)
             let angle = t < 0.5 ? initial.angle * (1 - blend) + sin(t * 2 * .pi) * blend : sin(t * 2 * .pi)
+            let amount = smooth(t)
+            let from = initial.layers.isEmpty ? [PoseLayer(kind: previous, weight: 1)] : initial.layers
+            var weights: [CharacterPose: Double] = [:]
+            for layer in from { weights[layer.kind, default: 0] += layer.weight * (1 - amount) }
+            weights[target, default: 0] += amount
+            let layers = weights.keys.sorted { $0.rawValue < $1.rawValue }.map { PoseLayer(kind: $0, weight: weights[$0]!) }
             return PoseFrame(kind: t < 0.5 ? previous : target, opacity: 1,
-                scaleY: height, y: y, angle: angle, scaleX: x)
+                scaleY: 1, y: y, angle: angle, scaleX: x, layers: layers)
         }
         if previous == target {
             let blend = smooth(t)

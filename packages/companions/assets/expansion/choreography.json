@@ -120,7 +120,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.990391,
+      "renderFeet": 368,
+      "renderHeadScale": 1.107415
     },
     "lead/work-profile": {
       "name": "LEAD work-profile",
@@ -224,7 +227,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.998435,
+      "renderFeet": 368,
+      "renderHeadScale": 1.081057
     },
     "lead/work-back-three-quarter": {
       "name": "LEAD work-back-three-quarter",
@@ -328,7 +334,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.991453,
+      "renderFeet": 368,
+      "renderHeadScale": 1.08867
     },
     "lead/work-seated": {
       "name": "LEAD work-seated",
@@ -443,7 +452,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.114754,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "lead/dance-1": {
       "name": "LEAD dance-1",
@@ -547,7 +559,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.046233,
+      "renderFeet": 368,
+      "renderHeadScale": 1.065493
     },
     "lead/dance-2": {
       "name": "LEAD dance-2",
@@ -651,7 +666,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.108333,
+      "renderFeet": 368,
+      "renderHeadScale": 1.022556
     },
     "lead/dance-3": {
       "name": "LEAD dance-3",
@@ -755,7 +773,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.074536,
+      "renderFeet": 368,
+      "renderHeadScale": 1.020696
     },
     "lead/dance-4": {
       "name": "LEAD dance-4",
@@ -859,7 +880,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.082605,
+      "renderFeet": 368,
+      "renderHeadScale": 1.029696
     },
     "lead/work-right-three-quarter": {
       "name": "LEAD work-right-three-quarter",
@@ -974,7 +998,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.990141,
+      "renderFeet": 368,
+      "renderHeadScale": 1.125854
     },
     "lead/work-right-profile": {
       "name": "LEAD work-right-profile",
@@ -1067,7 +1094,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.987483,
+      "renderFeet": 368,
+      "renderHeadScale": 1.167152
     },
     "lead/work-back": {
       "name": "LEAD work-back",
@@ -1171,7 +1201,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.958333,
+      "renderFeet": 368,
+      "renderHeadScale": 1.223388
     },
     "lead/walk-left": {
       "name": "LEAD walk-left",
@@ -1286,7 +1319,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.018932,
+      "renderFeet": 368,
+      "renderHeadScale": 1.042758
     },
     "lead/walk-right": {
       "name": "LEAD walk-right",
@@ -1390,7 +1426,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.022311,
+      "renderFeet": 368,
+      "renderHeadScale": 1.023323
     },
     "lead/work-kneeling": {
       "name": "LEAD work-kneeling",
@@ -1505,7 +1544,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.079365,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "lead/work-leaning": {
       "name": "LEAD work-leaning",
@@ -1620,7 +1662,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.096774,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "lead/work-desk": {
       "name": "LEAD work-desk",
@@ -1735,7 +1780,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.114754,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/work-three-quarter": {
       "name": "CODE work-three-quarter",
@@ -1869,7 +1917,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.978294,
+      "renderFeet": 368,
+      "renderHeadScale": 1.120206
     },
     "code/work-profile": {
       "name": "CODE work-profile",
@@ -2003,7 +2054,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.012145,
+      "renderFeet": 368,
+      "renderHeadScale": 1.179703
     },
     "code/work-back-three-quarter": {
       "name": "CODE work-back-three-quarter",
@@ -2137,7 +2191,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.96961,
+      "renderFeet": 368,
+      "renderHeadScale": 1.231453
     },
     "code/work-seated": {
       "name": "CODE work-seated",
@@ -2271,7 +2328,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.333333,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/dance-1": {
       "name": "CODE dance-1",
@@ -2383,7 +2443,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.19403,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/dance-2": {
       "name": "CODE dance-2",
@@ -2495,7 +2558,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.268707,
+      "renderFeet": 368,
+      "renderHeadScale": 1.126005
     },
     "code/dance-3": {
       "name": "CODE dance-3",
@@ -2618,7 +2684,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.25662,
+      "renderFeet": 368,
+      "renderHeadScale": 1.116892
     },
     "code/dance-4": {
       "name": "CODE dance-4",
@@ -2730,7 +2799,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.403509,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/work-right-three-quarter": {
       "name": "CODE work-right-three-quarter",
@@ -2864,7 +2936,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.064257,
+      "renderFeet": 368,
+      "renderHeadScale": 1.121937
     },
     "code/work-right-profile": {
       "name": "CODE work-right-profile",
@@ -2998,7 +3073,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.008244,
+      "renderFeet": 368,
+      "renderHeadScale": 1.166851
     },
     "code/work-back": {
       "name": "CODE work-back",
@@ -3132,7 +3210,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.0422,
+      "renderFeet": 368,
+      "renderHeadScale": 1.081136
     },
     "code/walk-left": {
       "name": "CODE walk-left",
@@ -3266,7 +3347,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.973581,
+      "renderFeet": 368,
+      "renderHeadScale": 1.190882
     },
     "code/walk-right": {
       "name": "CODE walk-right",
@@ -3400,7 +3484,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.964441,
+      "renderFeet": 368,
+      "renderHeadScale": 1.256812
     },
     "code/work-kneeling": {
       "name": "CODE work-kneeling",
@@ -3523,7 +3610,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.403509,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/work-leaning": {
       "name": "CODE work-leaning",
@@ -3646,7 +3736,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.269841,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/work-desk": {
       "name": "CODE work-desk",
@@ -3769,7 +3862,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.269841,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/work-three-quarter": {
       "name": "RESEARCH work-three-quarter",
@@ -3883,7 +3979,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.043478,
+      "renderFeet": 368,
+      "renderHeadScale": 0.958333
     },
     "research/work-profile": {
       "name": "RESEARCH work-profile",
@@ -3986,7 +4085,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.041206,
+      "renderFeet": 368,
+      "renderHeadScale": 1.006897
     },
     "research/work-back-three-quarter": {
       "name": "RESEARCH work-back-three-quarter",
@@ -4089,7 +4191,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.039746,
+      "renderFeet": 368,
+      "renderHeadScale": 0.933063
     },
     "research/work-seated": {
       "name": "RESEARCH work-seated",
@@ -4203,7 +4308,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 0.984848,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/dance-1": {
       "name": "RESEARCH dance-1",
@@ -4306,7 +4414,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.031746,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/dance-2": {
       "name": "RESEARCH dance-2",
@@ -4409,7 +4520,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.203704,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/dance-3": {
       "name": "RESEARCH dance-3",
@@ -4512,7 +4626,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.168254,
+      "renderFeet": 368,
+      "renderHeadScale": 1.030344
     },
     "research/dance-4": {
       "name": "RESEARCH dance-4",
@@ -4615,7 +4732,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.083333,
+      "renderFeet": 367,
+      "renderHeadScale": 1.0
     },
     "research/work-right-three-quarter": {
       "name": "RESEARCH work-right-three-quarter",
@@ -4729,7 +4849,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.02657,
+      "renderFeet": 368,
+      "renderHeadScale": 1.055294
     },
     "research/work-right-profile": {
       "name": "RESEARCH work-right-profile",
@@ -4832,7 +4955,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.057488,
+      "renderFeet": 368,
+      "renderHeadScale": 1.041804
     },
     "research/work-back": {
       "name": "RESEARCH work-back",
@@ -4946,7 +5072,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.048748,
+      "renderFeet": 368,
+      "renderHeadScale": 0.968417
     },
     "research/walk-left": {
       "name": "RESEARCH walk-left",
@@ -5060,7 +5189,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.033607,
+      "renderFeet": 368,
+      "renderHeadScale": 1.014299
     },
     "research/walk-right": {
       "name": "RESEARCH walk-right",
@@ -5174,7 +5306,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.030045,
+      "renderFeet": 368,
+      "renderHeadScale": 1.034493
     },
     "research/work-kneeling": {
       "name": "RESEARCH work-kneeling",
@@ -5288,7 +5423,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.12069,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/work-leaning": {
       "name": "RESEARCH work-leaning",
@@ -5402,7 +5540,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.101695,
+      "renderFeet": 367,
+      "renderHeadScale": 1.0
     },
     "research/work-desk": {
       "name": "RESEARCH work-desk",
@@ -5516,7 +5657,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.015625,
+      "renderFeet": 367,
+      "renderHeadScale": 1.0
     },
     "review/work-three-quarter": {
       "name": "REVIEW work-three-quarter",
@@ -5631,7 +5775,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.063904,
+      "renderFeet": 368,
+      "renderHeadScale": 0.969774
     },
     "review/work-profile": {
       "name": "REVIEW work-profile",
@@ -5746,7 +5893,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.083781,
+      "renderFeet": 368,
+      "renderHeadScale": 0.951988
     },
     "review/work-back-three-quarter": {
       "name": "REVIEW work-back-three-quarter",
@@ -5850,7 +6000,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.065439,
+      "renderFeet": 368,
+      "renderHeadScale": 1.034029
     },
     "review/work-seated": {
       "name": "REVIEW work-seated",
@@ -5965,7 +6118,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.970149,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/dance-1": {
       "name": "REVIEW dance-1",
@@ -6069,7 +6225,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.083333,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/dance-2": {
       "name": "REVIEW dance-2",
@@ -6173,7 +6332,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.12069,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/dance-3": {
       "name": "REVIEW dance-3",
@@ -6277,7 +6439,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.134707,
+      "renderFeet": 368,
+      "renderHeadScale": 1.060805
     },
     "review/dance-4": {
       "name": "REVIEW dance-4",
@@ -6381,7 +6546,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.181818,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/work-right-three-quarter": {
       "name": "REVIEW work-right-three-quarter",
@@ -6496,7 +6664,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.049508,
+      "renderFeet": 369,
+      "renderHeadScale": 1.03223
     },
     "review/work-right-profile": {
       "name": "REVIEW work-right-profile",
@@ -6611,7 +6782,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.987081,
+      "renderFeet": 368,
+      "renderHeadScale": 1.116114
     },
     "review/work-back": {
       "name": "REVIEW work-back",
@@ -6715,7 +6889,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.03771,
+      "renderFeet": 368,
+      "renderHeadScale": 1.138871
     },
     "review/walk-left": {
       "name": "REVIEW walk-left",
@@ -6830,7 +7007,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.030495,
+      "renderFeet": 368,
+      "renderHeadScale": 1.051275
     },
     "review/walk-right": {
       "name": "REVIEW walk-right",
@@ -6945,7 +7125,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.034034,
+      "renderFeet": 368,
+      "renderHeadScale": 1.030501
     },
     "review/work-kneeling": {
       "name": "REVIEW work-kneeling",
@@ -7060,7 +7243,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.12069,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/work-leaning": {
       "name": "REVIEW work-leaning",
@@ -7175,7 +7361,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.031746,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/work-desk": {
       "name": "REVIEW work-desk",
@@ -7290,7 +7479,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.083333,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/work-three-quarter": {
       "name": "DESIGNER work-three-quarter",
@@ -7426,7 +7618,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.05824,
+      "renderFeet": 368,
+      "renderHeadScale": 0.905591
     },
     "designer/work-profile": {
       "name": "DESIGNER work-profile",
@@ -7562,7 +7757,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.05824,
+      "renderFeet": 368,
+      "renderHeadScale": 0.905591
     },
     "designer/work-back-three-quarter": {
       "name": "DESIGNER work-back-three-quarter",
@@ -7698,7 +7896,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.055351,
+      "renderFeet": 368,
+      "renderHeadScale": 0.947552
     },
     "designer/work-seated": {
       "name": "DESIGNER work-seated",
@@ -7834,7 +8035,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 0.945205,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/dance-1": {
       "name": "DESIGNER dance-1",
@@ -7959,7 +8163,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/dance-2": {
       "name": "DESIGNER dance-2",
@@ -8084,7 +8291,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.029851,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/dance-3": {
       "name": "DESIGNER dance-3",
@@ -8209,7 +8419,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.142198,
+      "renderFeet": 368,
+      "renderHeadScale": 1.161727
     },
     "designer/dance-4": {
       "name": "DESIGNER dance-4",
@@ -8334,7 +8547,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.014706,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/work-right-three-quarter": {
       "name": "DESIGNER work-right-three-quarter",
@@ -8470,7 +8686,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.063433,
+      "renderFeet": 368,
+      "renderHeadScale": 0.940351
     },
     "designer/work-right-profile": {
       "name": "DESIGNER work-right-profile",
@@ -8606,7 +8825,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.115895,
+      "renderFeet": 368,
+      "renderHeadScale": 0.922892
     },
     "designer/work-back": {
       "name": "DESIGNER work-back",
@@ -8742,7 +8964,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.108454,
+      "renderFeet": 368,
+      "renderHeadScale": 1.020473
     },
     "designer/walk-left": {
       "name": "DESIGNER walk-left",
@@ -8878,7 +9103,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.15181,
+      "renderFeet": 368,
+      "renderHeadScale": 0.950885
     },
     "designer/walk-right": {
       "name": "DESIGNER walk-right",
@@ -9014,7 +9242,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.094343,
+      "renderFeet": 368,
+      "renderHeadScale": 0.970024
     },
     "designer/work-kneeling": {
       "name": "DESIGNER work-kneeling",
@@ -9150,7 +9381,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 0.92,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/work-leaning": {
       "name": "DESIGNER work-leaning",
@@ -9286,7 +9520,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.112903,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/work-desk": {
       "name": "DESIGNER work-desk",
@@ -9422,7 +9659,10 @@
         "translationLimit": 0.75,
         "projectedJoints": false
       },
-      "facialAnimation": "none-preserve-authored-view"
+      "facialAnimation": "none-preserve-authored-view",
+      "renderScale": 1.014706,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/work-three-quarter": {
       "name": "DEVOPS work-three-quarter",
@@ -9534,7 +9774,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.011771,
+      "renderFeet": 368,
+      "renderHeadScale": 0.935418
     },
     "devops/work-profile": {
       "name": "DEVOPS work-profile",
@@ -9646,7 +9889,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.018929,
+      "renderFeet": 368,
+      "renderHeadScale": 0.912551
     },
     "devops/work-back-three-quarter": {
       "name": "DEVOPS work-back-three-quarter",
@@ -9758,7 +10004,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.019071,
+      "renderFeet": 368,
+      "renderHeadScale": 0.912424
     },
     "devops/work-seated": {
       "name": "DEVOPS work-seated",
@@ -9870,7 +10119,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.039216,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/dance-1": {
       "name": "DEVOPS dance-1",
@@ -9971,7 +10223,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.12766,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/dance-2": {
       "name": "DEVOPS dance-2",
@@ -10072,7 +10327,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.204545,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/dance-3": {
       "name": "DEVOPS dance-3",
@@ -10173,7 +10431,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.06,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/dance-4": {
       "name": "DEVOPS dance-4",
@@ -10274,7 +10535,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.12766,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/work-right-three-quarter": {
       "name": "DEVOPS work-right-three-quarter",
@@ -10386,7 +10650,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.040183,
+      "renderFeet": 368,
+      "renderHeadScale": 0.772009
     },
     "devops/work-right-profile": {
       "name": "DEVOPS work-right-profile",
@@ -10498,7 +10765,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.131903,
+      "renderFeet": 368,
+      "renderHeadScale": 0.82147
     },
     "devops/work-back": {
       "name": "DEVOPS work-back",
@@ -10610,7 +10880,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.131413,
+      "renderFeet": 368,
+      "renderHeadScale": 0.821826
     },
     "devops/walk-left": {
       "name": "DEVOPS walk-left",
@@ -10711,7 +10984,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.034854,
+      "renderFeet": 368,
+      "renderHeadScale": 0.826048
     },
     "devops/walk-right": {
       "name": "DEVOPS walk-right",
@@ -10812,7 +11088,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.045328,
+      "renderFeet": 368,
+      "renderHeadScale": 0.804791
     },
     "devops/work-kneeling": {
       "name": "DEVOPS work-kneeling",
@@ -10924,7 +11203,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/work-leaning": {
       "name": "DEVOPS work-leaning",
@@ -11036,7 +11318,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.292683,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/work-desk": {
       "name": "DEVOPS work-desk",
@@ -11148,7 +11433,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.06,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/work-three-quarter": {
       "name": "TESTER work-three-quarter",
@@ -11263,7 +11551,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.0459,
+      "renderFeet": 368,
+      "renderHeadScale": 0.865056
     },
     "tester/work-profile": {
       "name": "TESTER work-profile",
@@ -11378,7 +11669,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.02404,
+      "renderFeet": 368,
+      "renderHeadScale": 0.91249
     },
     "tester/work-back-three-quarter": {
       "name": "TESTER work-back-three-quarter",
@@ -11493,7 +11787,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.024376,
+      "renderFeet": 368,
+      "renderHeadScale": 0.943113
     },
     "tester/work-seated": {
       "name": "TESTER work-seated",
@@ -11608,7 +11905,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.982759,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/dance-1": {
       "name": "TESTER dance-1",
@@ -11712,7 +12012,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.117647,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/dance-2": {
       "name": "TESTER dance-2",
@@ -11816,7 +12119,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.036364,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/dance-3": {
       "name": "TESTER dance-3",
@@ -11920,7 +12226,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.096154,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/dance-4": {
       "name": "TESTER dance-4",
@@ -12024,7 +12333,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.1875,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/work-right-three-quarter": {
       "name": "TESTER work-right-three-quarter",
@@ -12139,7 +12451,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.016969,
+      "renderFeet": 368,
+      "renderHeadScale": 0.904015
     },
     "tester/work-right-profile": {
       "name": "TESTER work-right-profile",
@@ -12254,7 +12569,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.040405,
+      "renderFeet": 368,
+      "renderHeadScale": 0.856037
     },
     "tester/work-back": {
       "name": "TESTER work-back",
@@ -12369,7 +12687,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.013986,
+      "renderFeet": 368,
+      "renderHeadScale": 0.986207
     },
     "tester/walk-left": {
       "name": "TESTER walk-left",
@@ -12484,7 +12805,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.079529,
+      "renderFeet": 368,
+      "renderHeadScale": 0.851626
     },
     "tester/walk-right": {
       "name": "TESTER walk-right",
@@ -12599,7 +12923,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.075531,
+      "renderFeet": 368,
+      "renderHeadScale": 0.854791
     },
     "tester/work-kneeling": {
       "name": "TESTER work-kneeling",
@@ -12714,7 +13041,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 0.966102,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/work-leaning": {
       "name": "TESTER work-leaning",
@@ -12829,7 +13159,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.055556,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/work-desk": {
       "name": "TESTER work-desk",
@@ -12944,7 +13277,10 @@
         ],
         "translationLimit": 0.75,
         "projectedJoints": false
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     }
   },
   "clips": {

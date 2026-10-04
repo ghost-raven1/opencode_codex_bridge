@@ -23,6 +23,8 @@ import AppKit
         }
         var count = 0, signatures = Set<String>()
         func save(_ name: String) throws {
+            // Unlike a live run loop, this batch renders hundreds of frames without an event boundary.
+            try autoreleasepool {
             let path = output.appendingPathComponent(name + ".png")
             precondition(view.snapshot(path.path), "Empty native snapshot: \(name)")
             let data = try Data(contentsOf: path), bitmap = NSBitmapImageRep(data: data)!
@@ -34,6 +36,8 @@ import AppKit
             }
             precondition(colored > 150, "Blank graphics: \(name); use native window-system permissions")
             count += 1
+            if count % 100 == 0 { print("Rendered \(count) native QA frames") }
+            }
         }
         func setup(at time: Double = 1000, actors: [Character]? = nil) {
             view.snapshotTime = time; view.musicBeat = nil; view.speaker = nil; view.auditPose = nil
@@ -67,6 +71,34 @@ import AppKit
         }
         panel.setContentSize(NSSize(width: 1176, height: 330))
         view.setFrameSize(panel.contentView!.frame.size); view.setBoundsSize(NSSize(width: 1176, height: 330))
+        // Include both sides of the old hard-cut midpoint and a speech interruption of an active blend.
+        let transitionPhases = [0.0, 0.25, 0.49, 0.5, 0.51, 0.75, 1.0]
+        for background in ["light", "dark"] {
+            for scenario in ["work", "interrupt", "rest", "dance"] {
+                let actors = scenario == "rest" ? entries.map { actor -> Character in
+                    var next = actor; next.state = "idle"; next.activity = nil; return next
+                } : entries
+                setup(at: 1000, actors: actors); view.snapshotBackground = background
+                let start: Double, duration: Double
+                if scenario == "dance" {
+                    view.musicBeat = MusicBeatState(anchor: 1000, period: 0.5, sequence: 0,
+                        confidence: 1, audibleAt: 1000, allowance: 1, measuredAt: 1000)
+                    view.tick(); start = 1000; duration = library.clips.dance.transitionSeconds
+                } else {
+                    let beginning = scenario == "rest" ? 1003.0 : 1001.2
+                    view.snapshotTime = beginning; view.tick()
+                    if scenario == "interrupt" {
+                        view.snapshotTime = beginning + 0.2; view.tick()
+                        view.speaker = entries[1].id; view.tick()
+                    }
+                    start = view.snapshotTime!; duration = library.clips.work.settleSeconds
+                }
+                for (index, phase) in transitionPhases.enumerated() {
+                    view.snapshotTime = start + duration * phase; view.tick()
+                    try save("transition-\(scenario)-\(background)-\(index)")
+                }
+            }
+        }
         // Joint clips must actually appear in the production renderer, even between full-body key poses.
         for background in ["light", "dark"] {
             for kind in ActionMotion.kinds {
@@ -161,6 +193,7 @@ import AppKit
             "layeredPoses": 126, "dancePosesUsed": 28, "mixedIdentities": 12,
             "stateGestures": 28,
             "jointWorkClips": 49, "jointIdleClips": 28, "floorPoseSkeletons": 14,
+            "transitionMidpointScenarios": 4, "transitionPhaseFrames": 56,
             "skeletalRigs": skeletons.count, "bonesPerRig": [17, 18],
             "scales": [0.5, 1, 2], "backingScale": panel.backingScaleFactor,
             "microphone": false, "speech": false]

@@ -292,12 +292,11 @@ final class CharacterView: NSView {
             let names = rigNames(for: displayed), rigName = names.body
             let posture = displayPosture(for: character, at: time)
             let rig = posture.kind == .standing ? rigs[rigName] : poseRigs?.rig("\(rigName)/\(posture.kind.rawValue)") ?? rigs[rigName]
-            let mixedHead = names.head.flatMap { name in
-                posture.kind == .standing ? rigs[name] : poseRigs?.rig("\(name)/\(posture.kind.rawValue)") ?? rigs[name]
-            }
-            let motionTime = rig.map { time * 2 * .pi / (1.35 * $0.definition.motion.breathSeconds) } ?? time
+            // A view change keeps the role's clock; pose-specific periods would jump its breathing mid-blend.
+            let clock = rigs[rigName]?.definition.motion ?? rig?.definition.motion
+            let motionTime = clock.map { time * 2 * .pi / (1.35 * $0.breathSeconds) } ?? time
             var pose = LayeredMotion.pose(state: displayed.state, time: motionTime,
-                gestureElapsed: gesture.map { (time - $0) * 3.6 / (rig?.definition.motion.gestureSeconds ?? 3.6) },
+                gestureElapsed: gesture.map { (time - $0) * 3.6 / (clock?.gestureSeconds ?? 3.6) },
                 speaking: speaking, reduced: reduced, seed: character.motionSeed)
             var dance = speaking ? MusicPose() : MusicMotion.pose(beat: musicBeat, time: time,
                 column: displayed.column, rig: displayed.rig, reduced: reduced)
@@ -320,7 +319,7 @@ final class CharacterView: NSView {
             let depth = SpriteDepth.pose(time: time, seed: character.motionSeed, headX: pose.headX,
                                          headAngle: pose.headAngle, reduced: reduced)
             var target = NSRect(x: x + (width - 256 * factor) / 2, y: 36,
-                                width: 256 * factor, height: 384 * factor * (rig?.skeleton == nil ? pose.bodyScaleY : 1))
+                                width: 256 * factor, height: 384 * factor * (rig == nil ? pose.bodyScaleY : 1))
             target = target.insetBy(dx: target.width * (1 - effect.scaleX) / 2, dy: 0)
             target = target.insetBy(dx: target.width * (1 - posture.scaleX) / 2, dy: 0)
             target.origin.y += (posture.y + effect.y) * factor
@@ -331,23 +330,58 @@ final class CharacterView: NSView {
             SpriteDepth.drawContact(in: target, opacity: opacity, turn: depth.turn)
             let scale = frame.width / max(1, bounds.width)
             let radius = 1 / max(0.25, factor * scale * (window?.backingScaleFactor ?? 2))
-            let boneOffsets = rig?.skeleton.map { skeleton in
-                SkeletalMotion.offsets(rig: skeleton, role: rigName, posture: posture.kind.rawValue, time: time,
-                    seed: character.motionSeed, head: pose, work: work, music: dance, beat: musicBeat,
-                    speaking: speaking, reduced: reduced, walkPhase: posture.walkPhase,
-                    transitionAngle: posture.angle + effect.angle)
-            }
             NSGraphicsContext.saveGraphicsState()
-            if boneOffsets == nil {
+            if rig == nil {
                 MusicMotion.apply(dance, target: target)
                 SpriteTransition.apply(angle: posture.angle + effect.angle + work.bodyAngle, in: target)
             }
             if effect.reveal < 1 { NSBezierPath(rect: NSRect(x: target.minX, y: target.minY, width: target.width, height: target.height * effect.reveal)).addClip() }
             if let rig {
-                rig.draw(in: target, pose: pose, time: time + Double(index) * 1.7,
-                    gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
-                    opacity: opacity, radius: radius, faceRows: faceRows, sprites: sprites,
-                    beatArm: dance.arm, beatHair: dance.hair, work: work, headRig: mixedHead, depth: depth, boneOffsets: boneOffsets)
+                let layers = posture.layers.isEmpty ? [PoseLayer(kind: posture.kind, weight: 1)] : posture.layers
+                let blending = layers.filter { $0.weight > 0 }.count > 1
+                let context = NSGraphicsContext.current?.cgContext
+                if blending {
+                    context?.setBlendMode(.normal); context?.setAlpha(opacity)
+                    context?.beginTransparencyLayer(in: NSRect(x: x - width * 0.5, y: -30,
+                        width: width * 2, height: bounds.height + 60), auxiliaryInfo: nil)
+                }
+                for layer in layers where layer.weight > 0 {
+                    let part = layer.kind == posture.kind ? rig : layer.kind == .standing ? rigs[rigName] ?? rig
+                        : poseRigs?.rig("\(rigName)/\(layer.kind.rawValue)") ?? rigs[rigName] ?? rig
+                    let portrait = names.head.flatMap { name in
+                        layer.kind == .standing ? rigs[name] : poseRigs?.rig("\(name)/\(layer.kind.rawValue)") ?? rigs[name]
+                    }
+                    var gesturePose = composed.work.forPose(rig: rigName, standing: layer.kind == .standing)
+                    if layer.kind.isDrawn { gesturePose = gesturePose.forDrawnPose(rig: rigName) }
+                    var headPose = pose
+                    headPose.headX += gesturePose.headX - work.headX; headPose.headY += gesturePose.headY - work.headY
+                    headPose.headAngle += gesturePose.headAngle - work.headAngle
+                    var canvas = target
+                    if part.skeleton == nil {
+                        canvas.size.height *= headPose.bodyScaleY
+                        canvas.origin.y += (target.height - canvas.height) * (384 - CGFloat(SpriteGeometry.feetBaseline)) / 384
+                    }
+                    let destination = part.registeredTarget(canvas)
+                    let offsets = part.skeleton.map { skeleton in
+                        SkeletalMotion.offsets(rig: skeleton, role: rigName, posture: layer.kind.rawValue, time: time,
+                            seed: character.motionSeed, head: headPose, work: gesturePose, music: dance, beat: musicBeat,
+                            speaking: speaking, reduced: reduced, walkPhase: posture.walkPhase,
+                            transitionAngle: posture.angle + effect.angle)
+                    }
+                    NSGraphicsContext.saveGraphicsState()
+                    if offsets == nil {
+                        MusicMotion.apply(dance, target: destination)
+                        SpriteTransition.apply(angle: posture.angle + effect.angle + gesturePose.bodyAngle, in: destination)
+                    }
+                    part.draw(in: destination, pose: headPose, time: time + Double(index) * 1.7,
+                        gestureElapsed: gesture.map { time - $0 }, reduced: reduced,
+                        opacity: blending ? layer.weight : opacity, radius: radius / part.renderScale,
+                        faceRows: faceRows, sprites: sprites, beatArm: dance.arm, beatHair: dance.hair,
+                        work: gesturePose, headRig: portrait, depth: depth, boneOffsets: offsets,
+                        compositing: blending ? .plusLighter : .normal)
+                    NSGraphicsContext.restoreGraphicsState()
+                }
+                if blending { context?.endTransparencyLayer() }
             } else if let sourceHead = mixedHeadAtlas ?? headAtlas, let sourceBody = mixedBodyAtlas ?? bodyAtlas {
                 sprites.frame(sourceBody, column: displayed.bodyColumn, row: 0, rows: 4, radius: radius)?
                     .draw(in: target, from: .zero, operation: .sourceOver, fraction: opacity)

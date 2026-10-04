@@ -18,7 +18,8 @@ enum SkeletalMotion {
                                   y: resting ? 0 : 0.9 + cos(phase) * 0.3 + abs(music.y) * 0.45),
             "spine": BoneOffset(angle: sin(phase) * 0.18),
             "chest": BoneOffset(angle: -sin(phase) * 0.12, y: -Double(head.bodyScaleY - 1) * 80),
-            "head": BoneOffset(angle: -head.headAngle, x: head.headX, y: -head.headY),
+            "neck": BoneOffset(x: head.headX, y: -head.headY),
+            "head": BoneOffset(angle: -head.headAngle),
         ]
         let hands: [String: String] = role == "devops" ? ["left": "hip-arm", "right": "tool-arm"]
             : role == "tester" ? ["left": "controller-arms", "right": "controller-arms"]

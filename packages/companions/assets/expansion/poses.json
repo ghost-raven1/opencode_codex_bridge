@@ -125,7 +125,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.014925,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "lead/reclining": {
       "name": "LEAD reclining",
@@ -245,7 +248,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.114754,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/seated": {
       "name": "CODE seated",
@@ -376,7 +382,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.909091,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code/reclining": {
       "name": "CODE reclining",
@@ -507,7 +516,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.930233,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/seated": {
       "name": "RESEARCH seated",
@@ -627,7 +639,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.915493,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "research/reclining": {
       "name": "RESEARCH reclining",
@@ -747,7 +762,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.970149,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/seated": {
       "name": "REVIEW seated",
@@ -867,7 +885,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review/reclining": {
       "name": "REVIEW reclining",
@@ -987,7 +1008,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.048387,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/seated": {
       "name": "DESIGNER seated",
@@ -1118,7 +1142,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.811765,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "designer/reclining": {
       "name": "DESIGNER reclining",
@@ -1249,7 +1276,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.8625,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/seated": {
       "name": "DEVOPS seated",
@@ -1369,7 +1399,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.688312,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "devops/reclining": {
       "name": "DEVOPS reclining",
@@ -1489,7 +1522,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.746479,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/seated": {
       "name": "TESTER seated",
@@ -1598,7 +1634,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.036364,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester/reclining": {
       "name": "TESTER reclining",
@@ -1718,7 +1757,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 0.982759,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     }
   },
   "runtimeFiles": [

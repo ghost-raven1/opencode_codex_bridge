@@ -115,7 +115,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 369,
+      "renderHeadScale": 1.0
     },
     "devops": {
       "name": "DEVOPS",
@@ -209,7 +212,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "tester": {
       "name": "TESTER",
@@ -292,7 +298,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "lead": {
       "name": "LEAD",
@@ -404,7 +413,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "code": {
       "name": "CODE",
@@ -527,7 +539,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 369,
+      "renderHeadScale": 1.0
     },
     "research": {
       "name": "RESEARCH",
@@ -639,7 +654,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     },
     "review": {
       "name": "REVIEW",
@@ -751,7 +769,10 @@
           8,
           15
         ]
-      }
+      },
+      "renderScale": 1.0,
+      "renderFeet": 368,
+      "renderHeadScale": 1.0
     }
   },
   "runtimeFiles": [

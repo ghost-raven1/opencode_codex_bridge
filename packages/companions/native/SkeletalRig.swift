@@ -202,6 +202,7 @@ final class SkeletalRig {
                 let dest = triangle.map { points[$0] }
                 guard let affine = Self.affine(from: source, to: dest) else { continue }
                 NSGraphicsContext.saveGraphicsState()
+                context.setAllowsAntialiasing(false)
                 context.setShouldAntialias(false)
                 context.beginPath(); context.move(to: dest[0]); context.addLine(to: dest[1]); context.addLine(to: dest[2]); context.closePath(); context.clip()
                 context.concatenate(affine)
