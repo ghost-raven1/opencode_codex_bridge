@@ -7,22 +7,24 @@ import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const native = process.argv.includes("--native");
 const inference = process.argv.includes("--inference");
-if (native && process.platform !== "darwin") throw new Error("Native voice smoke requires macOS");
+const global = process.argv.includes("--global");
 const temp = await mkdtemp(join(tmpdir(), "codexbridge-opencode-smoke-"));
 const config = JSON.parse(await readFile(join(root, ".local/profiles/quiet/opencode.json"), "utf8"));
-for (const server of Object.values(config.mcp)) server.enabled = false;
-await writeFile(join(temp, "opencode.json"), JSON.stringify(config));
-await writeFile(join(temp, "smart-voice-notify.jsonc"), '{"enabled":false}');
-await writeFile(join(temp, "companions.json"), JSON.stringify({ enabled: native, showOnStart: false, speech: "off", dictation: false }));
+if (!global) {
+  for (const server of Object.values(config.mcp)) server.enabled = false;
+  await writeFile(join(temp, "opencode.json"), JSON.stringify(config));
+  await writeFile(join(temp, "smart-voice-notify.jsonc"), '{"enabled":false}');
+}
 const expected = `CODEXBRIDGE_${randomUUID()}`;
 if (inference) await writeFile(join(temp, "fixture.txt"), expected);
 const child = spawn("opencode", ["serve", "--port", "0", "--hostname", "127.0.0.1"], {
   cwd: temp, stdio: ["ignore", "pipe", "pipe"],
-  env: { ...process.env, XDG_CONFIG_HOME: join(temp, "config"), XDG_DATA_HOME: join(temp, "data"),
-    XDG_CACHE_HOME: join(temp, "cache"), XDG_STATE_HOME: join(temp, "state"),
-    OPENCODE_CONFIG: join(temp, "opencode.json"), OPENCODE_CONFIG_DIR: temp,
+  env: { ...process.env, ...(global
+    ? { OPENCODE_CONFIG: undefined, OPENCODE_CONFIG_DIR: undefined }
+    : { XDG_CONFIG_HOME: join(temp, "config"), XDG_DATA_HOME: join(temp, "data"),
+      XDG_CACHE_HOME: join(temp, "cache"), XDG_STATE_HOME: join(temp, "state"),
+      OPENCODE_CONFIG: join(temp, "opencode.json"), OPENCODE_CONFIG_DIR: temp }),
     OPENCODE_DISABLE_MODELS_FETCH: "true", PATH: `${root}.local/bin:${process.env.PATH}` },
 });
 let logs = "";
@@ -46,25 +48,29 @@ try {
   const ids = JSON.parse(text);
   const configured = await fetch(`${url}/config`).then(r => r.json());
   assert(ids.includes("codex"), `Codex plugin was not loaded: ${JSON.stringify({ ids, plugins: configured.plugin })}. ${logs}`);
-  assert(ids.includes("submit_plan"), "Planner plugin was not loaded");
-  if (native) assert(ids.includes("companion"), `Native voice plugin was not loaded: ${logs}`);
+  assert(!ids.includes("companion"), "Removed companion plugin is still loaded");
+  assert(configured.provider?.codexbridge?.models, "Codex provider was not configured");
+  assert(configured.command?.codex, "Codex slash command was not configured");
   assert.equal(configured.permission.codex_system, "ask");
-  assert(configured.lsp.typescript.command.includes("--stdio"));
-  const agentResponse = await fetch(`${url}/agent`, { signal: AbortSignal.timeout(15_000) });
-  assert.equal(agentResponse.status, 200, "Cannot list OpenCode agents");
-  const agents = await agentResponse.json();
-  for (const name of ["designer", "devops", "tester"]) {
-    const agent = agents.find(item => item.name === name);
-    assert.equal(agent?.mode, "subagent", `Missing subagent: ${name}; regenerate the profile`);
-    assert.equal(agent.model, undefined, `${name} must inherit its caller's model`);
-    for (const permission of ["codex", "codex_system"]) {
-      assert.equal(agent.permission.filter(rule => rule.permission === permission && rule.pattern === "*").at(-1)?.action,
-        "ask", `${name} changed the bridge approval policy: ${permission}`);
+  if (!global) {
+    assert(ids.includes("submit_plan"), "Planner plugin was not loaded");
+    assert(configured.lsp.typescript.command.includes("--stdio"));
+    const agentResponse = await fetch(`${url}/agent`, { signal: AbortSignal.timeout(15_000) });
+    assert.equal(agentResponse.status, 200, "Cannot list OpenCode agents");
+    const agents = await agentResponse.json();
+    for (const name of ["designer", "devops", "tester"]) {
+      const agent = agents.find(item => item.name === name);
+      assert.equal(agent?.mode, "subagent", `Missing subagent: ${name}; regenerate the profile`);
+      assert.equal(agent.model, undefined, `${name} must inherit its caller's model`);
+      for (const permission of ["codex", "codex_system"]) {
+        assert.equal(agent.permission.filter(rule => rule.permission === permission && rule.pattern === "*").at(-1)?.action,
+          "ask", `${name} changed the bridge approval policy: ${permission}`);
+      }
     }
-  }
-  console.log("PASS: real OpenCode loaded CLI plugins; codex tool, OS approval rule and TypeScript LSP configured");
-  console.log("PASS: designer, devops and tester inherit the caller's model and bridge approval rules");
-  console.log(JSON.stringify({ customTools: ids.filter(id => ["codex", "submit_plan", "companion"].includes(id)), version: "1.3.2", native }));
+    console.log("PASS: real OpenCode loaded CLI plugins; codex tool, OS approval rule and TypeScript LSP configured");
+    console.log("PASS: designer, devops and tester inherit the caller's model and bridge approval rules");
+  } else console.log("PASS: ordinary OpenCode startup loads the global bridge, Codex provider and /codex with OS approvals");
+  console.log(JSON.stringify({ customTools: ids.filter(id => ["codex", "submit_plan"].includes(id)), version: "1.3.2" }));
   if (inference) {
     assert(config.model?.startsWith("codexbridge/"), "Configure the bridge provider first: npm run connect:codex && npm run bundle:all");
     // Only a public marker enters the isolated OpenCode store. Codex retains its own credentials.

@@ -1,9 +1,8 @@
 import { realpath } from "node:fs/promises";
-import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { CodexConnection } from "./connection.js";
 import { answerRequest } from "./approvals.js";
-import type { CodexSpeech, RpcMessage, RunOptions, RunResult } from "./types.js";
+import type { RpcMessage, RunOptions, RunResult } from "./types.js";
 
 const threadSchema = z.object({ thread: z.object({ id: z.string(), cwd: z.string().optional() }) });
 const turnSchema = z.object({ turn: z.object({ id: z.string() }) });
@@ -28,11 +27,8 @@ export async function runCodex(options: RunOptions): Promise<RunResult> {
   const done = new Promise<RunResult>((resolve, reject) => { resolveDone = resolve; rejectDone = reject; });
   void done.catch(() => undefined);
   const texts = new Map<string, string>();
-  const completed = new Map<string, CodexSpeech["messages"][number]>();
-  const runId = randomUUID();
-  let receivedBytes = 0, textBytes = 0, speechState: CodexSpeech["state"] = "running";
-  const snapshot = (): CodexSpeech => ({ runId, threadId, messages: [...completed.values()], state: speechState });
-  const publish = (): void => { if (threadId) options.onSpeech?.(snapshot()); };
+  const completed = new Set<string>();
+  let receivedBytes = 0, textBytes = 0, state: RunResult["status"] | "running" = "running";
   const setText = (id: string, text: string): void => {
     const bytes = textBytes - Buffer.byteLength(texts.get(id) ?? "") + Buffer.byteLength(text);
     if (bytes > 4 * 1024 * 1024 || (!texts.has(id) && texts.size >= 256)) throw new Error("Codex text output exceeded its limit (4 MiB / 256 messages)");
@@ -54,7 +50,7 @@ export async function runCodex(options: RunOptions): Promise<RunResult> {
     if (message.id !== undefined) {
       void answerRequest(connection, message, options.approve).catch(fail); return;
     }
-    if (speechState !== "running") return;
+    if (state !== "running") return;
     try {
       if (message.method === "turn/started") {
         turnId = turnSchema.parse(p).turn.id;
@@ -70,15 +66,14 @@ export async function runCodex(options: RunOptions): Promise<RunResult> {
         if (item.type === "agentMessage" && item.text !== undefined && !completed.has(item.id) &&
           (item.phase == null || item.phase === "commentary" || item.phase === "final_answer")) {
           setText(item.id, item.text);
-          completed.set(item.id, { messageId: item.id, text: item.text, state: "completed" });
-          publish();
+          completed.add(item.id);
         }
       } else if (message.method === "turn/completed") {
         const turn = z.object({ id: z.string(), status: z.enum(["completed", "failed", "interrupted"]),
           error: z.object({ message: z.string() }).nullable().optional() }).parse(p.turn);
         if (turnId && turn.id !== turnId) return;
-        speechState = turn.status; publish();
-        resolveDone({ threadId, turnId: turn.id, status: turn.status, codexSpeech: snapshot(),
+        state = turn.status;
+        resolveDone({ threadId, turnId: turn.id, status: turn.status,
           text: [...texts.values()].join("\n\n"), ...(turn.error ? { error: turn.error.message } : {}) });
       }
     } catch (error) { fail(error instanceof Error ? error : new Error(String(error))); }
@@ -101,14 +96,12 @@ export async function runCodex(options: RunOptions): Promise<RunResult> {
     }));
     threadId = started.thread.id;
     signal.throwIfAborted();
-    publish();
     const turn = turnSchema.parse(await connection.call("turn/start", {
       threadId, input: [{ type: "text", text: options.prompt, text_elements: [] }],
     }));
     turnId = turn.turn.id;
     return await done;
   } catch (error) {
-    if (speechState === "running") { speechState = signal.aborted ? "interrupted" : "failed"; publish(); }
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(`${detail}${threadId ? ` (threadId=${threadId}, turnId=${turnId || "unknown"})` : ""}`);
   } finally {

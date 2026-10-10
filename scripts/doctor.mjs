@@ -18,20 +18,15 @@ for (const command of ["codex", "opencode", "snip"]) {
   check(command, fallback.status === 0 && (command !== "opencode" || version === "1.3.2"),
     version || fallback.error?.message || "not available");
 }
-for (const path of ["packages/bridge/dist/plugin.js", "packages/companions/dist/plugin.js", "packages/companions/assets/team-atlas.png", "packages/companions/native/Companions"]) {
+for (const path of ["packages/bridge/dist/plugin.js"]) {
   try { await access(join(root, path), constants.R_OK); check(path, true, "present"); }
-  catch { check(path, false, "run build / companion:build"); }
+  catch { check(path, false, "run npm run build"); }
 }
 try {
   const catalog = JSON.parse(await readFile(join(root, ".local/codex-provider.json"), "utf8"));
   check("Codex model catalog", catalog.models?.some(model => model.id === catalog.defaultModel),
     `${catalog.models?.length ?? 0} models; default ${catalog.defaultModel} (run smoke:provider to verify inference)`);
 } catch { check("Codex model catalog", false, "run npm run connect:codex and npm run bundle:all"); }
-try {
-  const { validateAtlas } = await import("../packages/companions/dist/atlas.js");
-  await validateAtlas(join(root, "packages/companions/assets/team-atlas.png"));
-  console.log("OK companion atlas: transparent PNG with a uniform grid");
-} catch (error) { console.warn(`WARN optional companion artwork: ${error.message}`); }
 try {
   const require = createRequire(import.meta.url);
   const installed = require("@playwright/mcp/package.json");
@@ -42,7 +37,7 @@ try {
   check("Project Chromium", true, browser);
 } catch (error) { check("Project Chromium", false, `${error.message}; run npm run setup:playwright`); }
 const expectedMcp = mcpConfiguration(root);
-for (const profile of ["companions", "jarvis", "quiet"]) {
+for (const profile of ["jarvis", "quiet"]) {
   try {
     const config = JSON.parse(await readFile(join(root, ".local/profiles", profile, "opencode.json"), "utf8"));
     const sameServers = Object.entries(expectedMcp).every(([name, expected]) => {
@@ -51,8 +46,6 @@ for (const profile of ["companions", "jarvis", "quiet"]) {
         (expected.type === "remote" ? actual.url === expected.url : JSON.stringify(actual.command) === JSON.stringify(expected.command));
     });
     check(`${profile} MCP`, sameServers, "Jarvis retained; OpenAI Docs, Context7, Grep and isolated Playwright configured");
-    const companions = JSON.parse(await readFile(join(root, ".local/profiles", profile, "companions.json"), "utf8"));
-    check(`${profile} startup`, companions.showOnStart === false, "character preview requires an explicit command");
   } catch { check(`${profile} MCP`, false, "run npm run bundle:all"); }
 }
 if (process.argv.includes("--mcp")) {

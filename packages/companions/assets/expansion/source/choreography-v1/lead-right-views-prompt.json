@@ -1,9 +1,0 @@
-{
-  "tool": "image_gen.imagegen",
-  "prompt": "Use case: stylized-concept.\nAsset type: TWO precise adult LEAD character turnaround work sprite views, transparent game art, 2 columns by 1 row.\nInputs: image1 the exact adult LEAD identity and outfit reference; image2 also the same woman in its leftmost column.\nDraw exactly two complete full-body sprites, EACH FACING THE RIGHT SIDE OF THE IMAGE (nose, chin and sneaker toes point to image-right). This is essential: both requested figures must look toward the right border, opposite to the left-facing profile in the reference.\nLEFT SLOT: LEAD in a RIGHT-FACING three-quarter work view, shoulders and torso turned toward image-right; she holds a slim tablet in her left hand, writes with a stylus in her right. We see her from her left front side. Her head and nose point to image-right, eyes looking toward tablet to the right.\nRIGHT SLOT: LEAD in a TRUE RIGHT-FACING SIDE PROFILE, flat side-on camera. Only one green eye visible, nose silhouette projects clearly to image-right. Jacket, trouser folds and feet drawn from actual right-facing side perspective. She writes on her tablet toward image-right.\nPreserve exact established adult face/body proportions, auburn short bob with cream fringe, subtle headset, fitted dark teal button shirt, white cropped jacket with orange patch, grey cargo trousers, chunky white-charcoal-orange sneakers. No chibi. Keep stylistic texture, depth highlights/shadows and natural dark clean contour.\nTrue transparent RGBA outside silhouettes. No background, grid, floor, cast shadow, text, title, watermark. Each silhouette stays completely inside its equal slot with generous 30px margins all around. No color fringe, detached pixels or red/blue halo. NO LEFT-FACING FIGURES.",
-  "transparent_background": true,
-  "references": [
-    "lead-more-v1.png",
-    "../core-v2.png"
-  ]
-}

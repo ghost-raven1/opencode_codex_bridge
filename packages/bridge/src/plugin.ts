@@ -1,20 +1,20 @@
 import { tool, type Plugin } from "@opencode-ai/plugin";
 import { runCodex } from "./run.js";
 import { createCodexAuthHook } from "./auth.js";
-import type { CodexSpeech } from "./types.js";
+import type { RunResult } from "./types.js";
 
 /** OpenCode owns the terminal and human approvals; Codex runs over private stdio. */
 const CodexBridge: Plugin = async () => {
-  const completed = new Map<string, CodexSpeech>();
+  const completed = new Map<string, Pick<RunResult, "threadId" | "status">>();
   return {
     auth: createCodexAuthHook(),
     "tool.execute.after": async (input, output) => {
       if (input.tool !== "codex") return;
-      const key = JSON.stringify([input.sessionID, input.callID]), codexSpeech = completed.get(key);
-      if (!codexSpeech) return;
+      const key = JSON.stringify([input.sessionID, input.callID]), result = completed.get(key);
+      if (!result) return;
       completed.delete(key);
-      output.title = `Codex · ${codexSpeech.state}`;
-      output.metadata = { ...output.metadata, threadId: codexSpeech.threadId, codexSpeech };
+      output.title = `Codex · ${result.status}`;
+      output.metadata = { ...output.metadata, threadId: result.threadId };
     },
     tool: {
       codex: tool({
@@ -29,16 +29,12 @@ const CodexBridge: Plugin = async () => {
             metadata: { prompt: args.prompt, directory: context.directory } });
           context.metadata({ title: "Codex · задача в работе" });
           let preview = "";
-          let codexSpeech: CodexSpeech | undefined;
-          const update = (): void => context.metadata({ title: `Codex · ${codexSpeech?.state ?? "задача в работе"}`,
-            metadata: { output: preview, ...(codexSpeech ? { codexSpeech, threadId: codexSpeech.threadId } : {}) } });
           const result = await runCodex({
             ...args, cwd: context.directory, signal: context.abort,
             onText(text) {
               preview = (preview + text).slice(-2000);
-              update();
+              context.metadata({ title: "Codex · задача в работе", metadata: { output: preview } });
             },
-            onSpeech(snapshot) { codexSpeech = snapshot; update(); },
             async approve(request) {
               // Unique request scope prevents a previous blanket tool approval granting OS access.
               await context.ask({ permission: "codex_system",
@@ -47,15 +43,14 @@ const CodexBridge: Plugin = async () => {
               return true;
             },
           });
-          codexSpeech = result.codexSpeech; update();
-          const { codexSpeech: completedSpeech, ...output } = result;
+          context.metadata({ title: `Codex · ${result.status}`, metadata: { output: preview, threadId: result.threadId } });
           // Runtime 1.3.2 supplies callID, although its public plugin ToolContext omits the field.
           const callID = (context as typeof context & { callID?: string }).callID;
           if (callID) {
-            completed.set(JSON.stringify([context.sessionID, callID]), completedSpeech);
+            completed.set(JSON.stringify([context.sessionID, callID]), { threadId: result.threadId, status: result.status });
             if (completed.size > 128) completed.delete(completed.keys().next().value!);
           }
-          return JSON.stringify(output);
+          return JSON.stringify(result);
         },
       }),
     },

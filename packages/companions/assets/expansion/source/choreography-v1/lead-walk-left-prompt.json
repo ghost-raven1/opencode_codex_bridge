@@ -1,9 +1,0 @@
-{
-  "tool": "image_gen.imagegen",
-  "prompt": "Use case: stylized-concept.\nAsset type: one transparent full-body walking pose for a native desktop companion.\nDraw the exact adult LEAD woman from reference image1 (and leftmost woman of image2) in a purposeful LEFT-FACING walking step: nose, chin, chest and sneaker toes explicitly point toward the LEFT EDGE of the canvas. Full-body LEFT side / three-quarter camera view, LEFTward movement. One foot well forward to image-left, the other foot trailing to image-right. Her left forearm holds a slim black tablet close to torso, her free right arm swings naturally. No mirrored pasted image; redraw the true visible side of her established outfit and asymmetrical cream hair fringe. Adult proportional body, not chibi.\nKeep the recognizable auburn short bob with cream fringe, green eyes, small headset, fitted dark teal blouse, white cropped jacket with small orange work patch, grey cargo trousers and white/charcoal/orange chunky sneakers. Preserve painterly pixel sprite shading and depth; clean dark contour.\nGenuine RGBA transparency, no backgrounds, floors, shadows, grid, title, watermark or text. Hair, hands and shoes entirely inside canvas with generous 40px transparent margin. No color halo.\nImage1: exact character identity and outfit reference. Image2: supporting identity/style reference.",
-  "transparent_background": true,
-  "references": [
-    "lead-more-v1.png",
-    "../core-v2.png"
-  ]
-}

@@ -1,5 +1,0 @@
-{
-  "tool": "builtin-imagegen",
-  "transparent_background": true,
-  "prompt": "Draw a new animation pose for this fully clothed adult researcher, a calm ordinary walking step to the RIGHT with an open stride and both boots near the ground. Preserve exactly this character's identity, mint bob, glasses, teal dress and cream botanical cardigan, bag and held book. The character height, head size and upper body proportions must match the reference exactly. Only the walking pose and cardigan movement change. Keep the direction facing right; keep clothing and accessory asymmetry. Full figure centered with ample transparent margins, pixel art shading identical to reference. True transparent background, no text or floor."
-}

@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const profile = process.argv[2] ?? "companions";
-if (!["companions", "jarvis", "quiet"].includes(profile)) throw new Error("Unknown profile");
+const profile = process.argv[2] ?? "quiet";
+if (!["jarvis", "quiet"].includes(profile)) throw new Error("Profile: jarvis | quiet");
 const project = resolve(process.argv[3] ?? root);
 const configDir = join(root, ".local", "profiles", profile);
 await access(join(configDir, "opencode.json"));

@@ -1,9 +1,0 @@
-{
-  "tool": "image_gen.imagegen",
-  "prompt": "Use case: identity-preserve.\nEdit target image1: the exact right-facing profile REVIEW sprite. Keep the face, right-facing nose silhouette, silver bob, orange eye, outfit, colors, tablet/stylus and pose. Preserve right-facing 90-degree side profile, ONE visible eye. Only adjust physical body proportions to match the exact existing game sprite style of the rightmost REVIEW character in reference image2: make the head and bob about 18% larger relative to the body, and shorten the unusually long lower legs about 12%. The resulting total standing height should be around 5.3 head/bob heights, like the existing REVIEW sprites. Keep adult woman anatomy and confident natural curves, NO child/chibi proportions. Do NOT stretch any axis of head/face. Redraw the proportion adjustment naturally; keep the whole complete body and all boots inside generous transparent margins.\nImportant transparency cleanup: preserve genuine RGBA alpha; outside the character, remove all colored haze and gradients including hidden orange/grey halo. Empty transparent background, no floor, no shadow, no text or labels.\nImage1 edit target. Image2 supporting exact adult identity/style/proportion reference (rightmost character).",
-  "transparent_background": true,
-  "references": [
-    "review-right-profile-v2.png",
-    "../core-v2.png"
-  ]
-}

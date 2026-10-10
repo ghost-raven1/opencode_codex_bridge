@@ -1,12 +1,12 @@
-import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { mcpConfiguration } from "./lib/mcp-config.mjs";
 import { agentConfiguration } from "./lib/agent-config.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const profile = process.argv[2] ?? "companions";
-if (!["companions", "jarvis", "quiet"].includes(profile)) throw new Error("Profile: companions | jarvis | quiet");
+const profile = process.argv[2] ?? "quiet";
+if (!["jarvis", "quiet"].includes(profile)) throw new Error("Profile: jarvis | quiet");
 const target = resolve(root, ".local", "profiles", profile);
 let catalog;
 try { catalog = JSON.parse(await readFile(join(root, ".local/codex-provider.json"), "utf8")); }
@@ -30,7 +30,6 @@ const file = path => pathToFileURL(join(root, path)).href;
 await mkdir(join(target, "entries"), { recursive: true });
 const pluginEntries = [
   ["codex-bridge", "packages/bridge/dist/plugin.js"],
-  ["companions", "packages/companions/dist/plugin.js"],
   ["snip", "node_modules/opencode-snip/.opencode/plugins/index.ts"],
   ["plannotator", "node_modules/@plannotator/opencode/dist/index.js"],
   ["smart-voice", "node_modules/opencode-smart-voice-notify/dist/index.js"],
@@ -55,34 +54,9 @@ const config = {
   },
   command: {
     codex: { description: "Передать задачу Codex через stdio", template: "Use the codex tool for this task. Preserve threadId for follow-ups. Task: $ARGUMENTS" },
-    voice: { description: "Диктовка и голос macOS", template: "Use companion with action voice_menu. The user starts dictation from that menu and reviews the resulting draft in the CLI. Do not enable any other microphone or speech service. $ARGUMENTS" },
-    companions: { description: "Показать команду персонажей", template: "Use companion with action preview. $ARGUMENTS" },
-    "companions-hide": { description: "Скрыть персонажей", template: "Use companion with action hide." },
-    "companions-show": { description: "Показать персонажей", template: "Use companion with action show." },
-    "voice-test": { description: "Проверить голоса команды", template: "Use companion with action test_voice. Use the configured local speech engine. $ARGUMENTS" },
-    "dictation-off": { description: "Выключить диктовку", template: "Use companion with action dictation_off." },
-    "dictation-on": { description: "Разрешить диктовку", template: "Use companion with action dictation_on. Do not start recording." },
-    "voice-wake-on": { description: "Включить микрофон для слова OpenCode", template: "Use companion with action wake_on. This enables background microphone recognition of OpenCode. The user still sends with the spoken command Отправить." },
-    "voice-wake-off": { description: "Выключить слово пробуждения", template: "Use companion with action wake_off." },
-    "music-on": { description: "Включить микрофон и реакцию на музыку", template: "Use companion with action music_on. This enables microphone capture for local rhythm analysis." },
-    "music-off": { description: "Выключить реакцию на музыку", template: "Use companion with action music_off." },
   },
 };
 await writeFile(join(target, "opencode.json"), JSON.stringify(config, null, 2) + "\n");
-const localModel = JSON.parse(await readFile(join(root, "packages/companions/tts/model.json"), "utf8"));
-const localTtsInstalled = await Promise.all([
-  access(join(root, ".local/tts/.venv/bin/python")),
-  access(join(root, ".local/tts/models", localModel.directory, "model.safetensors")),
-]).then(() => true, () => false);
-await writeFile(join(target, "companions.json"), JSON.stringify({
-  enabled: profile !== "quiet", speech: "all", modelOpenings: true,
-  tts: { engine: localTtsInstalled ? "local" : "macos", voices: {
-    coordinator: "Serena", developer: "Vivian", researcher: "Sohee", reviewer: "Ono_Anna",
-  } },
-  language: "ru-RU", maxVisible: 4, scale: 1, showOnStart: false, dictation: true, wakeWord: false,
-  appearance: { mode: "presets", roles: {} },
-  agentRoles: {},
-}, null, 2) + "\n");
 await writeFile(join(target, "smart-voice-notify.jsonc"), JSON.stringify({
   enabled: profile !== "quiet", enableTTS: false, enableTTSReminder: false,
   enableFollowUpReminders: false, enableSound: false, notificationMode: "sound-only",
